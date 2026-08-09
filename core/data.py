@@ -2,7 +2,7 @@
 
 import platform
 
-BUILD = 2
-VERSION = "0.1"
+BUILD = 3
+VERSION = "0.2"
 
 HOST_OS = platform.system()

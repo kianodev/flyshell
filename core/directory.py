@@ -3,9 +3,12 @@
 from core import system
 
 COMMANDS = {
+    "cd": [0, system.cd, "Change the current working directory (default to Home)"],
     "cmds": [0, system.cmds, "List all available commands and their functions"],
+    "dir": [0, system.dirlist, "List all files in the current working directory"],
     "kill": [0, system.kill, "Shut down the application"],
-    "open": [1, system.open, "Open the specified file path"]
+    "ls": [0, system.dirlist, "List all files in the current working directory"],
+    "open": [1, system.openfile, "Open the specified file path"]
     }
 
 def execute(cmd):
