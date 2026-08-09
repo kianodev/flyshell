@@ -4,7 +4,8 @@ from core import system
 
 COMMANDS = {
     "cmds": [0, system.cmds, "List all available commands and their functions"],
-    "kill": [0, system.kill, "Shut down the application"]
+    "kill": [0, system.kill, "Shut down the application"],
+    "open": [1, system.open, "Open the specified file path"]
     }
 
 def execute(cmd):

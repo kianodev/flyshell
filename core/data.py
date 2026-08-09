@@ -1,4 +1,8 @@
 # \core\data.py
 
-BUILD = 1
-VERSION = "0.0"
+import platform
+
+BUILD = 2
+VERSION = "0.1"
+
+HOST_OS = platform.system()
