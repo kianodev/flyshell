@@ -1,8 +1,8 @@
-# Flyshell, A Modular Python CLI Architecture (v0.2)
+# Flyshell, A Modular Python CLI Architecture (v0.3)
 
 An extensible, decoupled Command-Line Interface (CLI) built in Python using a dynamic plugin loading architecture and semantic version tracking.
 
-## Features (Current v0.2)
+## Features
 * **Basic Directory Management:** Basic system to change and view directory information (dir/ls dual compatibility)
 * **Core Command Directory:** Decoupled execution router mapping commands to system actions.
 * **Parameter Validation:** Built-in threshold checks preventing runtime index errors.

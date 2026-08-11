@@ -5,7 +5,7 @@ from core.directory import execute
 import os
 
 def boot():
-    print(f"Boot successful! Welcome to Flyshell! (Version {VERSION})")
+    print(f"\nBoot successful! Welcome to Flyshell! (Version {VERSION})")
     print("\nUSER WARNING /!\: Flyshell is still in very early development. Many features are non-functional.")
     print("\nUse 'cmds' to get started! :-D\n")
     while True:
