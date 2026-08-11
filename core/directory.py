@@ -4,6 +4,8 @@ from core import system
 
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)"],
+    "clear": [0, system.clear, "Clear the screen"],
+    "cls": [0, system.clear, "Clear the screen"],
     "cmds": [0, system.cmds, "List all available commands and their functions"],
     "dir": [0, system.dirlist, "List all files in the current working directory"],
     "kill": [0, system.kill, "Shut down the application"],

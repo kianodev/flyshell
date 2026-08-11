@@ -15,6 +15,12 @@ def cd(args):
     except PermissionError:
         print(f"System Error: Permission denied. Cannot access '{target}'.")
 
+def clear(args):
+    if data.HOST_OS == "Windows":
+        os.system("cls")
+    else:
+        os.system("clear")
+
 def cmds(args):
     from core.directory import COMMANDS
     print("\nAvailable Commands:")
