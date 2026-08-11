@@ -1,5 +1,11 @@
 # \core\system.py
 
+if __name__ == "__main__":
+    print("Error: This file is a Flyshell system module and cannot be run directly.")
+    print("To launch Flyshell, please launch using 'python main.py'")
+    import sys
+    sys.exit(0)
+
 from core import data
 import os
 import subprocess
@@ -9,11 +15,11 @@ def cd(args):
     target = args[0] if args else os.path.expanduser("~")
     try:
         os.chdir(target)
-        print(f"\nSwitched directory to '{os.getcwd()}'")
+        print(f"\nSwitched directory to '{os.getcwd()}'\n")
     except FileNotFoundError:
-        print(f"Command Error: Directory '{target}' not found.")
+        print(f"\nCommand Error: Directory '{target}' not found.\n")
     except PermissionError:
-        print(f"System Error: Permission denied. Cannot access '{target}'.")
+        print(f"\nSystem Error: Permission denied. Cannot access '{target}'.\n")
 
 def clear(args):
     if data.HOST_OS == "Windows":
@@ -44,7 +50,7 @@ def dirlist(args):
 def kill(args):
     choice = input("\nAre you sure [y/n]?: ").strip().lower()
     if choice == "y":
-        print("Shutting down...")
+        print("\nShutting down...")
         sys.exit(0)
     else:
         print()
@@ -58,8 +64,8 @@ def openfile(args):
             subprocess.Popen(["open", target])
         else:
             subprocess.Popen(["xdg-open", target])
-        print(f"SUCCESS! Launched '{target}' application or file.")
+        print(f"\nSUCCESS! Launched '{target}' application or file.\n")
     except FileNotFoundError:
-        print(f"Command Error: File '{target}' could not be found.")
+        print(f"\nCommand Error: File '{target}' could not be found.\n")
     except Exception as e:
-        print(f"System Error: Failed to open '{target}': {e}")
+        print(f"\nSystem Error: Failed to open '{target}': {e}\n")
