@@ -1,4 +1,4 @@
-# Flyshell, A Modular Python CLI Architecture (v0.3)
+# Flyshell, A Modular Python CLI Architecture
 
 An extensible, decoupled Command-Line Interface (CLI) built in Python using a dynamic plugin loading architecture and semantic version tracking.
 

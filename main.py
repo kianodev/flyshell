@@ -33,15 +33,22 @@ def boot_check():
 
 if __name__ == "__main__":
     print("\nFlyshell will now check that it is able to boot.")
-    if boot_check():
-        from core import console, data
-        if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
-            print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
-            print("Flyshell will now boot.")
-            console.boot()
+    try:
+        if boot_check():
+            from core import console, data
+            if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
+                print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
+                print("Flyshell will now boot.")
+                console.boot()
+            else:
+                print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
         else:
-            print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
-    else:
-        print("\nFlyshell cannot launch until the above file paths are restored.")
+            print("\nFlyshell cannot launch until the above file paths are restored.")
+            sys.exit(1)
+    except KeyboardInterrupt:
+        print("\nFlyshell session terminated by user.")
+    except Exception as e:
+        print("\nOops! An unexpected error occurred.")
+        print(f"Error details: {e}")
+        print("We don't really know what happened there. Sorry about that.")
         sys.exit(1)
-
