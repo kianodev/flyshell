@@ -10,8 +10,8 @@ import json
 import os
 import platform
 
-BUILD = 8
-VERSION = "0.7"
+BUILD = 9
+VERSION = "0.8"
 
 HOST_OS = platform.system()
 

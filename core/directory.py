@@ -6,7 +6,18 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from core import data
 from core import system
+from datetime import datetime, timezone
+
+def log(cmd):
+    utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    history = data.read(["core", "cmd_history"]) or []
+    if not isinstance(history, list):
+        history = []
+    entry = {"command": cmd, "timestamp": utc_now}
+    history.append(entry)
+    data.write(["core", "cmd_history"], history)
 
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)"],
@@ -19,10 +30,8 @@ COMMANDS = {
     "open": [1, system.openfile, "Open the specified file path"]
     }
 
-def execute(cmd):
-    if not cmd:
-        print(f"Command Error: No command given. Use 'cmds' for help.")
-        return
+def execute(raw_cmd):
+    cmd = raw_cmd.split()
     cmd_name = cmd[0]
     if cmd_name in COMMANDS:
         min_args, func, desc = COMMANDS[cmd_name]
@@ -30,6 +39,7 @@ def execute(cmd):
         if len(args) < min_args:
             print(f"Command Error: '{cmd_name}' requires at least {min_args} parameter(s).")
         else:
+            log(raw_cmd)
             func(args)
     else:
         print(f"Command Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.")

@@ -16,5 +16,8 @@ def boot():
     print("\nUse 'cmds' to get started! :-D\n")
     while True:
         folder = os.path.basename(os.getcwd())
-        cmd = input(f"Flyshell [v{VERSION}] ({folder})>>").split()
-        execute(cmd)
+        raw_cmd = input(f"Flyshell [v{VERSION}] ({folder})>>")
+        if not raw_cmd:
+            print(f"Command Error: No command given. Use 'cmds' for help.")
+            continue
+        execute(raw_cmd)

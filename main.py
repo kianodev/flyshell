@@ -42,11 +42,14 @@ if __name__ == "__main__":
                 console.boot()
             else:
                 print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
+                print("\nFlyshell cannot launch because your operating system is not supported.")
+                sys.exit(1)
         else:
             print("\nFlyshell cannot launch until the above file paths are restored.")
             sys.exit(1)
     except KeyboardInterrupt:
         print("\nFlyshell session terminated by user.")
+        sys.exit(0)
     except Exception as e:
         print("\nOops! An unexpected error occurred.")
         print(f"Error details: {e}")
