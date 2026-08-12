@@ -10,6 +10,18 @@ from core import data
 from core import system
 from datetime import datetime, timezone
 
+COMMANDS = {
+    "cd": [0, system.cd, "Change the current working directory (default to Home)"],
+    "clear": [0, system.clear, "Clear the screen"],
+    "cls": [0, system.clear, "Clear the screen"],
+    "cmds": [0, system.cmds, "List all available commands and their functions"],
+    "dir": [0, system.dirlist, "List all files in the current working directory"],
+    "history": [0, system.history, "View command history (specify entry count, default 10)"],
+    "kill": [0, system.kill, "Shut down the application"],
+    "ls": [0, system.dirlist, "List all files in the current working directory"],
+    "open": [1, system.openfile, "Open the specified file path"]
+    }
+
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     history = data.read(["core", "cmd_history"]) or []
@@ -18,17 +30,6 @@ def log(cmd):
     entry = {"command": cmd, "timestamp": utc_now}
     history.append(entry)
     data.write(["core", "cmd_history"], history)
-
-COMMANDS = {
-    "cd": [0, system.cd, "Change the current working directory (default to Home)"],
-    "clear": [0, system.clear, "Clear the screen"],
-    "cls": [0, system.clear, "Clear the screen"],
-    "cmds": [0, system.cmds, "List all available commands and their functions"],
-    "dir": [0, system.dirlist, "List all files in the current working directory"],
-    "kill": [0, system.kill, "Shut down the application"],
-    "ls": [0, system.dirlist, "List all files in the current working directory"],
-    "open": [1, system.openfile, "Open the specified file path"]
-    }
 
 def execute(raw_cmd):
     cmd = raw_cmd.split()
@@ -39,7 +40,8 @@ def execute(raw_cmd):
         if len(args) < min_args:
             print(f"Command Error: '{cmd_name}' requires at least {min_args} parameter(s).")
         else:
-            log(raw_cmd)
+            if cmd[0] != "history":
+                log(raw_cmd)
             func(args)
     else:
         print(f"Command Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.")

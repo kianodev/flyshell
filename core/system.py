@@ -19,7 +19,7 @@ def cd(args):
     except FileNotFoundError:
         print(f"\nCommand Error: Directory '{target}' not found.\n")
     except PermissionError:
-        print(f"\nSystem Error: Permission denied. Cannot access '{target}'.\n")
+        print(f"\nSystem Error: Permission denied. Cannot access '{target}'\n")
 
 def clear(args):
     if data.HOST_OS == "Windows":
@@ -46,6 +46,39 @@ def dirlist(args):
         else:
             print(f"[FILE] {item}")
     print(f"\nTotal items in directory: {len(items)}\n")
+
+def history(args):
+    if args and args[0].lower() in ["cls", "clear"]:
+        choice = input(f"\nAre you sure? [y/n]: ").lower()
+        if choice == "y":
+            data.delete(["core", "cmd_history"])
+            print("\nCommand history cleared.\n")
+            return
+    history = data.read(["core", "cmd_history"]) or []
+    if not history:
+        print("\nHistory is empty.\n")
+        return
+    limit = 10
+    if args:
+        sub_arg = args[0].lower()
+        if sub_arg == "all":
+            limit = len(history)
+        elif sub_arg.isdigit():
+            limit = int(sub_arg)
+        else:
+            print(f"\nCommand Error: Invalid argument '{args[0]}'\n")
+            return
+    entries = history[-limit:] if limit > 0 else []
+    start_index = len(history) - len(entries) + 1
+    print("\nCommand History:")
+    print(f"Showing last {len(entries)} entries.\n")
+    for i, entry in enumerate(entries, start=start_index):
+        cmd = entry.get("command", "")
+        time_str = entry.get("timestamp", "")
+        date_part, time_part = time_str.rstrip("Z").split("T")
+        formatted = f"{date_part} @ {time_part} UTC"
+        print(f"#{i}: {cmd} [{formatted}]")
+    print()
 
 def kill(args):
     choice = input("\nAre you sure [y/n]?: ").strip().lower()
