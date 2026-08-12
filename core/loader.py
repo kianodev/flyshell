@@ -5,4 +5,3 @@ if __name__ == "__main__":
     print("To launch Flyshell, please launch using 'python main.py'")
     import sys
     sys.exit(0)
-
