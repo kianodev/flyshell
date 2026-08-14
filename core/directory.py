@@ -6,7 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data, system
+from core import data, loader, system
 from datetime import datetime, timezone
 
 COMMANDS = {
@@ -35,14 +35,22 @@ def log(cmd):
 def execute(raw_cmd):
     cmd = raw_cmd.split()
     cmd_name = cmd[0]
+    args = cmd[1:]
     if cmd_name in COMMANDS:
         min_args, func, desc = COMMANDS[cmd_name]
-        args = cmd[1:]
         if len(args) < min_args:
-            print(f"Command Error: '{cmd_name}' requires at least {min_args} parameter(s).")
+            print(f"\nCommand Error: '{cmd_name}' requires at least {min_args} parameter(s).\n")
         else:
             if cmd[0] != "history":
                 log(raw_cmd)
             func(args)
+    elif cmd_name in PLUGINS:
+        log(raw_cmd)
+        plugin_module = PLUGINS[cmd_name]
+        ctx = loader.build_context(cmd_name)
+        if hasattr(plugin_module, "run"):
+            plugin_module.run(ctx, args)
+        else:
+            print(f"\nPlugin Error: '{cmd_name}' is missing a callable run() function.\n")
     else:
-        print(f"Command Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.")
+        print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
