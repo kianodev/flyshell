@@ -38,7 +38,7 @@ def cmds(args):
     print("\nAvailable Plugins:")
     for name in PLUGINS:
         print(f"Plugin '{name}' - to activate, use name as command.")
-        print(f"\nTotal avaliable plugins: {len(PLUGINS)}\n")
+    print(f"\nTotal available plugins: {len(PLUGINS)}\n")
 
 def dirlist(args):
     current_path = os.getcwd()
