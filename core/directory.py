@@ -49,7 +49,11 @@ def execute(raw_cmd):
         plugin_module = PLUGINS[cmd_name]
         ctx = loader.build_context(cmd_name)
         if hasattr(plugin_module, "run"):
-            plugin_module.run(ctx, args)
+            try:
+                plugin_module.run(ctx, args)
+            except Exception as e:
+                print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
+                print(f"Returning to main Flyshell interface...\n")
         else:
             print(f"\nPlugin Error: '{cmd_name}' is missing a callable run() function.\n")
     else:

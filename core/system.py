@@ -28,13 +28,17 @@ def clear(args):
         os.system("clear")
 
 def cmds(args):
-    from core.directory import COMMANDS
+    from core.directory import COMMANDS, PLUGINS
     print("\nAvailable Commands:")
     for name, info in COMMANDS.items():
         args = info[0]
         desc = info[2]
         print(f"{name}: {desc} (Requires {args} parameter(s))")
-    print(f"\nTotal available commands: {len(COMMANDS)}\n")
+    print(f"\nTotal available commands: {len(COMMANDS)}")
+    print("\nAvailable Plugins:")
+    for name in PLUGINS:
+        print(f"Plugin '{name}' - to activate, use name as command.")
+        print(f"\nTotal avaliable plugins: {len(PLUGINS)}\n")
 
 def dirlist(args):
     current_path = os.getcwd()
