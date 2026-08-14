@@ -21,7 +21,7 @@ def boot_check():
             missing.append(str(path))
     if missing:
         print("\nCRITICAL BOOT ERROR: Critical system module(s) could not be found.")
-    print("\nSYSTEM MODULE CHECK")
+    print("\nSYSTEM MODULE CHECK:")
     if present:
         for i in present:
             print(f"✅ {i} - File found")
@@ -35,10 +35,11 @@ if __name__ == "__main__":
     print("\nFlyshell will now check that it is able to boot.")
     try:
         if boot_check():
-            from core import console, data
+            from core import console, data, loader
             if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
+                loader.scan_plugins()
                 console.boot()
             else:
                 print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
@@ -48,7 +49,7 @@ if __name__ == "__main__":
             print("\nFlyshell cannot launch until the above file paths are restored.")
             sys.exit(1)
     except KeyboardInterrupt:
-        print("\nFlyshell session terminated by user.")
+        print("\n\nFlyshell session terminated by user.")
         sys.exit(0)
     except Exception as e:
         print("\nOops! An unexpected error occurred.")

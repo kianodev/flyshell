@@ -1,5 +1,8 @@
 # \core\data.py
 
+BUILD = 11
+VERSION = "0.10"
+
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
     print("To launch Flyshell, please launch using 'python main.py'")
@@ -9,9 +12,6 @@ if __name__ == "__main__":
 import json
 import os
 import platform
-
-BUILD = 10
-VERSION = "0.9"
 
 HOST_OS = platform.system()
 

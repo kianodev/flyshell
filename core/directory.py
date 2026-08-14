@@ -6,8 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data
-from core import system
+from core import data, system
 from datetime import datetime, timezone
 
 COMMANDS = {
@@ -21,6 +20,8 @@ COMMANDS = {
     "ls": [0, system.dirlist, "List all files in the current working directory"],
     "open": [1, system.openfile, "Open the specified file path"]
     }
+
+PLUGINS = {}
 
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
