@@ -22,10 +22,7 @@ def cd(args):
         print(f"\nSystem Error: Permission denied. Cannot access '{target}'\n")
 
 def clear(args):
-    if data.HOST_OS == "Windows":
-        os.system("cls")
-    else:
-        os.system("clear")
+    print("\033[H\033[2J", end="")
 
 def cmds(args):
     from core.directory import COMMANDS, PLUGINS

@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
 from core import data, loader, system
 from datetime import datetime, timezone
+import shlex
 
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)"],
@@ -33,7 +34,7 @@ def log(cmd):
     data.write(["core", "cmd_history"], history)
 
 def execute(raw_cmd):
-    cmd = raw_cmd.split()
+    cmd = shlex.split(raw_cmd)
     cmd_name = cmd[0]
     args = cmd[1:]
     if cmd_name in COMMANDS:

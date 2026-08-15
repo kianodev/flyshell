@@ -18,6 +18,6 @@ def boot():
         folder = os.path.basename(os.getcwd())
         raw_cmd = input(f"Flyshell [v{VERSION}] ({folder})>>")
         if not raw_cmd:
-            print(f"Command Error: No command given. Use 'cmds' for help.")
+            print(f"\nCommand Error: No command given. Use 'cmds' for help.\n")
             continue
         execute(raw_cmd)
