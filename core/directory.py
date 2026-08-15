@@ -35,7 +35,8 @@ def log(cmd):
 
 def execute(raw_cmd):
     try:
-        cmd = shlex.split(raw_cmd)
+        posix_mode = False if data.HOST_OS == "Windows" else True
+        cmd = shlex.split(raw_cmd, posix=posix_mode)
     except ValueError as e:
         print("\nCommand Error: Invalid syntax.")
         print(f"Details: {e}\n")
