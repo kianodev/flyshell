@@ -1,6 +1,7 @@
 # \main.py
 
 from pathlib import Path
+import os
 import sys
 
 def boot_check():
@@ -33,6 +34,7 @@ def boot_check():
     return False
 
 if __name__ == "__main__":
+    os.system("")
     print("\033[H\033[2J", end="")
     print("\nFlyshell will now check that it is able to boot.")
     try:
