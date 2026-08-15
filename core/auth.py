@@ -15,6 +15,8 @@ import secrets
 def hash_password(password, salt=None):
     if salt is None:
         salt = secrets.token_bytes(16)
+    elif isinstance(salt, str):
+        salt = bytes.fromhex(salt)
     pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
     return pwd_hash.hex(), salt.hex()
 
@@ -34,13 +36,13 @@ def setup_acc() -> bool:
             print(f"\nUsername set as '{username}'\n")
             break
     i = 5
+    print("Your password MUST:")
+    print("- Contain at least 10 total characters")
+    print("- Contain 1 or more upper case letters")
+    print("- Contain 1 or more lower case letters")
+    print("- Contain 1 or more numbers")
+    print("- Contain 1 or more special characters\n")
     while i > 0:
-        print("Your password MUST:")
-        print("- Contain at least 10 total characters")
-        print("- Contain 1 or more upper case letters")
-        print("- Contain 1 or more lower case letters")
-        print("- Contain 1 or more numbers")
-        print("- Contain 1 or more special characters\n")
         password = getpass.getpass("Create Password: ")
         confirm = getpass.getpass("Confirm Password: ")
         if password != confirm:

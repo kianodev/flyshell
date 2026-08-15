@@ -34,7 +34,12 @@ def log(cmd):
     data.write(["core", "cmd_history"], history)
 
 def execute(raw_cmd):
-    cmd = shlex.split(raw_cmd)
+    try:
+        cmd = shlex.split(raw_cmd)
+    except ValueError as e:
+        print("\nCommand Error: Invalid syntax.")
+        print(f"Details: {e}\n")
+        return
     cmd_name = cmd[0]
     args = cmd[1:]
     if cmd_name in COMMANDS:
