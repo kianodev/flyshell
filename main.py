@@ -5,6 +5,7 @@ import sys
 
 def boot_check():
     REQUIRED_COMPONENTS = [
+    Path("core/auth.py"),
     Path("core/console.py"),
     Path("core/data.py"),
     Path("core/directory.py"),
@@ -35,12 +36,16 @@ if __name__ == "__main__":
     print("\nFlyshell will now check that it is able to boot.")
     try:
         if boot_check():
-            from core import console, data, loader
+            from core import auth, console, data, loader
             if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
-                console.boot()
+                if auth.login_flow():
+                    console.boot()
+                else:
+                    print("Shutting down...\n")
+                    sys.exit(0)
             else:
                 print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
                 print("\nFlyshell cannot launch because your operating system is not supported.")
