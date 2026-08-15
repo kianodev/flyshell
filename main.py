@@ -33,6 +33,7 @@ def boot_check():
     return False
 
 if __name__ == "__main__":
+    print("\033[H\033[2J", end="")
     print("\nFlyshell will now check that it is able to boot.")
     try:
         if boot_check():
