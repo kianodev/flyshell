@@ -53,15 +53,14 @@ def execute(raw_cmd):
             func(args)
     elif cmd_name in PLUGINS:
         log(raw_cmd)
-        plugin_module = PLUGINS[cmd_name]
-        ctx = loader.build_context(cmd_name)
-        if hasattr(plugin_module, "run"):
-            try:
-                plugin_module.run(ctx, args)
-            except Exception as e:
-                print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
-                print(f"Returning to main Flyshell interface...\n")
-        else:
-            print(f"\nPlugin Error: '{cmd_name}' is missing a callable run() function.\n")
+        plugin = PLUGINS[cmd_name]
+        try:
+            plugin.execute(args)
+        except NotImplementedError:
+            print(f"\nPlugin Error: '{cmd_name}' has not implemented the execute method.\n")
+        except Exception as e:
+            print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
+            print(f"Details: {e}")
+            print(f"Returning to main Flyshell interface...\n")
     else:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
