@@ -1,5 +1,11 @@
 # \core\base_plugin.py
 
+if __name__ == "__main__":
+    print("Error: This file is a Flyshell system module and cannot be run directly.")
+    print("To launch Flyshell, please launch using 'python main.py'")
+    import sys
+    sys.exit(0)
+
 class BasePlugin:
     name = "Unnamed Plugin"
     description = "No description provided."
