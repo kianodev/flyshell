@@ -62,5 +62,8 @@ def execute(raw_cmd):
             print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
             print(f"Details: {e}")
             print(f"Returning to main Flyshell interface...\n")
+        finally:
+            if hasattr(plugin, "on_unload"):
+                plugin.on_unload()
     else:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")

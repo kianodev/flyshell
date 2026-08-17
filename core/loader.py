@@ -45,6 +45,7 @@ def build_context(plugin_name):
         plugin_storage = {}
         data.write(["plugin", plugin_name], plugin_storage)
     context = {
+        "plugin_name": plugin_name,
         "metadata": {
             "host_os": data.HOST_OS,
             "version": data.VERSION,
