@@ -1,10 +1,15 @@
 # \plugin\placeholder.py
-# This file functions as a placeholder for future plugins
-# Right now, it literally just returns the context and args. That's it
+# Plugin placeholder structure
 
-def run(context, args):
-    print("\nPlaceholder Plugin")
-    print(context)
-    if args:
-        print(args)
-    print("\nReturning...\n")
+from core.base_plugin import BasePlugin
+
+class PlaceholderPlugin(BasePlugin):
+    name = "Placeholder"
+    description = "A standard template plugin for testing."
+
+    def execute(self, args):
+        print("\nPlaceholder Plugin executed!")
+        print("Context:", self.context)
+        if args:
+            print("Arguments provided:", args)
+        print("\nReturning...\n")

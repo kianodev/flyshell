@@ -28,13 +28,18 @@ def cmds(args):
     from core.directory import COMMANDS, PLUGINS
     print("\nAvailable Commands:")
     for name, info in COMMANDS.items():
-        args = info[0]
+        req_args = info[0]
         desc = info[2]
-        print(f"{name}: {desc} (Requires {args} parameter(s))")
+        print(f"{name}: {desc} (Requires {req_args} parameter(s))")
     print(f"\nTotal available commands: {len(COMMANDS)}")
     print("\nAvailable Plugins:")
-    for name in PLUGINS:
-        print(f"Plugin '{name}' - to activate, use name as command.")
+    if PLUGINS:
+        for name, plugin in PLUGINS.items():
+            p_name = getattr(plugin, "name", name)
+            p_desc = getattr(plugin, "description", "No description provided.")
+            print(f"Plugin '{name}' [{p_name}]: {p_desc}")
+    else:
+        print("No plugins installed.")
     print(f"\nTotal available plugins: {len(PLUGINS)}\n")
 
 def dirlist(args):
