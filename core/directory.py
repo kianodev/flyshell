@@ -12,6 +12,7 @@ import shlex
 
 ALIAS = {
     "cls": "clear",
+    "help": "cmds",
     "ls": "dir",
 }
 
