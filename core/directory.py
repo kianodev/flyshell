@@ -20,6 +20,7 @@ COMMANDS = {
     "clear": [0, system.clear, "Clear the screen"],
     "cmds": [0, system.cmds, "List all available commands and their functions"],
     "dir": [0, system.dirlist, "List all files in the current working directory"],
+    "fs": [1, system.fs, "Execute various Flyshell system functions"],
     "history": [0, system.history, "View command history (specify entry count, default 10)"],
     "kill": [0, system.kill, "Shut down the Flyshell system"],
     "lock": [0, auth.lock, "Lock the Flyshell system"],

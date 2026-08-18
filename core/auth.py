@@ -102,7 +102,8 @@ def login_flow(is_lock=False) -> bool:
         print(f"\nAccount Error: Password does not match.")
         if i == 0:
             print("Too many attempts.\n")
-            return False
+            import sys
+            sys.exit(0)
         print(f"You have {i} attempts remaining.\n")
 
 def lock(args):
