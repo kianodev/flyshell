@@ -6,19 +6,23 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data, loader, system
+from core import auth, data, loader, system
 from datetime import datetime, timezone
 import shlex
+
+ALIAS = {
+    "cls": "clear",
+    "ls": "dir",
+}
 
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)"],
     "clear": [0, system.clear, "Clear the screen"],
-    "cls": [0, system.clear, "Clear the screen"],
     "cmds": [0, system.cmds, "List all available commands and their functions"],
     "dir": [0, system.dirlist, "List all files in the current working directory"],
     "history": [0, system.history, "View command history (specify entry count, default 10)"],
-    "kill": [0, system.kill, "Shut down the application"],
-    "ls": [0, system.dirlist, "List all files in the current working directory"],
+    "kill": [0, system.kill, "Shut down the Flyshell system"],
+    "lock": [0, auth.lock, "Lock the Flyshell system"],
     "open": [1, system.openfile, "Open the specified file path"]
     }
 
@@ -43,6 +47,8 @@ def execute(raw_cmd):
         return
     cmd_name = cmd[0]
     args = cmd[1:]
+    if cmd_name in ALIAS:
+        cmd_name = ALIAS[cmd_name]
     if cmd_name in COMMANDS:
         min_args, func, desc = COMMANDS[cmd_name]
         if len(args) < min_args:

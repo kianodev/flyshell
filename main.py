@@ -6,6 +6,7 @@ import sys
 
 def boot_check():
     REQUIRED_COMPONENTS = [
+    Path("core"),
     Path("core/auth.py"),
     Path("core/base_plugin.py"),
     Path("core/console.py"),

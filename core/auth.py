@@ -77,7 +77,7 @@ def setup_acc() -> bool:
     print("\nSUCCESS: Account created successfully!")
     return True
 
-def login_flow() -> bool:
+def login_flow(is_lock=False) -> bool:
     auth_info = data.read(["core", "auth"])
     if not auth_info or "hash" not in auth_info:
         if not setup_acc():
@@ -86,10 +86,16 @@ def login_flow() -> bool:
     stored_user = auth_info.get("username", "User")
     stored_hash = auth_info.get("hash")
     stored_salt = auth_info.get("salt")
-    print(f"\nWelcome, {stored_user}!")
+    if is_lock:
+        input(f"\nFlyshell is locked. To unlock, press ENTER.")
+        print(f"\nWelcome back, {stored_user}!")
+    else:
+        print(f"\nWelcome, {stored_user}!")
     i = 5
     while i > 0:
         entered_pwd = getpass.getpass("Enter Password: ")
+        if is_lock:
+            print()
         if verify_password(stored_hash, stored_salt, entered_pwd):
             return True
         i -= 1
@@ -98,3 +104,7 @@ def login_flow() -> bool:
             print("Too many attempts.\n")
             return False
         print(f"You have {i} attempts remaining.\n")
+
+def lock(args):
+    is_lock = True
+    login_flow(is_lock)

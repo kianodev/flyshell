@@ -25,12 +25,18 @@ def clear(args):
     print("\033[H\033[2J", end="")
 
 def cmds(args):
-    from core.directory import COMMANDS, PLUGINS
+    from core.directory import ALIAS, COMMANDS, PLUGINS
     print("\nAvailable Commands:")
     for name, info in COMMANDS.items():
         req_args = info[0]
         desc = info[2]
-        print(f"{name}: {desc} (Requires {req_args} parameter(s))")
+        aliases = [alias_name for alias_name, target in ALIAS.items() if target == name]
+        if aliases:
+            alias_str = ", ".join(aliases)
+            cmd_label = f"{name} (alias: {alias_str})"
+        else:
+            cmd_label = name  
+        print(f"{cmd_label}: {desc} (Requires {req_args} parameter(s))")
     print(f"\nTotal available commands: {len(COMMANDS)}")
     print("\nAvailable Plugins:")
     if PLUGINS:
