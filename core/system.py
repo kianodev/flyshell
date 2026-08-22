@@ -81,7 +81,36 @@ def fs(args):
             print("The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.")
             print("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n")
         case "status":
+            uptime = int(time.time() - data.SESSION_START_TIME)
+            mins, secs = divmod(uptime, 60)
+            hours, mins = divmod(mins, 60)
+            uptime_str = f"{hours}h {mins}m {secs}s"
+            auth_data = data.read(["core", "auth"]) or {}
+            current_user = auth_data.get("username", "Unknown")
+            cmd_history = data.read(["core", "cmd_history"])
+            total_history_count = len(cmd_history) if isinstance(cmd_history, list) else 0
+            core_dir = os.path.dirname(os.path.abspath(__file__))
+            root_dir = os.path.abspath(os.path.join(core_dir, ".."))
+            storage_path = os.path.join(root_dir, "flyshell_storage.json")
+            if os.path.exists(storage_path):
+                size = os.path.getsize(storage_path)
+                size = float(size)
+                for unit in ["B", "KB", "MB", "GB", "TB"]:
+                    if size < 1024.0 or unit == "TB":
+                        storage_size_str = f"{int(size)} {unit}" if unit == "B" else f"{size:.2f} {unit}"
+                        break
+                    size /= 1024.0
+            else:
+                storage_size_str = "File not found"
             print("\nFlyshell System Status:")
+            print(f"User: '{current_user}'")
+            print(f"Session Uptime: {uptime_str}")
+            print(f"Commands (Session): {data.SESSION_CMD_COUNT}")
+            print(f"Commands (Lifetime): {total_history_count}")
+            print(f"Working Directory: '{os.getcwd()}'")
+            print(f"Storage File Size: {storage_size_str}")
+            print(f"Python Environment: v{sys.version.split()[0]}")
+            print(f"\nFlyshell Version {data.VERSION} (Build {data.BUILD})\n")
         case _:
             print(f"\nCommand Error: Invalid argument '{func}'\n")
 

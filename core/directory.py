@@ -60,6 +60,7 @@ def execute(raw_cmd):
             if cmd[0] != "history":
                 log(raw_cmd)
             func(args)
+            data.SESSION_CMD_COUNT += 1
     elif cmd_name in PLUGINS:
         log(raw_cmd)
         plugin = PLUGINS[cmd_name]
