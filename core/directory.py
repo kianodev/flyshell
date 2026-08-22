@@ -25,7 +25,8 @@ COMMANDS = {
     "history": [0, system.history, "View command history (specify entry count, default 10)"],
     "kill": [0, system.kill, "Shut down the Flyshell system"],
     "lock": [0, auth.lock, "Lock the Flyshell system"],
-    "open": [1, system.openfile, "Open the specified file path"]
+    "open": [1, system.openfile, "Open the specified file path"],
+    "sleep": [1, system.sleep, "Sleep the system for the given time (seconds)"]
     }
 
 PLUGINS = {}

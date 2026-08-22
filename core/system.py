@@ -10,6 +10,7 @@ from core import data
 import os
 import subprocess
 import sys
+import time
 
 def cd(args):
     target = " ".join(args) if args else os.path.expanduser("~")
@@ -80,6 +81,7 @@ def fs(args):
             print("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n")
         case _:
             print(f"\nCommand Error: Invalid argument '{func}'\n")
+
 def history(args):
     if args and args[0].lower() in ["cls", "clear"]:
         choice = input(f"\nAre you sure? [y/n]: ").lower()
@@ -135,3 +137,17 @@ def openfile(args):
         print(f"\nCommand Error: File '{target}' could not be found.\n")
     except Exception as e:
         print(f"\nSystem Error: Failed to open '{target}': {e}\n")
+
+def sleep(args):
+    if not args[0].replace(".", "", 1).isdigit():
+        print(f"\nCommand Error: Invalid argument '{args[0]}'\n")
+        return
+    secs = float(args[0])
+    try:
+        print(f"\nPausing Flyshell for {secs} second(s).")
+        print("Press Ctrl+C to cancel.\n")
+        time.sleep(secs)
+    except KeyboardInterrupt:
+        print("\nSleep cancelled.")
+    finally:
+        print("\nReturning...\n")
