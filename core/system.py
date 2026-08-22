@@ -63,7 +63,7 @@ def dirlist(args):
 def fs(args):
     func = args[0].lower()
     if func == "license":
-        func == "licence"
+        func = "licence"
     match func:
         case "info":
             print("\nFlyshell System Information:")
