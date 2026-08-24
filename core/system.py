@@ -118,6 +118,9 @@ def history(args):
             data.delete(["core", "cmd_history"])
             print("\nCommand history cleared.\n")
             return
+        else:
+            print("\nAction cancelled.\n")
+            return
     history = data.read(["core", "cmd_history"]) or []
     if not history:
         print("\nHistory is empty.\n")
@@ -150,7 +153,7 @@ def kill(args):
         print("\nShutting down...")
         sys.exit(0)
     else:
-        print()
+        print("\nAction cancelled.\n")
 
 def openfile(args):
     target = args[0]
