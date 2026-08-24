@@ -13,11 +13,11 @@ import importlib.util
 import inspect
 import os
 
-def scan_plugins(plugin_folder="plugin"):
-    folder = Path(plugin_folder)
+def scan_plugins(plugin_folder=None):
+    folder = Path(plugin_folder) if plugin_folder else (data.PROJECT_ROOT / "plugin")
     count = 0
     directory.PLUGINS.clear()
-    for file_path in folder.glob("*py"):
+    for file_path in folder.glob("*.py"):
         if file_path.name.startswith("_"):
             continue
         plugin_name = file_path.stem

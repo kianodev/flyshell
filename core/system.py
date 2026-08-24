@@ -89,11 +89,8 @@ def fs(args):
             current_user = auth_data.get("username", "Unknown")
             cmd_history = data.read(["core", "cmd_history"])
             total_history_count = len(cmd_history) if isinstance(cmd_history, list) else 0
-            core_dir = os.path.dirname(os.path.abspath(__file__))
-            root_dir = os.path.abspath(os.path.join(core_dir, ".."))
-            storage_path = os.path.join(root_dir, "flyshell_storage.json")
-            if os.path.exists(storage_path):
-                size = os.path.getsize(storage_path)
+            if os.path.exists(data.FILE_PATH):
+                size = os.path.getsize(data.FILE_PATH)
                 size = float(size)
                 for unit in ["B", "KB", "MB", "GB", "TB"]:
                     if size < 1024.0 or unit == "TB":

@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 32
-VERSION = "0.31"
+BUILD = 33
+VERSION = "0.32"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -9,6 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from pathlib import Path
 import json
 import os
 import platform
@@ -16,7 +17,8 @@ import time
 
 HOST_OS = platform.system()
 
-FILE_PATH = "flyshell_storage.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+FILE_PATH = PROJECT_ROOT / "flyshell_storage.json"
 
 SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0

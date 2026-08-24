@@ -4,17 +4,19 @@ from pathlib import Path
 import os
 import sys
 
+PROJECT_ROOT = Path(__file__).resolve().parent
+
 def boot_check():
     REQUIRED_COMPONENTS = [
-    Path("core"),
-    Path("core/auth.py"),
-    Path("core/base_plugin.py"),
-    Path("core/console.py"),
-    Path("core/data.py"),
-    Path("core/directory.py"),
-    Path("core/loader.py"),
-    Path("core/system.py"),
-    Path("plugin")
+    PROJECT_ROOT / "core",
+    PROJECT_ROOT / "core" / "auth.py",
+    PROJECT_ROOT / "core" / "base_plugin.py",
+    PROJECT_ROOT / "core" / "console.py",
+    PROJECT_ROOT / "core" / "data.py",
+    PROJECT_ROOT / "core" / "directory.py",
+    PROJECT_ROOT / "core" / "loader.py",
+    PROJECT_ROOT / "core" / "system.py",
+    PROJECT_ROOT / "plugin",
     ]
     present = []
     missing = []
