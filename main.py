@@ -45,6 +45,10 @@ if __name__ == "__main__":
         if boot_check():
             from core import auth, console, data, loader
             if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
+                if sys.version_info < (3, 10):
+                    print("\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell.")
+                    print("\nFlyshell cannot launch because it requires Python 3.10 or newer.")
+                    sys.exit(1)
                 print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
