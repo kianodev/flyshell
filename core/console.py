@@ -13,7 +13,6 @@ import os
 def boot():
     print("\033[H\033[2J", end="")
     print(f"\nBoot successful! Welcome to Flyshell! (Version {VERSION})")
-    print("\nUSER WARNING /!\: Flyshell is still in very early development. Many features are non-functional.")
     print("\nUse 'cmds' to get started! :-D\n")
     while True:
         folder = os.path.basename(os.getcwd())
