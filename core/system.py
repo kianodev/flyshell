@@ -149,7 +149,7 @@ def history(args):
         time_str = entry.get("timestamp", "")
         date_part, time_part = time_str.rstrip("Z").split("T")
         formatted = f"{date_part} @ {time_part} UTC"
-        print(f"#{i}: {cmd} [{formatted}]")
+        print(f"#{i}: {cmd} [at {formatted}]")
     print()
 
 def kill(args):
