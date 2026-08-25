@@ -17,16 +17,16 @@ ALIAS = {
 }
 
 COMMANDS = {
-    "cd": [0, system.cd, "Change the current working directory (default to Home)"],
-    "clear": [0, system.clear, "Clear the screen"],
-    "cmds": [0, system.cmds, "List all available commands and their functions"],
-    "dir": [0, system.dirlist, "List all files in the current working directory"],
-    "fs": [1, system.fs, "Execute various Flyshell system functions"],
-    "history": [0, system.history, "View command history (specify entry count, default 10)"],
-    "kill": [0, system.kill, "Shut down the Flyshell system"],
-    "lock": [0, auth.lock, "Lock the Flyshell system"],
-    "open": [1, system.openfile, "Open the specified file path"],
-    "sleep": [1, system.sleep, "Sleep the system for the given time (seconds)"]
+    "cd": [0, system.cd, "Change the current working directory (default to Home)", "[Directory name]"],
+    "clear": [0, system.clear, "Clear the screen", None],
+    "cmds": [0, system.cmds, "List all available commands and their functions", None],
+    "dir": [0, system.dirlist, "List all files in the current working directory", None],
+    "fs": [1, system.fs, "Execute various Flyshell system functions", "['info', 'licence' or 'status']"],
+    "history": [0, system.history, "View command history (specify entry count, default 10)", "['clear'/'cls' to delete or entry count to view]"],
+    "kill": [0, system.kill, "Shut down the Flyshell system", None],
+    "lock": [0, auth.lock, "Lock the Flyshell system", None],
+    "open": [1, system.openfile, "Open the specified file path", "[Filepath]"],
+    "sleep": [1, system.sleep, "Sleep the system for a specified time", "[Time (in seconds)]"]
     }
 
 PLUGINS = {}
@@ -53,7 +53,7 @@ def execute(raw_cmd):
     if cmd_name in ALIAS:
         cmd_name = ALIAS[cmd_name]
     if cmd_name in COMMANDS:
-        min_args, func, desc = COMMANDS[cmd_name]
+        min_args, func, desc, options = COMMANDS[cmd_name]
         if len(args) < min_args:
             print(f"\nCommand Error: '{cmd_name}' requires at least {min_args} parameter(s).\n")
         else:

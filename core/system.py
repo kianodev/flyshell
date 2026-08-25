@@ -31,13 +31,18 @@ def cmds(args):
     for name, info in COMMANDS.items():
         req_args = info[0]
         desc = info[2]
+        options = info[3]
         aliases = [alias_name for alias_name, target in ALIAS.items() if target == name]
         if aliases:
             alias_str = ", ".join(aliases)
             cmd_label = f"{name} (alias: {alias_str})"
         else:
-            cmd_label = name  
-        print(f"{cmd_label}: {desc} (Requires {req_args} parameter(s))")
+            cmd_label = name 
+        if not options: 
+            print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
+        else:
+            print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
+            print(f"└─ Possible arguments: {options}")
     print(f"\nTotal available commands: {len(COMMANDS)}")
     print("\nAvailable Plugins:")
     if PLUGINS:
