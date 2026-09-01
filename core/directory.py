@@ -17,16 +17,16 @@ ALIAS = {
 }
 
 COMMANDS = {
-    "cd": [0, system.cd, "Change the current working directory (default to Home)", "[Directory name]"],
+    "cd": [0, system.cd, "Change the current working directory (default to Home)", "Directory name"],
     "clear": [0, system.clear, "Clear the screen", None],
     "cmds": [0, system.cmds, "List all available commands and their functions", None],
     "dir": [0, system.dirlist, "List all files in the current working directory", None],
-    "fs": [1, system.fs, "Execute various Flyshell system functions", "['info', 'licence' or 'status']"],
-    "history": [0, system.history, "View command history (specify entry count, default 10)", "['clear'/'cls' to delete or entry count to view]"],
+    "fs": [1, system.fs, "Execute various Flyshell system functions", "'info', 'licence' or 'status'"],
+    "history": [0, system.history, "View command history (specify entry count, default 10)", "'clear'/'cls' to delete or entry count to view"],
     "kill": [0, system.kill, "Shut down the Flyshell system", None],
     "lock": [0, auth.lock, "Lock the Flyshell system", None],
-    "open": [1, system.openfile, "Open the specified file path", "[Filepath]"],
-    "sleep": [1, system.sleep, "Sleep the system for a specified time", "[Time (in seconds)]"]
+    "open": [1, system.openfile, "Open the specified file path", "Filepath"],
+    "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"]
     }
 
 PLUGINS = {}

@@ -41,8 +41,7 @@ def cmds(args):
         if not options: 
             print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
         else:
-            print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
-            print(f"└─ Possible arguments: {options}")
+            print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
     print(f"\nTotal available commands: {len(COMMANDS)}")
     print("\nAvailable Plugins:")
     if PLUGINS:
