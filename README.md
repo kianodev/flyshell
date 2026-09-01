@@ -12,7 +12,9 @@ No extra packages required, just install and enjoy!
 2. **Dynamic Plugin Architecture**: Flyshell employs a dynamic plugin architecture that automatically scans and supports any plugin in plugin/ that follows the Flyshell contract (this is defined in `base_plugin.py`).
 3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 100K iterations) with constant-time equality comparisons to prevent timing attacks on password information.
 4. **Cross-Platform Support**: Flyshell is fully supported by Windows (NT), macOS (Darwin) and Linux installations with native OS management and POSIX-aware parsing. Note that Flyshell is **not** supported by any other systems.
-5. **State and History Persistence**: Flyshell has a fully encapsulated JSON storage system (soon to be upgraded to a more robust SQLite3-based model) providing session metrics and ISO 8601 UTC audit logging.
+5. **State and History Persistence**: Flyshell has a fully encapsulated SQL storage system using SQLite3 providing session metrics and ISO 8601 UTC audit logging.
+
+Versions of Flyshell prior to v0.39 used a JSON storage file; these files are handled and migrated automatically.
 
 ## System Requirements
 
@@ -32,7 +34,7 @@ flyshell/
 │   ├── loader.py           # Dynamic runtime plugin discovery engine
 │   └── system.py           # Native shell command implementations
 ├── plugin/                 # Drop-in directory for community & custom plugins
-├── flyshell_storage.json   # Local state file (this is auto-generated when run for the first time)
+├── flyshell_storage.db     # Local SQL state file (this is auto-generated when run for the first time)*
 └── main.py                 # Root boot checker & platform verification entry point
 ```
 

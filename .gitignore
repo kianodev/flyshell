@@ -17,4 +17,13 @@ Thumbs.db
 
 # Local configuration / secrets
 .env
-*.json
+
+# SQLite databases & temp files
+*.db
+*.db-journal
+*.sqlite3
+
+# Legacy storage formats & backups
+*.bak
+*.json.bak
+flyshell_storage.json
