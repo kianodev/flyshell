@@ -11,6 +11,7 @@ import getpass
 import hashlib
 import re
 import secrets
+import sys
 
 def hash_password(password, salt=None):
     if salt is None:
@@ -94,18 +95,20 @@ def login_flow(is_lock=False) -> bool:
     i = 5
     while i > 0:
         entered_pwd = getpass.getpass("Enter Password: ")
-        if is_lock:
-            print()
         if verify_password(stored_hash, stored_salt, entered_pwd):
+            if is_lock:
+                print()
             return True
         i -= 1
         print(f"\nAccount Error: Password does not match.")
         if i == 0:
             print("Too many attempts.\n")
-            import sys
-            sys.exit(0)
+            return False
         print(f"You have {i} attempts remaining.\n")
 
 def lock(args):
-    is_lock = True
-    login_flow(is_lock)
+    if login_flow(is_lock=True):
+        return
+    else:
+        print("Shutting down...\n")
+        sys.exit(0)

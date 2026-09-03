@@ -65,7 +65,7 @@ if __name__ == "__main__":
             print("\nFlyshell cannot launch until the above file paths are restored.")
             sys.exit(1)
     except KeyboardInterrupt:
-        print("\n\nFlyshell session terminated by user.")
+        print("\n\nFlyshell session terminated, shutting down...\n")
         sys.exit(0)
     except Exception as e:
         print("\nOops! An unexpected error occurred.")
