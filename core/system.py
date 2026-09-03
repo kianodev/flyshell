@@ -112,6 +112,8 @@ def fs(args):
             print(f"Storage File Size: {storage_size_str}")
             print(f"Python Environment: v{sys.version.split()[0]}")
             print(f"\nFlyshell Version {data.VERSION} (Build {data.BUILD})\n")
+        case "version":
+            print(f"\nYou are on Flyshell Version {data.VERSION} (Build {data.BUILD})\n")
         case _:
             print(f"\nCommand Error: Invalid argument '{func}'\n")
 
