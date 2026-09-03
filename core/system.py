@@ -160,7 +160,7 @@ def kill(args):
         print("\nAction cancelled.\n")
 
 def openfile(args):
-    target = args[0]
+    target = " ".join(args).strip().strip('"\'')
     try:
         if data.HOST_OS == "Windows":
             os.startfile(target)
