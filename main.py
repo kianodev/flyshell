@@ -70,5 +70,5 @@ if __name__ == "__main__":
     except Exception as e:
         print("\nOops! An unexpected error occurred.")
         print(f"Error details: {e}")
-        print("We don't really know what happened there. Sorry about that.")
+        print("We don't really know what happened there. Sorry about that.\n")
         sys.exit(1)

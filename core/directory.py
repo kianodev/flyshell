@@ -14,6 +14,7 @@ ALIAS = {
     "cls": "clear",
     "help": "cmds",
     "ls": "dir",
+    "restart": "reboot",
 }
 
 COMMANDS = {
@@ -26,6 +27,7 @@ COMMANDS = {
     "kill": [0, system.kill, "Shut down the Flyshell system", None],
     "lock": [0, auth.lock, "Lock the Flyshell system", None],
     "open": [1, system.openfile, "Open the specified file path", "Filepath"],
+    "reboot": [0, system.reboot, "Reboot the Flyshell system", None],
     "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"]
     }
 

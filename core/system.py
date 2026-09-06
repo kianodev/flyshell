@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
 from core import data, directory
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -177,6 +178,18 @@ def openfile(args):
         print(f"\nCommand Error: File '{target}' could not be found.\n")
     except Exception as e:
         print(f"\nSystem Error: Failed to open '{target}': {e}\n")
+
+def reboot(args):
+    print("\nRestarting Flyshell...\n")
+    if data.HOST_OS == "Windows":
+        old_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+        try:
+            p = subprocess.run([sys.executable] + sys.argv)
+            sys.exit(p.returncode)
+        finally:
+            signal.signal(signal.SIGINT, old_handler)
+    else:
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
 def sleep(args):
     if not args[0].replace(".", "", 1).isdigit():
