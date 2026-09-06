@@ -52,6 +52,24 @@ def execute(raw_cmd):
     args = cmd[1:]
     if cmd_name in ALIAS:
         cmd_name = ALIAS[cmd_name]
+    if "-h" in args or "--help" in args:
+        if cmd_name in COMMANDS:
+            min_args, _, desc, options = COMMANDS[cmd_name]
+            print(f"\nCommand: {cmd_name}")
+            print(f"Description: {desc}")
+            print(f"Required Arguments: {min_args}")
+            if options:
+                print(f"Accepted Arguments: {options}")
+            print()
+            return
+        elif cmd_name in PLUGINS:
+            plugin = PLUGINS[cmd_name]
+            if hasattr(plugin, "help"):
+                plugin.help()
+                print()
+            else:
+                print(f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n")
+            return
     if cmd_name in COMMANDS:
         min_args, func, desc, options = COMMANDS[cmd_name]
         if len(args) < min_args:

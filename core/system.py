@@ -42,7 +42,8 @@ def cmds(args):
             print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
         else:
             print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
-    print(f"\nTotal available commands: {len(COMMANDS)}\n")
+    print(f"\nTotal available commands: {len(COMMANDS)}")
+    print(f"Use '-h' or '--help' after any command to reveal its specific help list.\n")
 
 def dirlist(args):
     current_path = os.getcwd()
