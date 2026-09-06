@@ -36,4 +36,4 @@ class BasePlugin:
         self.context["storage"] = self.storage
 
     def on_unload(self):
-        self.save_storage()    
+        self.save_storage()

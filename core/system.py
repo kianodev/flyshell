@@ -42,16 +42,7 @@ def cmds(args):
             print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
         else:
             print(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
-    print(f"\nTotal available commands: {len(COMMANDS)}")
-    print("\nAvailable Plugins:")
-    if PLUGINS:
-        for name, plugin in PLUGINS.items():
-            p_name = getattr(plugin, "name", name)
-            p_desc = getattr(plugin, "description", "No description provided.")
-            print(f"Plugin '{name}' [{p_name}]: {p_desc}")
-    else:
-        print("No plugins installed.")
-    print(f"\nTotal available plugins: {len(PLUGINS)}\n")
+    print(f"\nTotal available commands: {len(COMMANDS)}\n")
 
 def dirlist(args):
     current_path = os.getcwd()
