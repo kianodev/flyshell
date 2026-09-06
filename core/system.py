@@ -75,6 +75,16 @@ def fs(args):
             print("\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files [the 'Software'], to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:")
             print("The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.")
             print("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n")
+        case "plugins":
+            print("\nInstalled Plugins:")
+            if directory.PLUGINS:
+                for name, plugin in directory.PLUGINS.items():
+                    p_name = getattr(plugin, "name", name)
+                    p_desc = getattr(plugin, "description", "No description provided.")
+                    print(f"Plugin '{name}' [{p_name}]: {p_desc}")
+            else:
+                print("No plugins installed.")
+            print(f"\nTotal available plugins: {len(directory.PLUGINS)}\n")
         case "status":
             uptime = int(time.time() - data.SESSION_START_TIME)
             mins, secs = divmod(uptime, 60)

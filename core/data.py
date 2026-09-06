@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 45
-VERSION = "0.44"
+BUILD = 46
+VERSION = "0.45"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
