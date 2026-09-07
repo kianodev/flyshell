@@ -11,7 +11,31 @@ from core.directory import execute
 import os
 import random
 
+readline = None
+
+def check_readline() -> bool:
+    global readline
+    try:
+        import readline
+        return True
+    except ImportError:
+        try:
+            import pyreadline3 as readline
+            return True
+        except ImportError:
+            readline = None
+            return False
+
+def load_history():
+    if not readline:
+        return
+    history_entries = data.read(["core", "cmd_history"]) or []
+    for entry in history_entries:
+        if isinstance(entry, dict) and "command" in entry:
+            readline.add_history(entry["command"])
+
 def boot():
+    load_history()
     print("\033[H\033[2J", end="")
     print(f"\nBoot successful, welcome to Flyshell! (Version {data.VERSION})")
     user_info = data.read(["core", "auth"])

@@ -7,6 +7,7 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 def boot_check():
+    print("\nFlyshell will now check that your modules exist.")
     REQUIRED_COMPONENTS = [
     PROJECT_ROOT / "core",
     PROJECT_ROOT / "core" / "auth.py",
@@ -27,15 +28,19 @@ def boot_check():
             missing.append(str(path))
     if missing:
         print("\nCRITICAL BOOT ERROR: Critical system module(s) could not be found.")
-    print("\nSYSTEM MODULE CHECK:")
-    if present:
-        for i in present:
-            print(f"✅ {i} - File found")
-    if not missing:
-        return True
+    for i in present:
+        print(f"✅ {i} - File found")
     for i in missing:
         print(f"❌ {i} - FILE NOT FOUND")
-    return False
+    if missing:
+        return False
+    print("\nFlyshell will now check additional packages. These are not required.")
+    from core import console
+    if console.check_readline():
+        print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
+    else:
+        print("⚠️ Terminal Readline - Unavailable (This does not affect your performance)")
+    return True
 
 if __name__ == "__main__":
     os.system("")
