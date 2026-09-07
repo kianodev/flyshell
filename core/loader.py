@@ -54,7 +54,7 @@ def scan_plugins(plugin_folder=None):
                     break
         except Exception as e:
             print(f"\n⚠️ - Failed to load '{plugin_name}'")
-            print("Exception code: {e}, Flyshell will still launch\n")
+            print(f"Exception code: {e}, Flyshell will still launch\n")
 
     if count > 0:
         print(f"\nTotal of {count} plugin(s) found.")

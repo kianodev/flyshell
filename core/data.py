@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 51
-VERSION = "0.50"
+BUILD = 52
+VERSION = "0.51"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -109,6 +109,6 @@ def delete(keys, filename=FILE_PATH):
             return False
     if isinstance(current, dict) and keys[-1] in current:
         del current[keys[-1]]
-        _save_all(data,)
+        _save_all(data, filename)
         return True
     return False
