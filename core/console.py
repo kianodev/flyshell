@@ -31,9 +31,14 @@ def boot():
     greeting = random.choice(GREETINGS)
     print(f"\n{greeting}\n")
     while True:
-        folder = os.path.basename(os.getcwd())
-        raw_cmd = input(f"Flyshell [v{data.VERSION}] ({folder})>>")
-        if not raw_cmd:
-            print(f"\nCommand Error: No command given. Use 'cmds' for help.\n")
-            continue
-        execute(raw_cmd)
+        try:
+            folder = os.path.basename(os.getcwd())
+            raw_cmd = input(f"Flyshell [v{data.VERSION}] ({folder})>>")
+            if not raw_cmd.strip():
+                continue
+            execute(raw_cmd)
+        except KeyboardInterrupt:
+            print("\n")
+        except EOFError:
+            print("\nFlyshell session closed.\n")
+            sys.exit(0)

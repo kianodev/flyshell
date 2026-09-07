@@ -14,7 +14,7 @@ import sys
 import time
 
 def cd(args):
-    target = " ".join(args) if args else os.path.expanduser("~")
+    target = os.path.expanduser(" ".join(args)) if args else os.path.expanduser("~")
     try:
         os.chdir(target)
         print(f"\nSwitched directory to '{os.getcwd()}'\n")

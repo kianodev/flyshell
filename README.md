@@ -1,5 +1,10 @@
 # Flyshell
 
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
+![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
+
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
 Flyshell provides a sandboxed, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only Python standard libraries.
@@ -29,7 +34,7 @@ flyshell/
 │   ├── auth.py             # Salted PBKDF2 HMAC auth & lock screen logic
 │   ├── base_plugin.py      # Abstract base class & plugin storage contracts
 │   ├── console.py          # Main REPL execution loop
-│   ├── data.py             # Centralized persistent storage engine
+│   ├── data.py             # Centralised persistent storage engine
 │   ├── directory.py        # Command dispatching & POSIX input parser
 │   ├── loader.py           # Dynamic runtime plugin discovery engine
 │   └── system.py           # Native shell command implementations
@@ -56,6 +61,10 @@ Launch Flyshell via Python 3:
 ```bash
 python main.py
 ```
+If that fails, try:
+```bash
+python3 main.py
+```
 On initial launch, Flyshell will prompt you to initialise your profile and secure password.
 
 ### 3. Exploring the System
@@ -64,30 +73,48 @@ Once Flyshell has launched, you will see an interface that looks something like 
 ```console
 Flyshell [version] (current_dir)>>
 ```
-From this stage, you can enter a wide variety of commands. To see the commands list for your installation, type 'cmds' to return a full directory.
+From this stage, you can enter a wide variety of commands. To see the commands list for your installation, type `cmds` or `help` to return a full up-to-date directory. Use `fs plugins` to return plugin information.
 
-To close Flyshell once you are done, either:
-1. Press Ctrl+C at any time to force terminate the system.
-2. Enter 'kill' into the command line then 'y' to confirm.
+To close Flyshell once you are done, enter `kill` onto the command line then confirm.
 
 ## Creating Custom Plugins
 
-Flyshell features an extensible plugin API. This API currently supports single-file plugins but will be expanded to support multi-file plugins at a later date. Create a new .py file in the `plugin/` directory, for example:
+Flyshell features an extensible plugin API. This API supports both single-file and multi-file plugins. Follow the below guide to create your own.
+
+Plugins must inherit from the `BasePlugin` contract and be stored under the `plugin/` directory.
+
+All plugins, whilst not required, should have a title (`name`) and desc (`description`) defined in their master file. Flyshell can read this information for both `fs plugins` and `[my_plugin] -h` / `--help` which are both supported out of the box. Flyshell will discover, inspect and import your plugin from the `plugin/` folder without you having to alter any internal code.
+
+### Single-File Plugins
+
+Single-file plugins should be a single file, e.g. `my_plugin.py`.
+
+This file serves as the entry point for your file and should look like this:
 ```python
-# \plugin\hello.py
+# \plugin\my_plugin.py
+
 from core.base_plugin import BasePlugin
 
-class HelloPlugin(BasePlugin):
-	name = "Hello"
-	description = "A simple greeting plugin demonstration."
+class MyPlugin(BasePlugin):
+	# Name and description (Flyshell can read these)
+	name = "My Plugin"
+	description = "This is my plugin. You can use it."
 
-	def execute(self, args: list):
-		target = args[0] if args else "World"
-		print(f"\nHello, {target}!\n")
+	def execute(self, args): # This is what Flyshell calls to execute
+		print(f"Hello! Arguments: {args}")
+		return
 ```
-Flyshell will automatically discover, inspect and register your new plugin on boot.
 
-Your plugin **must** follow the contract of BasePlugin or else it will not work properly and Flyshell will refuse to execute it / display an unexpected crash message.
+### Multi-File Plugins
+
+Multi-file plugins follow the same contract but are stricter in how they must be structured.
+1. Create a directory `my_plugin/` within the `plugin/` directory.
+2. Create a file called `plugin.py` - this is your entrypoint. It is mandatory that it is called `plugin.py` and cannot be called anything else.
+3. This file uses the same template as single-file plugins. You can import as many of your plugin's other files as you like. Flyshell will handle import errors automatically by safely killing the plugin on any error with an internally handled Exception.
+
+### File Management
+
+The `BasePlugin` inherited class provides storage access as context for your plugin to use.
 
 Plugins get passed their own storage directory. To access a particular item:
 ```python
@@ -98,15 +125,16 @@ To update a specific attribute:
 ```python
 self.storage["key"] = value
 ```
-This only updates in RAM. To save to disk, see below.
 
 To load the entire storage (refresh) your storage:
 ```python
 self.load_storage()
 ```
 
-To save everything to disk:
+To save changes to disk:
 ```python
 self.save_storage()
 ```
 However, your plugin will **automatically save** on unload and there is no need to call this before shutting the plugin as Flyshell calls it for you.
+
+For plugins using multiple files or functions, unless `self` is passed to other files they cannot be accessed except within `plugin.py`.
