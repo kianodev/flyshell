@@ -30,7 +30,7 @@ def load_history():
     if not readline:
         return
     history_entries = data.read(["core", "cmd_history"]) or []
-    for entry in history_entries:
+    for entry in history_entries[-100:]:
         if isinstance(entry, dict) and "command" in entry:
             readline.add_history(entry["command"])
 
@@ -62,7 +62,7 @@ def boot():
                 continue
             execute(raw_cmd)
         except KeyboardInterrupt:
-            print("\n")
+            pass
         except EOFError:
             print("\nFlyshell session closed.\n")
             sys.exit(0)
