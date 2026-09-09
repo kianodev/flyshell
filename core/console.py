@@ -62,7 +62,7 @@ def boot():
                 continue
             execute_line(raw_cmd)
         except KeyboardInterrupt:
-            pass
+            print()
         except EOFError:
             print("\nFlyshell session closed.\n")
             sys.exit(0)
