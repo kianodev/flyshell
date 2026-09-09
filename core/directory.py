@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
 from core import auth, data, loader, system
 from datetime import datetime, timezone
+import re
 import shlex
 
 ALIAS = {
@@ -42,7 +43,7 @@ def log(cmd):
     history.append(entry)
     data.write(["core", "cmd_history"], history)
 
-def execute(raw_cmd):
+def _execute_single(raw_cmd):
     try:
         posix_mode = False if data.HOST_OS == "Windows" else True
         cmd = shlex.split(raw_cmd, posix=posix_mode)
@@ -97,3 +98,11 @@ def execute(raw_cmd):
                 plugin.on_unload()
     else:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
+
+def execute_line(raw_cmd):
+    sub_commands = re.split(r';(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)', raw_cmd)
+    valid_commands = [sub.strip() for sub in sub_commands if sub.strip()]
+    for i, sub in enumerate(valid_commands):
+        if i > 0:
+            print("-" * 40)
+        _execute_single(sub)

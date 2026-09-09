@@ -7,7 +7,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 from core import data
-from core.directory import execute
+from core.directory import execute_line
 import os
 import random
 
@@ -60,7 +60,7 @@ def boot():
             raw_cmd = input(f"Flyshell [v{data.VERSION}] ({folder})>>")
             if not raw_cmd.strip():
                 continue
-            execute(raw_cmd)
+            execute_line(raw_cmd)
         except KeyboardInterrupt:
             pass
         except EOFError:

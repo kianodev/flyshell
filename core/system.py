@@ -22,6 +22,8 @@ def cd(args):
         print(f"\nCommand Error: Directory '{target}' not found.\n")
     except PermissionError:
         print(f"\nSystem Error: Permission denied. Cannot access '{target}'\n")
+    except OSError as e:
+        print(f"\nCommand Error: Invalid path syntax '{target}'. ({e.strerror})\n")
 
 def clear(args):
     print("\033[H\033[2J", end="")
