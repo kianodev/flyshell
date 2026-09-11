@@ -45,7 +45,7 @@ def boot_check():
 if __name__ == "__main__":
     os.system("")
     print("\033[H\033[2J", end="")
-    print("\nFlyshell will now check that it is able to boot.")
+    print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
     try:
         if boot_check():
             from core import auth, console, data, loader

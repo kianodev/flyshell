@@ -99,9 +99,43 @@ def _execute_single(raw_cmd):
     else:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
 
+def _split_commands(raw_cmd: str) -> list[str]:
+    commands = []
+    current = []
+    in_single_quote = False
+    in_double_quote = False
+    escape = False
+    for char in raw_cmd:
+        if escape:
+            current.append(char)
+            escape = False
+            continue
+        if char == "\\":
+            current.append(char)
+            escape = True
+            continue
+        if char == "'" and not in_double_quote:
+            in_single_quote = not in_single_quote
+            current.append(char)
+            continue
+        if char == '"' and not in_single_quote:
+            in_double_quote = not in_double_quote
+            current.append(char)
+            continue
+        if char == ";" and not in_single_quote and not in_double_quote:
+            segment = "".join(current).strip()
+            if segment:
+                commands.append(segment)
+            current = []
+            continue
+        current.append(char)
+    final_segment = "".join(current).strip()
+    if final_segment:
+        commands.append(final_segment)
+    return commands
+
 def execute_line(raw_cmd):
-    sub_commands = re.split(r';(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)', raw_cmd)
-    valid_commands = [sub.strip() for sub in sub_commands if sub.strip()]
+    valid_commands = _split_commands(raw_cmd)
     for i, sub in enumerate(valid_commands):
         if i > 0:
             print("-" * 40)
