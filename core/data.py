@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 58
-VERSION = "0.57"
+BUILD = 59
+VERSION = "0.58"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -60,7 +60,7 @@ def _get_connection(filename=FILE_PATH):
 def _migrate_json():
     if not LEGACY_JSON_PATH.exists():
         return
-    print("\nLegacy 1st Generation JSON format detected ('flyshell_storage.json').")
+    print("\n⚠️ - Legacy 1st Generation JSON format detected ('flyshell_storage.json').")
     print("Migrating your storage to 2nd Generation SQLite...")
     conn = None
     try:
@@ -101,7 +101,7 @@ def _migrate_sqlite():
         legacy_conn.close()
         if not row:
             return
-        print("\nLegacy 2nd Generation Flat SQLite format detected ('flyshell_storage.db').")
+        print("\n⚠️ - Legacy 2nd Generation Flat SQLite format detected ('flyshell_storage.db').")
         print("Migrating your storage to 3rd Generation Relational SQLite...")
         root_data = json.loads(row[0])
         with _get_connection(FILE_PATH) as new_conn:
@@ -149,7 +149,7 @@ def initialise():
     _migrate_json()
     _migrate_sqlite()
     _get_connection(FILE_PATH).close()
-    print("\nDatabase is up to date.\n")
+    print("\n✅ - Database is up to date.")
     INITIALISED = True
 
 def read(keys=None, filename=FILE_PATH):
