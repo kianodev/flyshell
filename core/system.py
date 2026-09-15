@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
 from core import data, directory
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -168,16 +169,22 @@ def kill(args):
 
 def openfile(args):
     target = " ".join(args).strip().strip('"\'')
+    if not target:
+        return
+    is_path = os.path.exists(target)
+    is_url = target.startswith(("http://", "https://"))
+    is_bin = shutil.which(target) is not None
+    if not (is_path or is_url or is_bin):
+        print(f"\nCommand Error: File or application '{target}' could not be found.\n")
+        return
     try:
         if data.HOST_OS == "Windows":
             os.startfile(target)
         elif data.HOST_OS == "Darwin":
-            subprocess.Popen(["open", target])
+            subprocess.Popen(["open", target], stderr=subprocess.DEVNULL)
         else:
-            subprocess.Popen(["xdg-open", target])
+            subprocess.Popen(["xdg-open", target], stderr=subprocess.DEVNULL)
         print(f"\nSUCCESS! Launched '{target}' application or file.\n")
-    except FileNotFoundError:
-        print(f"\nCommand Error: File '{target}' could not be found.\n")
     except Exception as e:
         print(f"\nSystem Error: Failed to open '{target}': {e}\n")
 
