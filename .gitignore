@@ -25,6 +25,7 @@ Thumbs.db
 
 # Legacy storage formats & backups
 *.bak
+*.db.bak
 *.json.bak
 flyshell_storage.json
 

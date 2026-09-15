@@ -39,7 +39,7 @@ flyshell/
 │   ├── loader.py           # Dynamic runtime plugin discovery engine
 │   └── system.py           # Native shell command implementations
 ├── plugin/                 # Drop-in directory for community & custom plugins
-├── flyshell_storage.db     # Local SQL state file (this is auto-generated when run for the first time)*
+├── flyshell.db             # Local SQL state file (this is auto-generated when run for the first time)
 └── main.py                 # Root boot checker & platform verification entry point
 ```
 
