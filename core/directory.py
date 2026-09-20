@@ -115,44 +115,76 @@ def _execute_single(raw_cmd) -> int:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
         return 1
 
-def _split_commands(raw_cmd: str) -> list[str]:
-    commands = []
+def _parse_commands(raw_cmd: str) -> list[str]:
+    chain = []
     current = []
     in_single_quote = False
     in_double_quote = False
     escape = False
-    for char in raw_cmd:
+    i = 0
+    n = len(raw_cmd)
+    while i < n:
+        char = raw_cmd[i]
         if escape:
             current.append(char)
             escape = False
+            i += 1
             continue
         if char == "\\":
             current.append(char)
             escape = True
+            i += 1
             continue
         if char == "'" and not in_double_quote:
             in_single_quote = not in_single_quote
             current.append(char)
+            i += 1
             continue
         if char == '"' and not in_single_quote:
             in_double_quote = not in_double_quote
             current.append(char)
+            i += 1
             continue
-        if char == ";" and not in_single_quote and not in_double_quote:
-            segment = "".join(current).strip()
-            if segment:
-                commands.append(segment)
-            current = []
-            continue
+        if not in_single_quote and not in_double_quote:
+            if raw_cmd[i:i+2] in ("&&", "||"):
+                op = raw_cmd[i:i+2]
+                cmd_str = "".join(current).strip()
+                if cmd_str:
+                    chain.append((cmd_str, op))
+                current = []
+                i += 2
+                continue
+            if char == ";":
+                cmd_str = "".join(current).strip()
+                if cmd_str:
+                    chain.append((cmd_str, ";"))
+                current = []
+                i += 1
+                continue
         current.append(char)
-    final_segment = "".join(current).strip()
-    if final_segment:
-        commands.append(final_segment)
-    return commands
+        i += 1
+    final_cmd = "".join(current).strip()
+    if final_cmd:
+        chain.append((final_cmd, None))
+    return chain
 
 def execute_line(raw_cmd):
-    valid_commands = _split_commands(raw_cmd)
-    for i, sub in enumerate(valid_commands):
+    chain = _parse_commands(raw_cmd)
+    if not chain:
+        return
+    last_code = 0
+    skip_next = False
+    for i, (cmd_str, operator) in enumerate(chain):
+        if skip_next:
+            if operator == ";":
+                skip_next = False
+            continue
         if i > 0:
             print("-" * 40)
-        _execute_single(sub)
+        last_code = _execute_single(cmd_str)
+        if operator == "&&" and last_code != 0:
+            skip_next = True
+        elif operator == "||" and last_code == 0:
+            skip_next = True
+        elif operator == ";":
+            skip_next = False
