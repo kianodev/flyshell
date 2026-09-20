@@ -75,6 +75,8 @@ Flyshell [version] (current_dir)>>
 ```
 From this stage, you can enter a wide variety of commands. To see the commands list for your installation, type `cmds` or `help` to return a full up-to-date directory. Use `fs plugins` to return plugin information.
 
+Flyshell also supports command chaining out of the box. Use `;` to chain commands together regardless of result, `&&` to execute only on success and `||` to execute only on failure.
+
 To close Flyshell once you are done, enter `kill` onto the command line then confirm.
 
 ## Creating Custom Plugins

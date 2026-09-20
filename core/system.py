@@ -30,7 +30,7 @@ def clear(args):
     return (0, "\033[H\033[2J")
 
 def cmds(args):
-    from core.directory import ALIAS, COMMANDS, PLUGINS
+    from core.directory import ALIAS, COMMANDS
     lines = ["\nAvailable Commands:"]
     for name, info in COMMANDS.items():
         req_args = info[0]
@@ -43,7 +43,8 @@ def cmds(args):
         else:
             lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
     lines.append(f"\nTotal available commands: {len(COMMANDS)}")
-    lines.append("Use '-h' or '--help' after any command to reveal its specific help list.\n")
+    lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
+    lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
     return (0, "\n".join(lines))
 
 def dirlist(args):
