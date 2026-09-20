@@ -43,14 +43,14 @@ def log(cmd):
     history.append(entry)
     data.write(["core", "cmd_history"], history)
 
-def _execute_single(raw_cmd):
+def _execute_single(raw_cmd) -> int:
     try:
         posix_mode = False if data.HOST_OS == "Windows" else True
         cmd = shlex.split(raw_cmd, posix=posix_mode)
     except ValueError as e:
         print("\nCommand Error: Invalid syntax.")
         print(f"Details: {e}\n")
-        return
+        return 1
     cmd_name = cmd[0]
     args = cmd[1:]
     if cmd_name in ALIAS:
@@ -64,40 +64,56 @@ def _execute_single(raw_cmd):
             if options:
                 print(f"Accepted Arguments: {options}")
             print()
-            return
+            return 0
         elif cmd_name in PLUGINS:
             plugin = PLUGINS[cmd_name]
             if hasattr(plugin, "help"):
                 plugin.help()
                 print()
+                return 0
             else:
                 print(f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n")
-            return
+                return 1
     if cmd_name in COMMANDS:
         min_args, func, desc, options = COMMANDS[cmd_name]
         if len(args) < min_args:
             print(f"\nCommand Error: '{cmd_name}' requires at least {min_args} parameter(s).\n")
+            return 1
         else:
             if cmd[0] != "history":
                 log(raw_cmd)
-            func(args)
+            result = func(args)
             data.SESSION_CMD_COUNT += 1
+            if isinstance(result, tuple):
+                code, message = result
+                if message:
+                    print(message)
+                return code
+            elif isinstance(result, str):
+                if result:
+                    print(result)
+                return 0
+            return 0
     elif cmd_name in PLUGINS:
         log(raw_cmd)
         plugin = PLUGINS[cmd_name]
         try:
             plugin.execute(args)
+            return 0
         except NotImplementedError:
             print(f"\nPlugin Error: '{cmd_name}' has not implemented the execute method.\n")
+            return 1
         except Exception as e:
             print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
             print(f"Details: {e}")
             print(f"Returning to main Flyshell interface...\n")
+            return 1
         finally:
             if hasattr(plugin, "on_unload"):
                 plugin.on_unload()
     else:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
+        return 1
 
 def _split_commands(raw_cmd: str) -> list[str]:
     commands = []
