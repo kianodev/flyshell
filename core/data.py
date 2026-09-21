@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 64
-VERSION = "0.63"
+BUILD = 65
+VERSION = "0.64"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -31,6 +31,9 @@ SESSION_CMD_COUNT = 0
 def _get_connection(filename=FILE_PATH):
     conn = sqlite3.connect(filename)
     conn.execute("PRAGMA foreign_keys = ON;")
+    return conn
+
+def _setup_schema(conn):
     with conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS auth (
@@ -55,7 +58,6 @@ def _get_connection(filename=FILE_PATH):
                 PRIMARY KEY (namespace, key)
             )
         """)
-    return conn
 
 def _migrate_json():
     if not LEGACY_JSON_PATH.exists():
@@ -148,7 +150,8 @@ def initialise():
     print("\nChecking database viability...")
     _migrate_json()
     _migrate_sqlite()
-    _get_connection(FILE_PATH).close()
+    with _get_connection(FILE_PATH) as conn:
+        _setup_schema(conn)
     print("\n✅ - Database is up to date.")
     INITIALISED = True
 
