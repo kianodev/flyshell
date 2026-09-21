@@ -36,12 +36,7 @@ PLUGINS = {}
 
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    history = data.read(["core", "cmd_history"]) or []
-    if not isinstance(history, list):
-        history = []
-    entry = {"command": cmd, "timestamp": utc_now}
-    history.append(entry)
-    data.write(["core", "cmd_history"], history)
+    data.append_history(cmd, utc_now)
 
 def _execute_single(raw_cmd) -> int:
     try:

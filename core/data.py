@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 63
-VERSION = "0.62"
+BUILD = 64
+VERSION = "0.63"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -200,16 +200,6 @@ def write(keys, value, filename=FILE_PATH):
                     VALUES (1, ?, ?, ?)
                 """, (value.get("username", "User"), value.get("hash", ""), value.get("salt", "")))
             return
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "cmd_history":
-            if isinstance(value, list):
-                conn.execute("DELETE FROM cmd_history")
-                for entry in value:
-                    if isinstance(entry, dict):
-                        conn.execute("""
-                            INSERT INTO cmd_history (command, timestamp)
-                            VALUES (?, ?)
-                        """, (entry.get("command", ""), entry.get("timestamp", "")))
-            return
         namespace = keys[0]
         key = keys[1] if len(keys) > 1 else "default"
         if len(keys) > 2:
@@ -279,3 +269,11 @@ def _dump_all():
             except Exception:
                 dump[ns][k] = val
     return dump
+
+def append_history(cmd, timestamp):
+    initialise()
+    with _get_connection(FILE_PATH) as conn:
+        conn.execute(
+            "INSERT INTO cmd_history (command, timestamp) VALUES (?, ?)",
+            (cmd, timestamp)
+        )
