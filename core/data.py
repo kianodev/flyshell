@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 65
-VERSION = "0.64"
+BUILD = 66
+VERSION = "0.65"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -27,6 +27,16 @@ LEGACY_DB_PATH = PROJECT_ROOT / "flyshell_storage.db"
 
 SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0
+
+def get_storage_size() -> str:
+    if not FILE_PATH.exists():
+        return "File not found"
+    num_bytes = float(FILE_PATH.stat().st_size)
+    for unit in ["B", "KB", "MB", "GB"]:
+        if num_bytes < 1024.0:
+            return f"{int(num_bytes)} {unit}" if unit == "B" else f"{num_bytes:.2f} {unit}"
+        num_bytes /= 1024.0
+    return f"{num_bytes:.2f} TB"
 
 def _get_connection(filename=FILE_PATH):
     conn = sqlite3.connect(filename)

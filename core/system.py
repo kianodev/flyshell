@@ -106,15 +106,7 @@ def fs(args):
             current_user = auth_data.get("username", "Unknown")
             cmd_history = data.read(["core", "cmd_history"])
             total_history_count = len(cmd_history) if isinstance(cmd_history, list) else 0
-            if os.path.exists(data.FILE_PATH):
-                size = float(os.path.getsize(data.FILE_PATH))
-                for unit in ["B", "KB", "MB", "GB", "TB"]:
-                    if size < 1024.0 or unit == "TB":
-                        storage_size_str = f"{int(size)} {unit}" if unit == "B" else f"{size:.2f} {unit}"
-                        break
-                    size /= 1024.0
-            else:
-                storage_size_str = "File not found"
+            storage_size_str = data.get_storage_size()
             return (0, (
                 "\nFlyshell System Status:\n"
                 f"User: '{current_user}'\n"
