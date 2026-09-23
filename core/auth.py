@@ -18,7 +18,7 @@ def hash_password(password, salt=None):
         salt = secrets.token_bytes(16)
     elif isinstance(salt, str):
         salt = bytes.fromhex(salt)
-    pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 600000)
     return pwd_hash.hex(), salt.hex()
 
 def verify_password(stored_hash: str, stored_salt: str, password: str) -> bool:
