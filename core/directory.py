@@ -6,9 +6,8 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import auth, data, loader, system
+from core import auth, data, system
 from datetime import datetime, timezone
-import re
 import shlex
 
 ALIAS = {
@@ -125,11 +124,20 @@ def _parse_commands(raw_cmd: str) -> list[str]:
             escape = False
             i += 1
             continue
+        is_windows = (data.HOST_OS == "Windows")
         if char == "\\":
-            current.append(char)
-            escape = True
-            i += 1
-            continue
+            if not is_windows:
+                escape = True
+                i += 1
+                continue
+            else:
+                if i + 1 < n and raw_cmd[i + 1] in ('"', "'"):
+                    escape = True
+                    i += 1
+                    continue
+                current.append(char)
+                i += 1
+                continue
         if char == "'" and not in_double_quote:
             in_single_quote = not in_single_quote
             current.append(char)
@@ -158,6 +166,13 @@ def _parse_commands(raw_cmd: str) -> list[str]:
                 continue
         current.append(char)
         i += 1
+    if in_single_quote or in_double_quote:
+        quote_char = "'" if in_single_quote else '"'
+        print(f"\nSyntax Error: Unclosed {quote_char} quote detected.\n")
+        return []
+    if escape:
+        print("\nSyntax Error: Dangling '\\' escape character at end of command.\n")
+        return []
     final_cmd = "".join(current).strip()
     if final_cmd:
         chain.append((final_cmd, None))
