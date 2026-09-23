@@ -28,7 +28,8 @@ COMMANDS = {
     "lock": [0, auth.lock, "Lock the Flyshell system", None],
     "open": [1, system.openfile, "Open the specified file path", "Filepath"],
     "reboot": [0, system.reboot, "Reboot the Flyshell system", None],
-    "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"]
+    "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"],
+    "sys": [1, system.syscmd, "Execute the subsequent command on the host system", "Any host command"]
     }
 
 PLUGINS = {}

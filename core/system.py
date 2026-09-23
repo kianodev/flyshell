@@ -6,8 +6,10 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data, directory
+from core import auth, data, directory
+import getpass
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -208,3 +210,57 @@ def sleep(args):
         return (0, "\nReturning...\n")
     except KeyboardInterrupt:
         return (1, "\nSleep cancelled.\n")
+
+def syscmd(args):
+    if args[0] in ["-f", "--force"]:
+        override = True
+        args = args[1:]
+        if not args:
+            return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
+    else:
+        override = False
+    cmd = " ".join(args).strip().strip('"\'')
+    base_cmd = args[0].lower().strip('"\'').replace(".exe", "")
+    DANGER_COMMANDS = {"del", "rmdir", "rd", "rm", "taskkill", "killall"}
+    BLOCKED_COMMANDS = {"format", "diskpart", "dd"}
+    CRITICAL_TARGETS = [
+        r"c:\\windows",
+        r"c:\\windows\\system32",
+        r"c:\\\s*$",
+        r"c:\\\s+",
+        r"(^|\s)/+(\s|$)",
+        r"/boot",
+        r"/etc",
+        r"/system"
+    ]
+    cmd_lower = cmd.lower()
+    targets_critical = any(re.search(p, cmd_lower) for p in CRITICAL_TARGETS)
+    is_forkbomb = bool(re.search(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", cmd_lower))
+    is_reg_hklm = "reg" in base_cmd and "delete" in cmd_lower and "hklm" in cmd_lower
+    is_rm_root = "rm" in base_cmd and "-" in cmd_lower and bool(re.search(r"(?:^|\s)/+(?:\s|$)", cmd_lower))
+    is_blocked_signature = is_forkbomb or is_reg_hklm or is_rm_root
+    is_blocked = base_cmd in BLOCKED_COMMANDS or is_blocked_signature
+    is_dangerous = base_cmd in DANGER_COMMANDS
+    if is_blocked or (is_dangerous and targets_critical):
+        return (1, (
+            "\nSecurity Error: Flyshell has blocked execution of this command.\n"
+            f"This command '{cmd}' is permanently restricted by Flyshell safety policy.\n"
+            "Flyshell has blocked your command to prevent damage to your computer.\n"
+        ))
+    elif is_dangerous and not override:
+        password = getpass.getpass("\nThis command is restricted. To execute, enter your password: ")
+        auth_info = data.read(["core", "auth"])
+        stored_hash = auth_info.get("hash")
+        stored_salt = auth_info.get("salt")
+        if not auth.verify_password(stored_hash, stored_salt, password):
+            return (1, "\nAccount Error: Password does not match.\n")
+    try:
+        print()
+        result = subprocess.run(cmd, shell=True)
+        print()
+        return (result.returncode, "")
+    except KeyboardInterrupt:
+        print()
+        return (130, "")
+    except Exception as e:
+        return (1, f"\nCommand Error: Failed to run host command ({e})\n")
