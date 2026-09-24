@@ -24,7 +24,6 @@ def boot_check():
         core_dir / "directory.py",
         core_dir / "loader.py",
         core_dir / "migrations.py",
-        core_dir / "system.py",
         plugin_dir
     ]
     if core_dir.exists():
