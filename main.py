@@ -8,11 +8,15 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
+    builtin_dir = PROJECT_ROOT / "builtin"
     core_dir = PROJECT_ROOT / "core"
     plugin_dir = PROJECT_ROOT / "plugin"
     REQUIRED_COMPONENTS = [
+        builtin_dir,
+        builtin_dir / "fs.py",
+        builtin_dir / "system.py",
+        builtin_dir / "utils.py",
         core_dir,
-        plugin_dir,
         core_dir / "auth.py",
         core_dir / "base_plugin.py",
         core_dir / "console.py",
@@ -21,6 +25,7 @@ def boot_check():
         core_dir / "loader.py",
         core_dir / "migrations.py",
         core_dir / "system.py",
+        plugin_dir
     ]
     if core_dir.exists():
         for py_file in sorted(core_dir.glob("*.py")):
