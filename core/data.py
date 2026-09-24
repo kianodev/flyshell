@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 72
-VERSION = "0.71"
+BUILD = 73
+VERSION = "0.72"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -12,7 +12,6 @@ if __name__ == "__main__":
 from core import migrations
 from pathlib import Path
 import json
-import os
 import platform
 import sqlite3
 import time

@@ -6,7 +6,8 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import auth, data, system
+from builtin import fs, system, utils
+from core import auth, data
 from datetime import datetime, timezone
 import shlex
 
@@ -36,16 +37,16 @@ ALIAS = {
 
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)", "Directory name"],
-    "clear": [0, system.clear, "Clear the screen", None],
+    "clear": [0, utils.clear, "Clear the screen", None],
     "cmds": [0, cmds, "List all available commands and their functions", None],
     "dir": [0, system.dirlist, "List all files in the current working directory", None],
-    "fs": [1, system.fs, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'status', 'version'"],
-    "history": [0, system.history, "View command history (specify entry count, default 10)", "'clear'/'cls' to delete or entry count to view"],
-    "kill": [0, system.kill, "Shut down the Flyshell system", None],
+    "fs": [1, fs.execute, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'status', 'version'"],
+    "history": [0, utils.history, "View command history (specify entry count, default 10)", "'clear'/'cls' to delete or entry count to view"],
+    "kill": [0, utils.kill, "Shut down the Flyshell system", None],
     "lock": [0, auth.lock, "Lock the Flyshell system", None],
     "open": [1, system.openfile, "Open the specified file path", "Filepath"],
-    "reboot": [0, system.reboot, "Reboot the Flyshell system", None],
-    "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"],
+    "reboot": [0, utils.reboot, "Reboot the Flyshell system", None],
+    "sleep": [1, utils.sleep, "Sleep the system for a specified time", "Time (in seconds)"],
     "sys": [1, system.syscmd, "Execute the subsequent command on the host system", "Any host command"]
     }
 
