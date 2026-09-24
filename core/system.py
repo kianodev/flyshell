@@ -6,7 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import auth, data, directory
+from core import auth, data
 import getpass
 import os
 import re
@@ -30,24 +30,6 @@ def cd(args):
 
 def clear(args):
     return (0, "\033[H\033[2J")
-
-def cmds(args):
-    from core.directory import ALIAS, COMMANDS
-    lines = ["\nAvailable Commands:"]
-    for name, info in COMMANDS.items():
-        req_args = info[0]
-        desc = info[2]
-        options = info[3]
-        aliases = [alias_name for alias_name, target in ALIAS.items() if target == name]
-        cmd_label = f"{name} (alias: {', '.join(aliases)})" if aliases else name
-        if not options:
-            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
-        else:
-            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
-    lines.append(f"\nTotal available commands: {len(COMMANDS)}")
-    lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
-    lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
-    return (0, "\n".join(lines))
 
 def dirlist(args):
     try:
@@ -76,7 +58,7 @@ def fs(args):
                 f"System Version: {data.VERSION}\n"
                 f"System Build: {data.BUILD}\n"
                 f"Host Operating System: '{data.HOST_OS}'\n"
-                f"Installed Plugin Count: {len(directory.PLUGINS)}\n"
+                f"Installed Plugin Count: {len(data.PLUGINS)}\n"
                 "Original Release Date: 8th August 2026\n"
             ))
         case "licence":
@@ -90,14 +72,14 @@ def fs(args):
             ))
         case "plugins":
             lines = ["\nInstalled Plugins:"]
-            if directory.PLUGINS:
-                for name, plugin in directory.PLUGINS.items():
+            if data.PLUGINS:
+                for name, plugin in data.PLUGINS.items():
                     p_name = getattr(plugin, "name", name)
                     p_desc = getattr(plugin, "description", "No description provided.")
                     lines.append(f"Plugin '{name}' [{p_name}]: {p_desc}")
             else:
                 lines.append("No plugins installed.")
-            lines.append(f"\nTotal available plugins: {len(directory.PLUGINS)}\n")
+            lines.append(f"\nTotal available plugins: {len(data.PLUGINS)}\n")
             return (0, "\n".join(lines))
         case "status":
             uptime = int(time.time() - data.SESSION_START_TIME)
