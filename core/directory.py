@@ -10,6 +10,23 @@ from core import auth, data, system
 from datetime import datetime, timezone
 import shlex
 
+def cmds(args):
+    lines = ["\nAvailable Commands:"]
+    for name, info in COMMANDS.items():
+        req_args = info[0]
+        desc = info[2]
+        options = info[3]
+        aliases = [alias_name for alias_name, target in ALIAS.items() if target == name]
+        cmd_label = f"{name} (alias: {', '.join(aliases)})" if aliases else name
+        if not options:
+            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
+        else:
+            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
+    lines.append(f"\nTotal available commands: {len(COMMANDS)}")
+    lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
+    lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
+    return (0, "\n".join(lines))
+
 ALIAS = {
     "cls": "clear",
     "help": "cmds",
@@ -20,7 +37,7 @@ ALIAS = {
 COMMANDS = {
     "cd": [0, system.cd, "Change the current working directory (default to Home)", "Directory name"],
     "clear": [0, system.clear, "Clear the screen", None],
-    "cmds": [0, system.cmds, "List all available commands and their functions", None],
+    "cmds": [0, cmds, "List all available commands and their functions", None],
     "dir": [0, system.dirlist, "List all files in the current working directory", None],
     "fs": [1, system.fs, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'status', 'version'"],
     "history": [0, system.history, "View command history (specify entry count, default 10)", "'clear'/'cls' to delete or entry count to view"],
@@ -31,8 +48,6 @@ COMMANDS = {
     "sleep": [1, system.sleep, "Sleep the system for a specified time", "Time (in seconds)"],
     "sys": [1, system.syscmd, "Execute the subsequent command on the host system", "Any host command"]
     }
-
-PLUGINS = {}
 
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -60,8 +75,8 @@ def _execute_single(raw_cmd) -> int:
                 print(f"Accepted Arguments: {options}")
             print()
             return 0
-        elif cmd_name in PLUGINS:
-            plugin = PLUGINS[cmd_name]
+        elif cmd_name in data.PLUGINS:
+            plugin = data.PLUGINS[cmd_name]
             if hasattr(plugin, "help"):
                 plugin.help()
                 print()
@@ -89,9 +104,9 @@ def _execute_single(raw_cmd) -> int:
                     print(result)
                 return 0
             return 0
-    elif cmd_name in PLUGINS:
+    elif cmd_name in data.PLUGINS:
         log(raw_cmd)
-        plugin = PLUGINS[cmd_name]
+        plugin = data.PLUGINS[cmd_name]
         try:
             plugin.execute(args)
             return 0

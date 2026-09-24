@@ -13,13 +13,13 @@ def boot_check():
     REQUIRED_COMPONENTS = [
         core_dir,
         plugin_dir,
-        core_dir / "console.py",
-        core_dir / "directory.py",
-        core_dir / "data.py",
-        core_dir / "system.py",
         core_dir / "auth.py",
         core_dir / "base_plugin.py",
+        core_dir / "console.py",
+        core_dir / "data.py",
+        core_dir / "directory.py",
         core_dir / "loader.py",
+        core_dir / "system.py",
     ]
     if core_dir.exists():
         for py_file in sorted(core_dir.glob("*.py")):

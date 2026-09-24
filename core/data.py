@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 69
-VERSION = "0.68"
+BUILD = 70
+VERSION = "0.69"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -27,6 +27,7 @@ LEGACY_DB_PATH = PROJECT_ROOT / "flyshell_storage.db"
 
 SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0
+PLUGINS = {}
 
 def get_storage_size() -> str:
     if not FILE_PATH.exists():

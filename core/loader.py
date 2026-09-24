@@ -6,7 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data, directory
+from core import data
 from core.base_plugin import BasePlugin
 from pathlib import Path
 import importlib.util
@@ -17,7 +17,7 @@ import sys
 def scan_plugins(plugin_folder=None):
     folder = Path(plugin_folder) if plugin_folder else (data.PROJECT_ROOT / "plugin")
     count = 0
-    directory.PLUGINS.clear()
+    data.PLUGINS.clear()
     if not folder.exists():
         folder.mkdir(parents=True, exist_ok=True)
         print("\nNo plugins found.")
@@ -46,7 +46,7 @@ def scan_plugins(plugin_folder=None):
                 if issubclass(obj, BasePlugin) and obj is not BasePlugin:
                     ctx = build_context(plugin_name)
                     plugin_instance = obj(ctx)
-                    directory.PLUGINS[plugin_name] = plugin_instance
+                    data.PLUGINS[plugin_name] = plugin_instance
                     if count == 0:
                         print("\nInstalled Plugins:")
                     print(f"✅ - {plugin_name}")
