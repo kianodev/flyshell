@@ -8,15 +8,17 @@ if __name__ == "__main__":
 
 from core import data
 from core.base_plugin import BasePlugin
+from core.directory import ALIAS, COMMANDS
 from pathlib import Path
 import importlib.util
 import inspect
 import os
 import sys
 
+RESERVED_NAMES = set(COMMANDS.keys()) | set(ALIAS.keys())
+
 def scan_plugins(plugin_folder=None):
     folder = Path(plugin_folder) if plugin_folder else (data.PROJECT_ROOT / "plugin")
-    count = 0
     data.PLUGINS.clear()
     if not folder.exists():
         folder.mkdir(parents=True, exist_ok=True)
@@ -25,6 +27,7 @@ def scan_plugins(plugin_folder=None):
     folder_str = str(folder)
     if folder_str not in sys.path:
         sys.path.insert(0, folder_str)
+    candidates = {}
     for item in folder.iterdir():
         file_path = None
         plugin_name = None
@@ -45,21 +48,37 @@ def scan_plugins(plugin_folder=None):
             for _, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BasePlugin) and obj is not BasePlugin:
                     ctx = build_context(plugin_name)
-                    plugin_instance = obj(ctx)
-                    data.PLUGINS[plugin_name] = plugin_instance
-                    if count == 0:
-                        print("\nInstalled Plugins:")
-                    print(f"✅ - {plugin_name}")
-                    count += 1
+                    instance = obj(ctx)
+                    candidates.setdefault(plugin_name, []).append((instance, file_path))
                     break
         except Exception as e:
-            print(f"\n⚠️ - Failed to load '{plugin_name}'")
-            print(f"Exception code: {e}, Flyshell will still launch\n")
-
-    if count > 0:
-        print(f"\nTotal of {count} plugin(s) found.")
+            print(f"\n⚠️ Plugin Failure - Failed to inspect '{plugin_name}'")
+            print(f"Exception code: {e}, Flyshell will still launch.")
+    loaded_count = 0
+    first_print = True
+    for name, entries in candidates.items():
+        failed = False
+        if name in RESERVED_NAMES:
+            print(f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded.")
+            failed = True
+        if len(entries) > 1:
+            paths = "\n    - ".join(str(path) for _, path in entries)
+            print(f"\n⚠️ Collision Error - Multiple plugins named '{name}' detected: {paths}")
+            print(f"The above plugins will not be loaded. Please rename them to unique names.")
+            failed = True
+        if failed:
+            continue
+        instance, _ = entries[0]
+        data.PLUGINS[name] = instance
+        if first_print:
+            print("\nInstalled Plugins:")
+            first_print = False
+        print(f"✅ - {name}")
+        loaded_count += 1
+    if loaded_count > 0:
+        print(f"\nTotal of {loaded_count} plugin(s) found.")
     else:
-        print("\nNo plugins found.")
+        print("\nNo plugins loaded.")
 
 def build_context(plugin_name):
     plugin_storage = data.read(["plugin", plugin_name])
