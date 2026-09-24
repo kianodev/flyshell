@@ -19,6 +19,7 @@ def boot_check():
         core_dir / "data.py",
         core_dir / "directory.py",
         core_dir / "loader.py",
+        core_dir / "migrations.py",
         core_dir / "system.py",
     ]
     if core_dir.exists():

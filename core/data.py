@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 70
-VERSION = "0.69"
+BUILD = 71
+VERSION = "0.70"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -9,6 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from core import migrations
 from pathlib import Path
 import json
 import os
@@ -44,114 +45,6 @@ def _get_connection(filename=FILE_PATH):
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
-def _setup_schema(conn):
-    with conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS auth (
-                id INTEGER PRIMARY KEY CHECK (id = 1),
-                username TEXT NOT NULL,
-                hash TEXT NOT NULL,
-                salt TEXT NOT NULL
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS cmd_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                command TEXT NOT NULL,
-                timestamp TEXT NOT NULL
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS kv_store (
-                namespace TEXT NOT NULL,
-                key TEXT NOT NULL,
-                value TEXT NOT NULL,
-                PRIMARY KEY (namespace, key)
-            )
-        """)
-
-def _migrate_json():
-    if not LEGACY_JSON_PATH.exists():
-        return
-    print("\n⚠️ - Legacy 1st Generation JSON format detected ('flyshell_storage.json').")
-    print("Migrating your storage to 2nd Generation SQLite...")
-    conn = None
-    try:
-        with open(LEGACY_JSON_PATH, "r") as f:
-            raw_data = json.load(f)
-        conn = sqlite3.connect(LEGACY_DB_PATH)
-        with conn:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS storage (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL
-                )
-            """)
-            conn.execute("""
-                INSERT INTO storage (key, value) VALUES ('root', ?)
-                ON CONFLICT(key) DO UPDATE SET value = excluded.value
-            """, (json.dumps(raw_data, indent=4),))
-        conn.close()
-        LEGACY_JSON_PATH.rename(PROJECT_ROOT / "flyshell_storage.json.bak")
-        print("SUCCESS: Migrated to 2nd Generation SQLite. Backed up as 'flyshell_storage.json.bak'")
-    except Exception as e:
-        if conn:
-            conn.close()
-        print(f"System Error: Migration failed ({e}).")
-
-def _migrate_sqlite():
-    if not LEGACY_DB_PATH.exists():
-        return
-    try:
-        legacy_conn = sqlite3.connect(LEGACY_DB_PATH)
-        cursor = legacy_conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='storage'")
-        if not cursor.fetchone():
-            legacy_conn.close()
-            return
-        cursor.execute("SELECT value FROM storage WHERE key = 'root'")
-        row = cursor.fetchone()
-        legacy_conn.close()
-        if not row:
-            return
-        print("\n⚠️ - Legacy 2nd Generation Flat SQLite format detected ('flyshell_storage.db').")
-        print("Migrating your storage to 3rd Generation Relational SQLite...")
-        root_data = json.loads(row[0])
-        with _get_connection(FILE_PATH) as new_conn:
-            auth_info = root_data.get("core", {}).get("auth", {})
-            if auth_info and "hash" in auth_info:
-                new_conn.execute("""
-                    INSERT OR REPLACE INTO auth (id, username, hash, salt)
-                    VALUES (1, ?, ?, ?)
-                """, (
-                    auth_info.get("username", "User"),
-                    auth_info.get("hash", ""),
-                    auth_info.get("salt", "")
-                ))
-            history_list = root_data.get("core", {}).get("cmd_history", [])
-            if isinstance(history_list, list):
-                new_conn.execute("DELETE FROM cmd_history")
-                for entry in history_list:
-                    if isinstance(entry, dict):
-                        new_conn.execute("""
-                            INSERT INTO cmd_history (command, timestamp)
-                            VALUES (?, ?)
-                        """, (entry.get("command", ""), entry.get("timestamp", "")))
-            for section, subdict in root_data.items():
-                if not isinstance(subdict, dict):
-                    continue
-                for key, val in subdict.items():
-                    if section == "core" and key in ("auth", "cmd_history"):
-                        continue
-                    new_conn.execute("""
-                        INSERT OR REPLACE INTO kv_store (namespace, key, value)
-                        VALUES (?, ?, ?)
-                    """, (section, key, json.dumps(val)))
-        LEGACY_DB_PATH.rename(PROJECT_ROOT / "flyshell_storage.db.bak")
-        print("SUCCESS: Migrated to 3rd Generation Relational. Backed up as 'flyshell_storage.db.bak'")
-    except Exception as e:
-        print(f"System Error: Migration failed ({e}).")
-
 INITIALISED = False
 
 def initialise():
@@ -159,10 +52,8 @@ def initialise():
     if INITIALISED:
         return
     print("\nChecking database viability...")
-    _migrate_json()
-    _migrate_sqlite()
     with _get_connection(FILE_PATH) as conn:
-        _setup_schema(conn)
+        migrations.run_migrations(conn, FILE_PATH, PROJECT_ROOT, _get_connection)
     print("\n✅ - Database is up to date.")
     INITIALISED = True
 
