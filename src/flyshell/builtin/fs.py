@@ -6,7 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data
+from flyshell.core import data
 import os
 import sys
 import time

@@ -6,9 +6,9 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data
-from core.base_plugin import BasePlugin
-from core.directory import ALIAS, COMMANDS
+from flyshell.core import data
+from flyshell.core.base_plugin import BasePlugin
+from flyshell.core.directory import ALIAS, COMMANDS
 from pathlib import Path
 import importlib.util
 import inspect
