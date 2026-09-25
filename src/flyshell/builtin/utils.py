@@ -59,16 +59,24 @@ def kill(args):
         return (1, "\nAction cancelled.\n")
 
 def reboot(args):
-    print(f"\nRestarting Flyshell...\n")
+    print("\nRestarting Flyshell...\n")
+    is_direct_script = (
+        sys.argv[0].lower().endswith(".exe") 
+        or os.path.basename(sys.argv[0]) == "flyshell"
+    )
+    if is_direct_script:
+        cmd = sys.argv
+    else:
+        cmd = [sys.executable] + sys.argv
     if data.HOST_OS == "Windows":
         old_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
         try:
-            p = subprocess.run([sys.executable] + sys.argv)
+            p = subprocess.run(cmd)
             sys.exit(p.returncode)
         finally:
             signal.signal(signal.SIGINT, old_handler)
     else:
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        os.execv(cmd[0], cmd)
 
 def sleep(args):
     if not args or not args[0].replace(".", "", 1).isdigit():
