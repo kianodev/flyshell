@@ -7,6 +7,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 import json
+import shutil
 import sqlite3
 
 def _setup_schema(conn):
@@ -38,7 +39,7 @@ def _setup_schema(conn):
 def _migrate_json(project_root, legacy_json_path, legacy_db_path):
     if not legacy_json_path.exists():
         return
-    print("\n⚠️ - Legacy 1st Generation JSON format detected ('flyshell_storage.json').")
+    print("\n⚠️ Database out of date - Legacy 1st Generation JSON format detected ('flyshell_storage.json').")
     print("Migrating your storage to 2nd Generation SQLite...")
     conn = None
     try:
@@ -79,7 +80,7 @@ def _migrate_sqlite(project_root, legacy_db_path, file_path, get_connection_fn):
         legacy_conn.close()
         if not row:
             return
-        print("\n⚠️ - Legacy 2nd Generation Flat SQLite format detected ('flyshell_storage.db').")
+        print("\n⚠️ Database out of date - Legacy 2nd Generation Flat SQLite format detected ('flyshell_storage.db').")
         print("Migrating your storage to 3rd Generation Relational SQLite...")
         root_data = json.loads(row[0])
         with get_connection_fn(file_path) as new_conn:
@@ -117,9 +118,24 @@ def _migrate_sqlite(project_root, legacy_db_path, file_path, get_connection_fn):
     except Exception as e:
         print(f"System Error: Migration failed ({e}).")
 
+def _migrate_user_dir(project_root, target_db_path):
+    old_db = project_root / "flyshell3.db"
+    is_empty_target = not target_db_path.exists() or target_db_path.stat().st_size == 0
+    if old_db.exists() and is_empty_target:
+        print("\n⚠️ Database out of date - Database detected in project directory.")
+        print(f"Migrating your storage to user directory: '{target_db_path.parent}'...")
+        try:
+            target_db_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(old_db, target_db_path)
+            old_db.rename(project_root / "flyshell3.db.bak")
+            print("SUCCESS: Migrated to user directory. Backed up as 'flyshell3.db.bak' in old location.")
+        except Exception as e:
+            print(f"System Error: Migration failed ({e}).")
+
 def run_migrations(conn, file_path, project_root, get_connection_fn):
     legacy_json = project_root / "flyshell_storage.json"
     legacy_db = project_root / "flyshell_storage.db"
     _migrate_json(project_root, legacy_json, legacy_db)
     _migrate_sqlite(project_root, legacy_db, file_path, get_connection_fn)
+    _migrate_user_dir(project_root, file_path)
     _setup_schema(conn)
