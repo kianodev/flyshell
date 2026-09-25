@@ -6,8 +6,8 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from builtin import fs, system, utils
-from core import auth, data
+from flyshell.builtin import fs, system, utils
+from flyshell.core import auth, data
 from datetime import datetime, timezone
 import shlex
 

@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 77
-VERSION = "0.76"
+BUILD = 78
+VERSION = "0.77"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import migrations
+from flyshell.core import migrations
 from pathlib import Path
 import json
 import os
@@ -19,7 +19,7 @@ import time
 
 HOST_OS = platform.system()
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def get_app_dir() -> Path:
     home = Path.home()

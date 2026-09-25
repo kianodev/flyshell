@@ -6,7 +6,7 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import auth, data
+from flyshell.core import auth, data
 import getpass
 import os
 import re

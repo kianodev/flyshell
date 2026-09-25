@@ -49,6 +49,8 @@ flyshell/
 
 ## Getting Started
 
+> **⚠️ Note (v0.77+):** The below installation guide is out of date and will not work. At step 2, instead of entering 'python main.py' you should enter 'python -m src.flyshell.main'.
+
 To install Flyshell on your machine and get started, follow the below process:
 
 ### 1. Installation

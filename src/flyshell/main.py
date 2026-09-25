@@ -4,12 +4,17 @@ from pathlib import Path
 import os
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PACKAGE_ROOT = Path(__file__).resolve().parent
+SRC_DIR = PACKAGE_ROOT.parent
+PROJECT_ROOT = SRC_DIR.parent
+
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
-    builtin_dir = PROJECT_ROOT / "builtin"
-    core_dir = PROJECT_ROOT / "core"
+    builtin_dir = PACKAGE_ROOT / "builtin"
+    core_dir = PACKAGE_ROOT / "core"
     REQUIRED_COMPONENTS = [
         builtin_dir,
         builtin_dir / "fs.py",
@@ -44,7 +49,7 @@ def boot_check():
     if missing:
         return False
     print("\nFlyshell will now check additional packages. These are not required.")
-    from core import console
+    from flyshell.core import console
     if console.check_readline():
         print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
     else:
@@ -57,7 +62,7 @@ if __name__ == "__main__":
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
     try:
         if boot_check():
-            from core import auth, console, data, loader
+            from flyshell.core import auth, console, data, loader
             if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 if sys.version_info < (3, 10):
                     print("\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell.")

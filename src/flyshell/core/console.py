@@ -6,8 +6,8 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from core import data
-from core.directory import execute_line
+from flyshell.core import data
+from flyshell.core.directory import execute_line
 import os
 import random
 
