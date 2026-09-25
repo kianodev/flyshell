@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 75
-VERSION = "0.74"
+BUILD = 76
+VERSION = "0.75"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -12,6 +12,7 @@ if __name__ == "__main__":
 from core import migrations
 from pathlib import Path
 import json
+import os
 import platform
 import sqlite3
 import time
@@ -20,10 +21,21 @@ HOST_OS = platform.system()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-FILE_PATH = PROJECT_ROOT / "flyshell3.db"
+def get_app_dir() -> Path:
+    home = Path.home()
+    if HOST_OS == "Windows":
+        base = Path(os.environ.get("APPDATA", home / "AppData" / "Roaming"))
+    elif HOST_OS == "Darwin":
+        base = home / "Library" / "Application Support"
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME", home / ".local" / "share"))
+    app_dir = base / "Flyshell"
+    app_dir.mkdir(parents=True, exist_ok=True)
+    return app_dir
 
-LEGACY_JSON_PATH = PROJECT_ROOT / "flyshell_storage.json"
-LEGACY_DB_PATH = PROJECT_ROOT / "flyshell_storage.db"
+APP_DIR = get_app_dir()
+FILE_PATH = APP_DIR / "flyshell3.db"
+USER_PLUGIN_DIR = APP_DIR / "plugins"
 
 SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0
