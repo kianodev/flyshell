@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 76
-VERSION = "0.75"
+BUILD = 77
+VERSION = "0.76"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -62,11 +62,11 @@ def initialise():
     global INITIALISED
     if INITIALISED:
         return
-    print("\nChecking database viability...")
+    print("\nChecking Flyshell system viability...")
     INITIALISED = True
     with _get_connection(FILE_PATH) as conn:
-        migrations.run_migrations(conn, FILE_PATH, PROJECT_ROOT, _get_connection)
-    print("\n✅ - Database is up to date.")
+        migrations.run_migrations(conn, FILE_PATH, PROJECT_ROOT, _get_connection, USER_PLUGIN_DIR)
+    print("\n✅ - Saved Flyshell system components are up to date.")
 
 def read(keys=None, filename=FILE_PATH):
     initialise()

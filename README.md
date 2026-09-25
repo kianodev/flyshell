@@ -5,6 +5,8 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 
+> **⚠️ Disclaimer:** Flyshell is currently undergoing major structural refactoring. Some installation and usage documentation may be temporarily inaccurate or out of date.
+
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
 Flyshell provides a sandboxed, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only Python standard libraries.
@@ -27,6 +29,8 @@ Versions of Flyshell prior to v0.39 used a JSON storage file; these files are ha
 2. **Operating System**: Your operating system must be **Windows 10/11, macOS (Darwin) or Linux**. Any other operating system will be rejected by Flyshell on boot.
 
 ## System Architecture
+
+> **⚠️ Note (v0.70+):** The below system architecture tree describes an older version of Flyshell prior to v0.70. Once refactoring is complete, this document will be updated with the new setup.
 
 ```
 flyshell/
@@ -80,6 +84,8 @@ Flyshell also supports command chaining out of the box. Use `;` to chain command
 To close Flyshell once you are done, enter `kill` onto the command line then confirm.
 
 ## Creating Custom Plugins
+
+> **⚠️ Note (v0.76+):** The steps below are deprecated following recent storage and packaging refactoring. Updated plugin documentation will be provided once refactoring is complete.
 
 Flyshell features an extensible plugin API. This API supports both single-file and multi-file plugins. Follow the below guide to create your own.
 
