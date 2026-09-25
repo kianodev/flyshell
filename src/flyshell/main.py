@@ -56,7 +56,7 @@ def boot_check():
         print("⚠️ Terminal Readline - Unavailable (This does not affect your performance)")
     return True
 
-if __name__ == "__main__":
+def main():
     os.system("")
     print("\033[H\033[2J", end="")
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
@@ -91,3 +91,6 @@ if __name__ == "__main__":
         print(f"Error details: {e}")
         print("We don't really know what happened there. Sorry about that.\n")
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()

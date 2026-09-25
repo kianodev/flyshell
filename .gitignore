@@ -32,3 +32,8 @@ flyshell_storage.json
 # Test plugins
 singletest.py
 multitest/
+
+# Packaging build artifacts
+*.egg-info/
+build/
+dist/
