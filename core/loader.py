@@ -18,7 +18,7 @@ import sys
 RESERVED_NAMES = set(COMMANDS.keys()) | set(ALIAS.keys())
 
 def scan_plugins(plugin_folder=None):
-    folder = Path(plugin_folder) if plugin_folder else (data.PROJECT_ROOT / "plugin")
+    folder = Path(plugin_folder) if plugin_folder else data.USER_PLUGIN_DIR
     data.PLUGINS.clear()
     if not folder.exists():
         folder.mkdir(parents=True, exist_ok=True)
