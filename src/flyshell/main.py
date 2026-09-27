@@ -90,6 +90,16 @@ def main():
         print("\nOops! An unexpected error occurred.")
         print(f"Error details: {e}")
         print("We don't really know what happened there. Sorry about that.\n")
+        print("Print traceback message? Default is N.")
+        choice = input("[y/n]?: ")
+        if choice.lower() == "y":
+            import traceback
+            raw = traceback.extract_tb(e.__traceback__)
+            last_frame = raw[-1] 
+            print("\nTraceback details:")
+            print(f"File: '{last_frame[0]}'")
+            print(f"Line: {last_frame[1]}")
+            print(f"Exception message: '{e}'")
         sys.exit(1)
 
 if __name__ == "__main__":
