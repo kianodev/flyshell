@@ -37,3 +37,6 @@ multitest/
 *.egg-info/
 build/
 dist/
+
+# Pytest
+.pytest_cache/
