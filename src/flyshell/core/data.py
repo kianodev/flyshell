@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 81
-VERSION = "0.80"
+BUILD = 82
+VERSION = "0.81"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -56,20 +56,21 @@ def _get_connection(filename=FILE_PATH):
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
-INITIALISED = False
+INITIALISED = set()
 
-def initialise():
+def initialise(filename=FILE_PATH):
     global INITIALISED
-    if INITIALISED:
+    target = str(filename)
+    if target in INITIALISED:
         return
     print("\nChecking Flyshell system viability...")
-    INITIALISED = True
-    with _get_connection(FILE_PATH) as conn:
-        migrations.run_migrations(conn, FILE_PATH, PROJECT_ROOT, _get_connection, USER_PLUGIN_DIR)
+    with _get_connection(filename) as conn:
+        migrations.run_migrations(conn, filename, PROJECT_ROOT, _get_connection, USER_PLUGIN_DIR)
+    INITIALISED.add(target)
     print("\n✅ - Saved Flyshell system components are up to date.")
 
 def read(keys=None, filename=FILE_PATH):
-    initialise()
+    initialise(filename)
     if keys is None:
         return _dump_all()
     if isinstance(keys, str):
@@ -104,7 +105,7 @@ def read(keys=None, filename=FILE_PATH):
         return val
 
 def write(keys, value, filename=FILE_PATH):
-    initialise()
+    initialise(filename)
     if isinstance(keys, str):
         keys = [keys]
     with _get_connection(filename) as conn:
@@ -119,7 +120,7 @@ def write(keys, value, filename=FILE_PATH):
         namespace = keys[0]
         key = keys[1] if len(keys) > 1 else "default"
         if len(keys) > 2:
-            existing = read([namespace, key]) or {}
+            existing = read([namespace, key], filename=filename) or {}
             curr = existing
             for subkey in keys[2:-1]:
                 if subkey not in curr or not isinstance(curr[subkey], dict):
@@ -135,7 +136,7 @@ def write(keys, value, filename=FILE_PATH):
         """, (namespace, key, serialised))
 
 def delete(keys, filename=FILE_PATH):
-    initialise()
+    initialise(filename)
     if isinstance(keys, str):
         keys = [keys]
     with _get_connection(filename) as conn:
@@ -148,7 +149,7 @@ def delete(keys, filename=FILE_PATH):
         namespace = keys[0]
         key = keys[1] if len(keys) > 1 else "default"
         if len(keys) > 2:
-            existing = read([namespace, key])
+            existing = read([namespace, key], filename=filename)
             if not isinstance(existing, dict):
                 return False
             curr = existing
