@@ -27,7 +27,6 @@ def boot_check():
         core_dir / "data.py",
         core_dir / "directory.py",
         core_dir / "loader.py",
-        core_dir / "migrations.py",
     ]
     if core_dir.exists():
         for py_file in sorted(core_dir.glob("*.py")):

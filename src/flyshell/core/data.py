@@ -1,7 +1,7 @@
 # \core\data.py
 
-BUILD = 85
-VERSION = "0.84"
+BUILD = 86
+VERSION = "0.85"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -9,7 +9,6 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
-from flyshell.core import migrations
 from pathlib import Path
 import json
 import os
@@ -56,6 +55,32 @@ def _get_connection(filename=FILE_PATH):
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
+def _setup_schema(conn):
+    with conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS auth (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                username TEXT NOT NULL,
+                hash TEXT NOT NULL,
+                salt TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS cmd_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                command TEXT NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS kv_store (
+                namespace TEXT NOT NULL,
+                key TEXT NOT NULL,
+                value TEXT NOT NULL,
+                PRIMARY KEY (namespace, key)
+            )
+        """)
+
 INITIALISED = set()
 
 def initialise(filename=FILE_PATH):
@@ -65,7 +90,7 @@ def initialise(filename=FILE_PATH):
         return
     print("\nChecking Flyshell system viability...")
     with _get_connection(filename) as conn:
-        migrations.run_migrations(conn, filename, PROJECT_ROOT, _get_connection, USER_PLUGIN_DIR)
+        _setup_schema(conn)
     INITIALISED.add(target)
     print("\n✅ - Saved Flyshell system components are up to date.")
 
