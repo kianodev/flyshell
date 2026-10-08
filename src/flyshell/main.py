@@ -1,4 +1,4 @@
-# \main.py
+# src\flyshell\main.py
 
 from pathlib import Path
 import os

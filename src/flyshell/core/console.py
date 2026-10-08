@@ -1,4 +1,4 @@
-# \core\console.py
+# src\flyshell\core\console.py
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
