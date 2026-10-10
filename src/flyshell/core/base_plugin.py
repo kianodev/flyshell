@@ -25,14 +25,15 @@ class BasePlugin:
 
     def load_storage(self) -> dict:
         plugin_key = self.context.get("plugin_name", self.name)
-        fresh_data = data.read(["plugin", plugin_key]) or {}
+        fresh_data = data.get_all_plugin_data(plugin_key)
         self.storage = fresh_data
         self.context["storage"] = fresh_data
         return self.storage
 
     def save_storage(self):
         plugin_key = self.context.get("plugin_name", self.name)
-        data.write(["plugin", plugin_key], self.storage)
+        for k, v in self.storage.items():
+            data.set_plugin_data(plugin_key, k, v)
         self.context["storage"] = self.storage
 
     def on_unload(self):

@@ -1,7 +1,7 @@
 # src\flyshell\core\data.py
 
-BUILD = 87
-VERSION = "0.86"
+BUILD = 88
+VERSION = "0.87"
 
 if __name__ == "__main__":
     print("Error: This file is a Flyshell system module and cannot be run directly.")
@@ -33,7 +33,7 @@ def get_app_dir() -> Path:
     return app_dir
 
 APP_DIR = get_app_dir()
-FILE_PATH = APP_DIR / "flyshell3.db"
+FILE_PATH = APP_DIR / "flyshell.db"
 USER_PLUGIN_DIR = APP_DIR / "plugins"
 
 SESSION_START_TIME = time.time()
@@ -55,32 +55,6 @@ def _get_connection(filename=FILE_PATH):
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
-def _setup_schema(conn):
-    with conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS auth (
-                id INTEGER PRIMARY KEY CHECK (id = 1),
-                username TEXT NOT NULL,
-                hash TEXT NOT NULL,
-                salt TEXT NOT NULL
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS cmd_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                command TEXT NOT NULL,
-                timestamp TEXT NOT NULL
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS kv_store (
-                namespace TEXT NOT NULL,
-                key TEXT NOT NULL,
-                value TEXT NOT NULL,
-                PRIMARY KEY (namespace, key)
-            )
-        """)
-
 INITIALISED = set()
 
 def initialise(filename=FILE_PATH):
@@ -88,134 +62,179 @@ def initialise(filename=FILE_PATH):
     target = str(filename)
     if target in INITIALISED:
         return
-    print("\nChecking Flyshell system viability...")
     with _get_connection(filename) as conn:
-        _setup_schema(conn)
+        conn.execute("PRAGMA foreign_keys = ON;")
+        current_version = conn.execute("PRAGMA user_version;").fetchone()[0]
+        if current_version == 0:
+            with conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS auth (
+                        id INTEGER PRIMARY KEY CHECK (id = 1),
+                        username TEXT NOT NULL,
+                        hash TEXT NOT NULL,
+                        salt TEXT NOT NULL,
+                        created_at TEXT NOT NULL
+                    );
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS cmd_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        command TEXT NOT NULL,
+                        timestamp TEXT NOT NULL
+                    );
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS core_config (
+                        key TEXT PRIMARY KEY,
+                        value TEXT NOT NULL
+                    );
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS plugins (
+                        plugin_name TEXT PRIMARY KEY,
+                        installed_at TEXT NOT NULL,
+                        is_enabled INTEGER NOT NULL DEFAULT 1
+                    );
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS plugin_kv (
+                        plugin_name TEXT NOT NULL,
+                        key TEXT NOT NULL,
+                        value TEXT NOT NULL,
+                        PRIMARY KEY (plugin_name, key),
+                        FOREIGN KEY (plugin_name) REFERENCES plugins(plugin_name) ON DELETE CASCADE
+                    );
+                """)
+                conn.execute("PRAGMA user_version = 1;")
     INITIALISED.add(target)
-    print("\n✅ - Saved Flyshell system components are up to date.")
 
-def read(keys=None, filename=FILE_PATH):
+def get_auth(filename=FILE_PATH) -> dict | None:
     initialise(filename)
-    if keys is None:
-        return _dump_all()
-    if isinstance(keys, str):
-        keys = [keys]
     with _get_connection(filename) as conn:
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "auth":
-            row = conn.execute("SELECT username, hash, salt FROM auth WHERE id = 1").fetchone()
-            if not row:
-                return None
-            auth_dict = {"username": row[0], "hash": row[1], "salt": row[2]}
-            if len(keys) == 2:
-                return auth_dict
-            return auth_dict.get(keys[2])
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "cmd_history":
-            rows = conn.execute("SELECT command, timestamp FROM cmd_history ORDER BY id ASC").fetchall()
-            return [{"command": r[0], "timestamp": r[1]} for r in rows]
-        namespace = keys[0]
-        key = keys[1] if len(keys) > 1 else "default"
-        row = conn.execute("SELECT value FROM kv_store WHERE namespace = ? AND key = ?", (namespace, key)).fetchone()
+        row = conn.execute("SELECT username, hash, salt, created_at FROM auth WHERE id = 1").fetchone()
         if not row:
             return None
-        try:
-            val = json.loads(row[0])
-        except (ValueError, TypeError):
-            val = row[0]
-        if len(keys) > 2 and isinstance(val, dict):
-            for subkey in keys[2:]:
-                if isinstance(val, dict) and subkey in val:
-                    val = val[subkey]
-                else:
-                    return None
-        return val
+        return {"username": row[0], "hash": row[1], "salt": row[2], "created_at": row[3]}
 
-def write(keys, value, filename=FILE_PATH):
+def set_auth(username: str, pwd_hash: str, salt: str, filename=FILE_PATH) -> None:
     initialise(filename)
-    if isinstance(keys, str):
-        keys = [keys]
+    now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with _get_connection(filename) as conn:
-        # Route 1: Auth
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "auth":
-            if isinstance(value, dict):
-                conn.execute("""
-                    INSERT OR REPLACE INTO auth (id, username, hash, salt)
-                    VALUES (1, ?, ?, ?)
-                """, (value.get("username", "User"), value.get("hash", ""), value.get("salt", "")))
-            return
-        namespace = keys[0]
-        key = keys[1] if len(keys) > 1 else "default"
-        if len(keys) > 2:
-            existing = read([namespace, key], filename=filename) or {}
-            curr = existing
-            for subkey in keys[2:-1]:
-                if subkey not in curr or not isinstance(curr[subkey], dict):
-                    curr[subkey] = {}
-                curr = curr[subkey]
-            curr[keys[-1]] = value
-            serialised = json.dumps(existing, indent=4)
+        with conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO auth (id, username, hash, salt, created_at)
+                VALUES (1, ?, ?, ?, ?)
+            """, (username, pwd_hash, salt, now_utc))
+
+def clear_auth(filename=FILE_PATH) -> bool:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        with conn:
+            cursor = conn.execute("DELETE FROM auth WHERE id = 1")
+            return cursor.rowcount > 0
+
+def append_history(cmd: str, timestamp: str, filename=FILE_PATH) -> None:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        with conn:
+            conn.execute("INSERT INTO cmd_history (command, timestamp) VALUES (?, ?)", (cmd, timestamp))
+
+def get_history(limit: int | None = None, filename=FILE_PATH) -> list[dict]:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        if limit is not None and limit > 0:
+            query = "SELECT command, timestamp FROM cmd_history ORDER BY id DESC LIMIT ?"
+            rows = conn.execute(query, (limit,)).fetchall()
+            rows.reverse()
         else:
-            serialised = json.dumps(value, indent=4)
-        conn.execute("""
-            INSERT OR REPLACE INTO kv_store (namespace, key, value)
-            VALUES (?, ?, ?)
-        """, (namespace, key, serialised))
+            query = "SELECT command, timestamp FROM cmd_history ORDER BY id ASC"
+            rows = conn.execute(query).fetchall()
+        return [{"command": r[0], "timestamp": r[1]} for r in rows]
 
-def delete(keys, filename=FILE_PATH):
+def clear_history(filename=FILE_PATH) -> bool:
     initialise(filename)
-    if isinstance(keys, str):
-        keys = [keys]
     with _get_connection(filename) as conn:
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "cmd_history":
+        with conn:
             conn.execute("DELETE FROM cmd_history")
             return True
-        if keys[0] == "core" and len(keys) >= 2 and keys[1] == "auth":
-            conn.execute("DELETE FROM auth WHERE id = 1")
-            return True
-        namespace = keys[0]
-        key = keys[1] if len(keys) > 1 else "default"
-        if len(keys) > 2:
-            existing = read([namespace, key], filename=filename)
-            if not isinstance(existing, dict):
-                return False
-            curr = existing
-            for subkey in keys[2:-1]:
-                if isinstance(curr, dict) and subkey in curr:
-                    curr = curr[subkey]
-                else:
-                    return False
-            if isinstance(curr, dict) and keys[-1] in curr:
-                del curr[keys[-1]]
-                conn.execute("""
-                    INSERT OR REPLACE INTO kv_store (namespace, key, value)
-                    VALUES (?, ?, ?)
-                """, (namespace, key, json.dumps(existing, indent=4)))
-                return True
-            return False
-        cursor = conn.execute("DELETE FROM kv_store WHERE namespace = ? AND key = ?", (namespace, key))
-        return cursor.rowcount > 0
 
-def _dump_all():
-    dump = {"core": {}, "plugin": {}}
-    with _get_connection(FILE_PATH) as conn:
-        row = conn.execute("SELECT username, hash, salt FROM auth WHERE id = 1").fetchone()
-        if row:
-            dump["core"]["auth"] = {"username": row[0], "hash": row[1], "salt": row[2]}
-        history_rows = conn.execute("SELECT command, timestamp FROM cmd_history ORDER BY id ASC").fetchall()
-        dump["core"]["cmd_history"] = [{"command": r[0], "timestamp": r[1]} for r in history_rows]
-        kv_rows = conn.execute("SELECT namespace, key, value FROM kv_store").fetchall()
-        for ns, k, val in kv_rows:
-            if ns not in dump:
-                dump[ns] = {}
+def get_config(key: str, default=None, filename=FILE_PATH):
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        row = conn.execute("SELECT value FROM core_config WHERE key = ?", (key,)).fetchone()
+        if not row:
+            return default
+        try:
+            return json.loads(row[0])
+        except (ValueError, TypeError):
+            return row[0]
+
+def set_config(key: str, value, filename=FILE_PATH) -> None:
+    initialise(filename)
+    serialized = json.dumps(value)
+    with _get_connection(filename) as conn:
+        with conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO core_config (key, value)
+                VALUES (?, ?)
+            """, (key, serialized))
+
+def delete_config(key: str, filename=FILE_PATH) -> bool:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        with conn:
+            cursor = conn.execute("DELETE FROM core_config WHERE key = ?", (key,))
+            return cursor.rowcount > 0
+
+def register_plugin(plugin_name: str, filename=FILE_PATH) -> None:
+    initialise(filename)
+    now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    with _get_connection(filename) as conn:
+        with conn:
+            conn.execute("""
+                INSERT OR IGNORE INTO plugins (plugin_name, installed_at, is_enabled)
+                VALUES (?, ?, 1)
+            """, (plugin_name, now_utc))
+
+def get_plugin_data(plugin_name: str, key: str, default=None, filename=FILE_PATH):
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        row = conn.execute("""
+            SELECT value FROM plugin_kv WHERE plugin_name = ? AND key = ?
+        """, (plugin_name, key)).fetchone()
+        if not row:
+            return default
+        try:
+            return json.loads(row[0])
+        except (ValueError, TypeError):
+            return row[0]
+
+def set_plugin_data(plugin_name: str, key: str, value, filename=FILE_PATH) -> None:
+    initialise(filename)
+    register_plugin(plugin_name, filename=filename)
+    serialized = json.dumps(value)
+    with _get_connection(filename) as conn:
+        with conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO plugin_kv (plugin_name, key, value)
+                VALUES (?, ?, ?)
+            """, (plugin_name, key, serialized))
+
+def get_all_plugin_data(plugin_name: str, filename=FILE_PATH) -> dict:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        rows = conn.execute("SELECT key, value FROM plugin_kv WHERE plugin_name = ?", (plugin_name,)).fetchall()
+        result = {}
+        for k, v in rows:
             try:
-                dump[ns][k] = json.loads(val)
-            except Exception:
-                dump[ns][k] = val
-    return dump
+                result[k] = json.loads(v)
+            except (ValueError, TypeError):
+                result[k] = v
+        return result
 
-def append_history(cmd, timestamp):
-    initialise()
-    with _get_connection(FILE_PATH) as conn:
-        conn.execute(
-            "INSERT INTO cmd_history (command, timestamp) VALUES (?, ?)",
-            (cmd, timestamp)
-        )
+def purge_plugin(plugin_name: str, filename=FILE_PATH) -> bool:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        with conn:
+            cursor = conn.execute("DELETE FROM plugins WHERE plugin_name = ?", (plugin_name,))
+            return cursor.rowcount > 0

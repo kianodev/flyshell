@@ -17,32 +17,23 @@ def clear(args):
     return (0, "\033[H\033[2J")
 
 def history(args):
-    if args and args[0].lower() in ["cls", "clear"]:
-        choice = input(f"\nAre you sure? [y/n]: ").lower()
-        if choice == "y":
-            data.delete(["core", "cmd_history"])
-            return (0, "\nCommand history cleared.\n")
-        else:
-            return (1, "\nAction cancelled.\n")
-    history_entries = data.read(["core", "cmd_history"]) or []
-    if not history_entries:
-        return (0, "\nHistory is empty.\n")
     limit = 10
     if args:
         sub_arg = args[0].lower()
         if sub_arg == "all":
-            limit = len(history_entries)
+            limit = None
         elif sub_arg.isdigit():
             limit = int(sub_arg)
         else:
             return (1, f"\nCommand Error: Invalid argument '{args[0]}'\n")
-    entries = history_entries[-limit:] if limit > 0 else []
-    start_index = len(history_entries) - len(entries) + 1
+    history_entries = data.get_history(limit)
+    if not history_entries:
+        return (0, "\nHistory is empty.\n")
     lines = [
         "\nCommand History:",
-        f"Showing last {len(entries)} entries.\n"
+        f"Showing last {len(history_entries)} entries.\n"
     ]
-    for i, entry in enumerate(entries, start=start_index):
+    for i, entry in enumerate(history_entries, start=1):
         cmd = entry.get("command", "")
         time_str = entry.get("timestamp", "")
         date_part, time_part = time_str.rstrip("Z").split("T")

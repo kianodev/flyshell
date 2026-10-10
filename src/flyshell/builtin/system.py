@@ -99,7 +99,7 @@ def syscmd(args):
         ))
     elif is_dangerous and not override:
         password = getpass.getpass("\nThis command is restricted. To execute, enter your password: ")
-        auth_info = data.read(["core", "auth"])
+        auth_info = data.get_auth() or {}
         stored_hash = auth_info.get("hash")
         stored_salt = auth_info.get("salt")
         if not auth.verify_password(stored_hash, stored_salt, password):

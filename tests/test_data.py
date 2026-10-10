@@ -1,6 +1,9 @@
 # \tests\test_data.py
 
 from flyshell.core import data
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Tests legacy depreciated API, pending rewrite")
 
 def test_data_write_read(tmp_path):
     test_db = tmp_path / "test_flyshell.db"

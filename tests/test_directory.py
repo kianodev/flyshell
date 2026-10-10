@@ -1,6 +1,7 @@
 # tests\test_directory.py
 
 from flyshell.core import directory
+import pytest
 
 def test_parse_simple_command():
     chain = directory._parse_commands("clear")

@@ -51,9 +51,9 @@ def execute(args):
             mins, secs = divmod(uptime, 60)
             hours, mins = divmod(mins, 60)
             uptime_str = f"{hours}h {mins}m {secs}s"
-            auth_data = data.read(["core", "auth"]) or {}
+            auth_data = data.get_auth() or {}
             current_user = auth_data.get("username", "Unknown")
-            cmd_history = data.read(["core", "cmd_history"])
+            cmd_history = data.get_history()
             total_history_count = len(cmd_history) if isinstance(cmd_history, list) else 0
             storage_size_str = data.get_storage_size()
             return (0, (

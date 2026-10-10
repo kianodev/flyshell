@@ -81,10 +81,7 @@ def scan_plugins(plugin_folder=None):
         print("\nNo plugins loaded.")
 
 def build_context(plugin_name):
-    plugin_storage = data.read(["plugin", plugin_name])
-    if plugin_storage is None:
-        plugin_storage = {}
-        data.write(["plugin", plugin_name], plugin_storage)
+    plugin_storage = data.get_all_plugin_data(plugin_name)
     context = {
         "plugin_name": plugin_name,
         "metadata": {

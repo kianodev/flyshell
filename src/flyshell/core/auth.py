@@ -74,16 +74,16 @@ def setup_acc() -> bool:
         "hash": pwd_hash,
         "salt": salt
     }
-    data.write(["core", "auth"], auth_data)
+    data.set_auth(username, pwd_hash, salt)
     print("\nSUCCESS: Account created successfully!")
     return True
 
 def login_flow(is_lock=False) -> bool:
-    auth_info = data.read(["core", "auth"])
+    auth_info = data.get_auth()
     if not auth_info or "hash" not in auth_info:
         if not setup_acc():
             return False
-        auth_info = data.read(["core", "auth"])
+        auth_info = data.get_auth()
     stored_user = auth_info.get("username", "User")
     stored_hash = auth_info.get("hash")
     stored_salt = auth_info.get("salt")
