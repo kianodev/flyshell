@@ -46,6 +46,45 @@ def execute(args):
                 lines.append("No plugins installed.")
             lines.append(f"\nTotal available plugins: {len(data.PLUGINS)}\n")
             return (0, "\n".join(lines))
+        case "purge":
+            if len(args) < 2:
+                return (1, "\nCommand Error: 'fs purge' requires a target.\n")
+            target = args[1].lower()
+            match target:
+                case "history":
+                    choice = input("\nAre you sure you want to clear all command history? [y/n]: ").strip().lower()
+                    if choice == "y":
+                        data.clear_history()
+                        return (0, "\nCommand history purged successfully.\n")
+                    return (1, "\nAction cancelled.\n")
+                case "config":
+                    if len(args) < 3:
+                        return (1, "\nCommand Error: Please specify a configuration key to delete.\n")
+                    key = args[2]
+                    if data.delete_config(key):
+                        return (0, f"\nConfig setting '{key}' deleted.\n")
+                    return (1, f"\nConfig Error: Setting '{key}' not found.\n")
+                case "plugin":
+                    if len(args) < 3:
+                        return (1, "\nCommand Error: Please specify a plugin name to purge.\n")
+                    plugin_name = args[2]
+                    choice = input(f"\nAre you sure you want to purge all data for plugin '{plugin_name}'? [y/n]: ").strip().lower()
+                    if choice == "y":
+                        if data.purge_plugin(plugin_name):
+                            return (0, f"\nPlugin '{plugin_name}' and its storage purged successfully.\n")
+                        return (1, f"\nPlugin Error: No data found for plugin '{plugin_name}'.\n")
+                    return (1, "\nAction cancelled.\n")
+                case "all":
+                    choice = input("\nWARNING: This will wipe history, configurations, and plugin data. Proceed? [y/n]: ").strip().lower()
+                    if choice == "y":
+                        data.clear_history()
+                        for name in list(data.PLUGINS.keys()):
+                            data.purge_plugin(name)
+                        return (0, "\nAll non-auth system data purged successfully.\n")
+                    return (1, "\nAction cancelled.\n")
+
+                case _:
+                    return (1, f"\nCommand Error: Unknown purge target '{target}'.\n")
         case "status":
             uptime = int(time.time() - data.SESSION_START_TIME)
             mins, secs = divmod(uptime, 60)

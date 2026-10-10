@@ -40,7 +40,7 @@ COMMANDS = {
     "clear": [0, utils.clear, "Clear the screen", None],
     "cmds": [0, cmds, "List all available commands and their functions", None],
     "dir": [0, system.dirlist, "List all files in the current working directory", None],
-    "fs": [1, fs.execute, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'status', 'version'"],
+    "fs": [1, fs.execute, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'purge', 'status', 'version'"],
     "history": [0, utils.history, "View command history", "Entry count (default is 10)"],
     "kill": [0, utils.kill, "Shut down the Flyshell system", None],
     "lock": [0, auth.lock, "Lock the Flyshell system", None],
