@@ -1,25 +1,39 @@
 # \tests\test_loader.py
 
-from flyshell.core import loader
-import pytest
+from flyshell.core import data, loader
+from flyshell.core.base_plugin import BasePlugin
 
-pytestmark = pytest.mark.skip(reason="Tests target unmerged/obsolete API, pending rewrite")
+def test_loader_rejects_command_name_collision(tmp_path, monkeypatch):
+    bad_plugin = tmp_path / "sys.py"
+    bad_plugin.write_text(
+        "from flyshell.core.base_plugin import BasePlugin\n"
+        "class SysPlugin(BasePlugin):\n"
+        "    def execute(self, args): pass\n"
+    )
+    monkeypatch.setattr(data, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "sys" not in data.PLUGINS
 
-def test_shadowing_builtin_command_rejected():
-    reserved_cmd = "sys"
-    is_allowed = loader.is_command_allowed(reserved_cmd) if hasattr(loader, "is_command_allowed") else False
-    
-    assert is_allowed is False
+def test_loader_discovers_and_instantiates_valid_plugin(tmp_path, monkeypatch):
+    valid_plugin = tmp_path / "sample.py"
+    valid_plugin.write_text(
+        "from flyshell.core.base_plugin import BasePlugin\n"
+        "class SamplePlugin(BasePlugin):\n"
+        "    name = 'Sample Tool'\n"
+        "    description = 'Testing tool'\n"
+        "    def execute(self, args):\n"
+        "        return (0, 'done')\n"
+    )
+    monkeypatch.setattr(data, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "sample" in data.PLUGINS
+    plugin_instance = data.PLUGINS["sample"]
+    assert isinstance(plugin_instance, BasePlugin)
+    assert plugin_instance.name == "Sample Tool"
 
-def test_duplicate_plugin_collision_withheld(tmp_path):
-    plugins = {
-        "notes": {"author": "DevA", "entry": lambda: "A"},
-        "notes": {"author": "DevB", "entry": lambda: "B"}
-    }
-    collisions = loader.check_collisions(["notes", "notes"]) if hasattr(loader, "check_collisions") else ["notes"]
-    assert "notes" in collisions
-
-def test_valid_plugin_registration():
-    dummy_name = "test_custom_tool"
-    if hasattr(loader, "is_command_allowed"):
-        assert loader.is_command_allowed(dummy_name) is True
+def test_loader_handles_broken_plugin_gracefully(tmp_path, monkeypatch):
+    broken_plugin = tmp_path / "broken.py"
+    broken_plugin.write_text("import non_existent_library_12345\n")
+    monkeypatch.setattr(data, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "broken" not in data.PLUGINS

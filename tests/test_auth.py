@@ -1,7 +1,6 @@
 # \tests\test_auth.py
 
 from flyshell.core import auth
-import pytest
 
 def test_hash_password_generates_hex():
     raw_password = "SecurePassword123!"

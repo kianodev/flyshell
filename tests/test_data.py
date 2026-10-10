@@ -1,7 +1,6 @@
 # \tests\test_data.py
 
 from flyshell.core import data
-import pytest
 import sqlite3
 
 def test_database_initialises_with_user_version(tmp_path):

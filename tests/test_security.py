@@ -1,22 +1,26 @@
-# \tests\test_security.py
+# tests\test_security.py
 
 from flyshell.builtin import system
-import pytest
 
-pytestmark = pytest.mark.skip(reason="Tests target unmerged/obsolete API, pending rewrite")
+def test_syscmd_blocks_prohibited_base_commands():
+    for cmd in ["format C:", "diskpart", "dd if=/dev/zero"]:
+        tokens = cmd.split()
+        code, message = system.syscmd(tokens)
+        assert code == 1
+        assert "Security Error" in message
 
-def test_blocked_command_interception():
-    blocked_cmd = "format C:"
-    result = system.is_command_safe(blocked_cmd) if hasattr(system, "is_command_safe") else None
-    if result is not None:
-        assert result is False
+def test_syscmd_blocks_forkbomb_signature():
+    code, message = system.syscmd([":(){ :|:& };:"])
+    assert code == 1
+    assert "Security Error" in message
 
-def test_safe_command_allowed():
-    safe_cmd = "git status"
-    result = system.is_command_safe(safe_cmd) if hasattr(system, "is_command_safe") else None
-    if result is not None:
-        assert result is True
+def test_syscmd_blocks_critical_system_directories():
+    for dangerous_call in ["rm -rf /", "del C:\\Windows\\System32"]:
+        code, message = system.syscmd(dangerous_call.split())
+        assert code == 1
+        assert "Security Error" in message
 
-def test_dangerous_override_flag():
-    cmd_with_override = "sys -f del temp_build.log"
-    assert "-f" in cmd_with_override
+def test_syscmd_force_flag_without_arguments_returns_error():
+    code, message = system.syscmd(["-f"])
+    assert code == 1
+    assert "requires at least 1 parameter" in message
