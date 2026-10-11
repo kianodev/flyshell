@@ -1,7 +1,7 @@
 # \tests\test_loader.py
 
+from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data, loader
-from flyshell.core.base_plugin import BasePlugin
 
 def test_loader_rejects_command_name_collision(tmp_path, monkeypatch):
     bad_plugin = tmp_path / "sys.py"
@@ -17,7 +17,7 @@ def test_loader_rejects_command_name_collision(tmp_path, monkeypatch):
 def test_loader_discovers_and_instantiates_valid_plugin(tmp_path, monkeypatch):
     valid_plugin = tmp_path / "sample.py"
     valid_plugin.write_text(
-        "from flyshell.core.base_plugin import BasePlugin\n"
+        "from flyshell.abstract.base_plugin import BasePlugin\n"
         "class SamplePlugin(BasePlugin):\n"
         "    name = 'Sample Tool'\n"
         "    description = 'Testing tool'\n"

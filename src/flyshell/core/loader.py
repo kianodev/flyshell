@@ -6,8 +6,8 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data
-from flyshell.core.base_plugin import BasePlugin
 from flyshell.core.directory import ALIAS, COMMANDS
 from pathlib import Path
 import importlib.util
@@ -47,7 +47,7 @@ def scan_plugins(plugin_folder=None):
             spec.loader.exec_module(module)
             for _, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BasePlugin) and obj is not BasePlugin:
-                    ctx = build_context(plugin_name)
+                    ctx = build_context(plugin_name, file_path)
                     instance = obj(ctx)
                     candidates.setdefault(plugin_name, []).append((instance, file_path))
                     break
@@ -80,10 +80,11 @@ def scan_plugins(plugin_folder=None):
     else:
         print("\nNo plugins loaded.")
 
-def build_context(plugin_name):
+def build_context(plugin_name, file_path=None):
     plugin_storage = data.get_all_plugin_data(plugin_name)
     context = {
         "plugin_name": plugin_name,
+        "file_path": str(file_path) if file_path else None,
         "metadata": {
             "host_os": data.HOST_OS,
             "version": data.VERSION,

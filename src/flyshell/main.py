@@ -13,16 +13,18 @@ if str(SRC_DIR) not in sys.path:
 
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
+    abstract_dir = PACKAGE_ROOT / "abstract"
     builtin_dir = PACKAGE_ROOT / "builtin"
     core_dir = PACKAGE_ROOT / "core"
     REQUIRED_COMPONENTS = [
+        abstract_dir,
+        abstract_dir / "base_plugin.py",
         builtin_dir,
         builtin_dir / "fs.py",
         builtin_dir / "system.py",
         builtin_dir / "utils.py",
         core_dir,
         core_dir / "auth.py",
-        core_dir / "base_plugin.py",
         core_dir / "console.py",
         core_dir / "data.py",
         core_dir / "directory.py",
