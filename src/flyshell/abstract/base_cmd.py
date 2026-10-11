@@ -12,8 +12,11 @@ class BaseCmd:
     def execute(self, args: List[str]) -> Union[int, Tuple[int, str], str, None]:
         raise NotImplementedError(f"Command '{self.__class__.__name__}' has not implemented the execute method")
 
-    def help(self):
-        print(f"\nCommand: {self.name}")
+    def help(self, prefix: str = ""):
+        full_name = f"{prefix} {self.name}".strip() if prefix else self.name
+        print(f"\nCommand: {full_name}")
+        if prefix:
+            print(f"Parent: Part of the '{prefix}' family of commands")
         if self.aliases:
             print(f"Aliases: {', '.join(self.aliases)}")
         print(f"Description: {self.description}")

@@ -110,7 +110,7 @@ def main():
         print("\n\nFlyshell session terminated, shutting down...\n")
         sys.exit(0)
     except Exception as e:
-        print("\nOops! An unexpected error occurred.")
+        print("\n❌❌❌ Oops! An unexpected error occurred.")
         print(f"Error details: {e}")
         print("We don't really know what happened there. Sorry about that.\n")
         print("Print traceback message? Default is N.")

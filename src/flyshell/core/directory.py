@@ -7,6 +7,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 from flyshell.abstract.base_cmd import BaseCmd
+from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.builtin import fs, system, utils
 from flyshell.core import auth, data
 
@@ -40,18 +41,18 @@ class Cmds(BaseCmd):
         return (0, "\n".join(lines))
 
 INSTALLED_COMMANDS: list[BaseCmd] = [
-    Cmds(),
-    auth.Lock(),
-    fs.Fs(),
     system.Cd(),
-    system.Dir(),
-    system.OpenFile(),
-    system.SysExe(),
+    Cmds(),
     utils.Clear(),
+    system.Dir(),
+    fs.Fs(),
     utils.History(),
     utils.Kill(),
+    auth.Lock(),
+    system.OpenFile(),
     utils.Reboot(),
     utils.Sleep(),
+    system.SysExe(),
 ]
 COMMAND_REGISTRY: dict[str, BaseCmd] = {}
 for cmd_obj in INSTALLED_COMMANDS:
@@ -77,7 +78,10 @@ def _execute_single(raw_cmd: str) -> int:
     args = cmd[1:]
     if "-h" in args or "--help" in args:
         if cmd_name in COMMAND_REGISTRY:
-            COMMAND_REGISTRY[cmd_name].help()
+            command = COMMAND_REGISTRY[cmd_name]
+            if isinstance(command, ParentCmd):
+                return command.execute(args)
+            command.help()
             return 0
         elif cmd_name in data.PLUGINS:
             plugin = data.PLUGINS[cmd_name]
