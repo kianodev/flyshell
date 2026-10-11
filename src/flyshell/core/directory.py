@@ -85,6 +85,13 @@ def _execute_single(raw_cmd) -> int:
             else:
                 print(f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n")
                 return 1
+    if "-d" in args or "--docs" in args:
+        if cmd_name in data.PLUGINS:
+            plugin = data.PLUGINS[cmd_name]
+            if plugin.show_docs():
+                return 0
+            print(f"\nPlugin Error: Plugin '{cmd_name}' has not provided documentation.\n")
+            return 1
     if cmd_name in COMMANDS:
         min_args, func, desc, options = COMMANDS[cmd_name]
         if len(args) < min_args:
