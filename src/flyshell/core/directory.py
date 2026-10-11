@@ -6,55 +6,64 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.builtin import fs, system, utils
 from flyshell.core import auth, data
+
 from datetime import datetime, timezone
 import shlex
 
-def cmds(args):
-    lines = ["\nAvailable Commands:"]
-    for name, info in COMMANDS.items():
-        req_args = info[0]
-        desc = info[2]
-        options = info[3]
-        aliases = [alias_name for alias_name, target in ALIAS.items() if target == name]
-        cmd_label = f"{name} (alias: {', '.join(aliases)})" if aliases else name
-        if not options:
-            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s))")
-        else:
-            lines.append(f"\n{cmd_label}: {desc} (Requires {req_args} parameter(s)) [args: {options}]")
-    lines.append(f"\nTotal available commands: {len(COMMANDS)}")
-    lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
-    lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
-    return (0, "\n".join(lines))
 
-ALIAS = {
-    "cls": "clear",
-    "help": "cmds",
-    "ls": "dir",
-    "restart": "reboot",
-}
+class Cmds(BaseCmd):
+    name = "cmds"
+    description = "List all available commands and their functions"
+    min_args = 0
+    options = None
+    aliases = ["help"]
 
-COMMANDS = {
-    "cd": [0, system.cd, "Change the current working directory (default to Home)", "Directory name"],
-    "clear": [0, utils.clear, "Clear the screen", None],
-    "cmds": [0, cmds, "List all available commands and their functions", None],
-    "dir": [0, system.dirlist, "List all files in the current working directory", None],
-    "fs": [1, fs.execute, "Execute various Flyshell system functions", "'info', 'licence', 'plugins', 'purge', 'status', 'version'"],
-    "history": [0, utils.history, "View command history", "Entry count (default is 10)"],
-    "kill": [0, utils.kill, "Shut down the Flyshell system", None],
-    "lock": [0, auth.lock, "Lock the Flyshell system", None],
-    "open": [1, system.openfile, "Open the specified file path", "Filepath"],
-    "reboot": [0, utils.reboot, "Reboot the Flyshell system", None],
-    "sleep": [1, utils.sleep, "Sleep the system for a specified time", "Time (in seconds)"],
-    "sys": [1, system.syscmd, "Execute the subsequent command on the host system", "Any host command"]
-    }
+    def execute(self, args):
+        lines = ["\nAvailable Commands:"]
+        seen_cmds = set()
+        for cmd in COMMAND_REGISTRY.values():
+            if cmd in seen_cmds:
+                continue
+            seen_cmds.add(cmd)
+            cmd_label = f"{cmd.name} (alias: {', '.join(cmd.aliases)})" if cmd.aliases else cmd.name
+            if not cmd.options:
+                lines.append(f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s))")
+            else:
+                lines.append(f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s)) [args: {cmd.options}]")
+
+        lines.append(f"\nTotal available commands: {len(seen_cmds)}")
+        lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
+        lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
+        return (0, "\n".join(lines))
+
+INSTALLED_COMMANDS: list[BaseCmd] = [
+    Cmds(),
+    auth.Lock(),
+    fs.Fs(),
+    system.Cd(),
+    system.Dir(),
+    system.OpenFile(),
+    system.SysExe(),
+    utils.Clear(),
+    utils.History(),
+    utils.Kill(),
+    utils.Reboot(),
+    utils.Sleep(),
+]
+COMMAND_REGISTRY: dict[str, BaseCmd] = {}
+for cmd_obj in INSTALLED_COMMANDS:
+    COMMAND_REGISTRY[cmd_obj.name] = cmd_obj
+    for alias_name in cmd_obj.aliases:
+        COMMAND_REGISTRY[alias_name] = cmd_obj
 
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data.append_history(cmd, utc_now)
 
-def _execute_single(raw_cmd) -> int:
+def _execute_single(raw_cmd: str) -> int:
     try:
         posix_mode = False if data.HOST_OS == "Windows" else True
         cmd = shlex.split(raw_cmd, posix=posix_mode)
@@ -62,19 +71,13 @@ def _execute_single(raw_cmd) -> int:
         print("\nCommand Error: Invalid syntax.")
         print(f"Details: {e}\n")
         return 1
+    if not cmd:
+        return 0
     cmd_name = cmd[0]
     args = cmd[1:]
-    if cmd_name in ALIAS:
-        cmd_name = ALIAS[cmd_name]
     if "-h" in args or "--help" in args:
-        if cmd_name in COMMANDS:
-            min_args, _, desc, options = COMMANDS[cmd_name]
-            print(f"\nCommand: {cmd_name}")
-            print(f"Description: {desc}")
-            print(f"Required Arguments: {min_args}")
-            if options:
-                print(f"Accepted Arguments: {options}")
-            print()
+        if cmd_name in COMMAND_REGISTRY:
+            COMMAND_REGISTRY[cmd_name].help()
             return 0
         elif cmd_name in data.PLUGINS:
             plugin = data.PLUGINS[cmd_name]
@@ -88,43 +91,49 @@ def _execute_single(raw_cmd) -> int:
     if "-d" in args or "--docs" in args:
         if cmd_name in data.PLUGINS:
             plugin = data.PLUGINS[cmd_name]
-            if plugin.show_docs():
+            if hasattr(plugin, "show_docs") and plugin.show_docs():
                 return 0
             print(f"\nPlugin Error: Plugin '{cmd_name}' has not provided documentation.\n")
             return 1
-    if cmd_name in COMMANDS:
-        min_args, func, desc, options = COMMANDS[cmd_name]
-        if len(args) < min_args:
-            print(f"\nCommand Error: '{cmd_name}' requires at least {min_args} parameter(s).\n")
+    if cmd_name in COMMAND_REGISTRY:
+        command = COMMAND_REGISTRY[cmd_name]
+        if len(args) < command.min_args:
+            print(f"\nCommand Error: '{cmd_name}' requires at least {command.min_args} parameter(s).\n")
             return 1
-        else:
-            if cmd[0] != "history":
-                log(raw_cmd)
-            result = func(args)
-            data.SESSION_CMD_COUNT += 1
-            if isinstance(result, tuple):
-                code, message = result
-                if message:
-                    print(message)
-                return code
-            elif isinstance(result, str):
-                if result:
-                    print(result)
-                return 0
+        if cmd[0] != "history":
+            log(raw_cmd)
+        try:
+            result = command.execute(args)
+        except Exception as e:
+            print(f"\nCommand Error: Failed during execution of '{cmd_name}'.")
+            print(f"Details: {e}\n")
+            return 1
+        data.SESSION_CMD_COUNT += 1
+        if isinstance(result, tuple):
+            code, message = result
+            if message:
+                print(message)
+            return code
+        elif isinstance(result, int):
+            return result
+        elif isinstance(result, str):
+            if result:
+                print(result)
             return 0
+        return 0
     elif cmd_name in data.PLUGINS:
         log(raw_cmd)
         plugin = data.PLUGINS[cmd_name]
         try:
-            plugin.execute(args)
-            return 0
+            result = plugin.execute(args)
+            return result if isinstance(result, int) else 0
         except NotImplementedError:
             print(f"\nPlugin Error: '{cmd_name}' has not implemented the execute method.\n")
             return 1
         except Exception as e:
             print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
             print(f"Details: {e}")
-            print(f"Returning to main Flyshell interface...\n")
+            print("Returning to main Flyshell interface...\n")
             return 1
         finally:
             if hasattr(plugin, "on_unload"):
@@ -133,7 +142,7 @@ def _execute_single(raw_cmd) -> int:
         print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
         return 1
 
-def _parse_commands(raw_cmd: str) -> list[str]:
+def _parse_commands(raw_cmd: str) -> list:
     chain = []
     current = []
     in_single_quote = False
@@ -202,7 +211,7 @@ def _parse_commands(raw_cmd: str) -> list[str]:
         chain.append((final_cmd, None))
     return chain
 
-def execute_line(raw_cmd):
+def execute_line(raw_cmd: str):
     chain = _parse_commands(raw_cmd)
     if not chain:
         return

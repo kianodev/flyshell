@@ -6,7 +6,9 @@ if __name__ == "__main__":
     import sys
     sys.exit(0)
 
+from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import data
+
 import getpass
 import hashlib
 import re
@@ -106,9 +108,16 @@ def login_flow(is_lock=False) -> bool:
             return False
         print(f"You have {i} attempts remaining.\n")
 
-def lock(args):
-    if login_flow(is_lock=True):
-        return
-    else:
-        print("Shutting down...\n")
-        sys.exit(0)
+class Lock(BaseCmd):
+    name = "lock"
+    description = "Lock the Flyshell system"
+    min_args = 0
+    options = None
+    aliases = []
+
+    def execute(self, args):
+        if login_flow(is_lock=True):
+            return (0, "")
+        else:
+            print("\nShutting down...\n")
+            sys.exit(0)

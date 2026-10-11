@@ -8,14 +8,15 @@ if __name__ == "__main__":
 
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data
-from flyshell.core.directory import ALIAS, COMMANDS
+from flyshell.core.directory import COMMAND_REGISTRY
+
 from pathlib import Path
 import importlib.util
 import inspect
 import os
 import sys
 
-RESERVED_NAMES = set(COMMANDS.keys()) | set(ALIAS.keys())
+RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
 def scan_plugins(plugin_folder=None):
     folder = Path(plugin_folder) if plugin_folder else data.USER_PLUGIN_DIR

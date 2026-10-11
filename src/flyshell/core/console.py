@@ -8,6 +8,7 @@ if __name__ == "__main__":
 
 from flyshell.core import data
 from flyshell.core.directory import execute_line
+
 import os
 import random
 
