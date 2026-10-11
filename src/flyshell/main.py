@@ -30,10 +30,6 @@ def boot_check():
         core_dir / "directory.py",
         core_dir / "loader.py",
     ]
-    if core_dir.exists():
-        for py_file in sorted(core_dir.glob("*.py")):
-            if py_file not in REQUIRED_COMPONENTS and not py_file.name.startswith("_"):
-                REQUIRED_COMPONENTS.append(py_file)
     present = []
     missing = []
     for path in REQUIRED_COMPONENTS:
@@ -49,8 +45,34 @@ def boot_check():
         print(f"❌ {i} - FILE NOT FOUND")
     if missing:
         return False
-    print("\nFlyshell will now check additional packages. These are not required.")
+    print("\nFlyshell will now check internal additional packages and features. These are not required.")
+    tests_dir = PROJECT_ROOT / "tests"
+    TESTING_COMPONENTS = [
+        tests_dir,
+        tests_dir / "test_auth.py",
+        tests_dir / "test_data.py",
+        tests_dir / "test_directory.py",
+        tests_dir / "test_loader.py",
+        tests_dir / "test_security.py",
+    ]
+    test_present = []
+    test_missing = []
+    for path in TESTING_COMPONENTS:
+        if path.exists():
+            test_present.append(str(path))
+        else:
+            test_missing.append(str(path))
+    for i in test_present:
+            print(f"✅ {i} - File found")
+    for i in test_missing:
+        print(f"⚠️ {i} - Non-essential test not found (Flyshell will still launch)")
+    print("\nFlyshell will now check external additional packages and features. These are not required.")
     from flyshell.core import console
+    try:
+        import pytest
+        print("✅ Pytest - Available (System tests can be run if installed)")
+    except ImportError:
+        print("⚠️ Pytest - Unavailable (System tests will not run: This does not affect general performance)")
     if console.check_readline():
         print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
     else:
