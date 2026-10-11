@@ -4,24 +4,24 @@ from flyshell.core import directory
 
 def test_parse_simple_command():
     chain = directory._parse_commands("clear")
-    assert chain == [("clear", None)]
+    assert chain == [(None, "clear")]
 
 def test_parse_semicolon_chain():
     chain = directory._parse_commands("clear ; history")
-    assert chain == [("clear", ";"), ("history", None)]
+    assert chain == [(None, "clear"), (";", "history")]
 
 def test_parse_and_chain():
     chain = directory._parse_commands("cd mydir && dir")
-    assert chain == [("cd mydir", "&&"), ("dir", None)]
+    assert chain == [(None, "cd mydir"), ("&&", "dir")]
 
 def test_parse_or_chain():
     chain = directory._parse_commands("open missing.txt || echo fallback")
-    assert chain == [("open missing.txt", "||"), ("echo fallback", None)]
+    assert chain == [(None, "open missing.txt"), ("||", "echo fallback")]
 
 def test_parse_preserves_operators_inside_quotes():
     chain = directory._parse_commands('echo "hello ; world && test"')
     assert len(chain) == 1
-    assert chain[0] == ('echo "hello ; world && test"', None)
+    assert chain[0] == (None, 'echo "hello ; world && test"')
 
 def test_parse_unclosed_quote_returns_empty():
     chain = directory._parse_commands('echo "unterminated quote')
@@ -48,3 +48,12 @@ def test_execute_line_short_circuits_on_or(monkeypatch):
     monkeypatch.setattr(directory, "_execute_single", mock_execute_single)
     directory.execute_line("first || second")
     assert executed == ["first"]
+
+def test_execute_line_chaining_cascades(monkeypatch):
+    executed = []
+    def mock_execute_single(raw_cmd):
+        executed.append(raw_cmd)
+        return 0 if raw_cmd == "ok" else 1
+    monkeypatch.setattr(directory, "_execute_single", mock_execute_single)
+    directory.execute_line("ok || fallback && never_run")
+    assert executed == ["ok"]

@@ -14,7 +14,7 @@ license = { text = "MIT" }
 flyshell = "flyshell.main:main"
 
 [tool.setuptools.dynamic]
-version = { attr = "flyshell.__version__" }
+version = { attr = "flyshell.core.data.VERSION" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -22,4 +22,7 @@ where = ["src"]
 [project.optional-dependencies]
 dev = [
     "pytest",
+]
+readline = [
+    "pyreadline3; sys_platform == 'win32'",
 ]

@@ -29,7 +29,7 @@ Thumbs.db
 *.json.bak
 flyshell_storage.json
 
-# Test plugins
+# Old test plugins
 singletest.py
 multitest/
 

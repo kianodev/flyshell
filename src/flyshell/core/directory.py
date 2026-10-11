@@ -154,6 +154,7 @@ def _parse_commands(raw_cmd: str) -> list:
     escape = False
     i = 0
     n = len(raw_cmd)
+    pending_op = None
     while i < n:
         char = raw_cmd[i]
         if escape:
@@ -190,14 +191,16 @@ def _parse_commands(raw_cmd: str) -> list:
                 op = raw_cmd[i:i+2]
                 cmd_str = "".join(current).strip()
                 if cmd_str:
-                    chain.append((cmd_str, op))
+                    chain.append((pending_op, cmd_str))
+                pending_op = op
                 current = []
                 i += 2
                 continue
             if char == ";":
                 cmd_str = "".join(current).strip()
                 if cmd_str:
-                    chain.append((cmd_str, ";"))
+                    chain.append((pending_op, cmd_str))
+                pending_op = ";"
                 current = []
                 i += 1
                 continue
@@ -212,7 +215,7 @@ def _parse_commands(raw_cmd: str) -> list:
         return []
     final_cmd = "".join(current).strip()
     if final_cmd:
-        chain.append((final_cmd, None))
+        chain.append((pending_op, final_cmd))
     return chain
 
 def execute_line(raw_cmd: str):
@@ -220,18 +223,26 @@ def execute_line(raw_cmd: str):
     if not chain:
         return
     last_code = 0
-    skip_next = False
-    for i, (cmd_str, operator) in enumerate(chain):
-        if skip_next:
-            if operator == ";":
-                skip_next = False
-            continue
-        if i > 0:
-            print("-" * 40)
-        last_code = _execute_single(cmd_str)
-        if operator == "&&" and last_code != 0:
-            skip_next = True
-        elif operator == "||" and last_code == 0:
-            skip_next = True
-        elif operator == ";":
-            skip_next = False
+    skipped_last = False
+    for i, (prev_op, cmd_str) in enumerate(chain):
+        should_run = True
+        if prev_op == ";":
+            should_run = True
+            skipped_last = False
+        elif skipped_last:
+            if prev_op == "&&":
+                should_run = False
+            elif prev_op == "||":
+                should_run = True
+        else:
+            if prev_op == "&&" and last_code != 0:
+                should_run = False
+            elif prev_op == "||" and last_code == 0:
+                should_run = False
+        if should_run:
+            if i > 0:
+                print("-" * 40)
+            last_code = _execute_single(cmd_str)
+            skipped_last = False
+        else:
+            skipped_last = True

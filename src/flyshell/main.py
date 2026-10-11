@@ -62,21 +62,21 @@ def boot_check():
             test_present.append(str(path))
         else:
             test_missing.append(str(path))
+    if test_present == []:
+        print("No internal additional packages and features are installed.")
     for i in test_present:
             print(f"✅ {i} - File found")
-    for i in test_missing:
-        print(f"⚠️ {i} - Non-essential test not found (Flyshell will still launch)")
     print("\nFlyshell will now check external additional packages and features. These are not required.")
     from flyshell.core import console
     try:
         import pytest
-        print("✅ Pytest - Available (System tests can be run if installed)")
+        print("✅ Pytest - Available (System tests can be run if present)")
     except ImportError:
-        print("⚠️ Pytest - Unavailable (System tests will not run: This does not affect general performance)")
+        print("Pytest - Unavailable (This does not affect your general performance)")
     if console.check_readline():
         print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
     else:
-        print("⚠️ Terminal Readline - Unavailable (This does not affect your performance)")
+        print("Terminal Readline - Unavailable (This does not affect your performance)")
     return True
 
 def main():
