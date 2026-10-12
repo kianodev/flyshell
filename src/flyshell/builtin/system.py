@@ -94,28 +94,12 @@ class SysExe(BaseCmd):
         else:
             override = False
         cmd = " ".join(args).strip().strip('"\'')
-        base_cmd = args[0].lower().strip('"\'').replace(".exe", "")
-        DANGER_COMMANDS = {"del", "rmdir", "rd", "rm", "taskkill", "killall"}
+        cmd_normalised = " ".join(cmd.lower().split())
         BLOCKED_COMMANDS = {"format", "diskpart", "dd"}
-        CRITICAL_TARGETS = [
-            r"c:\\windows",
-            r"c:\\windows\\system32",
-            r"c:\\\s*$",
-            r"c:\\\s+",
-            r"(^|\s)/+(\s|$)",
-            r"/boot",
-            r"/etc",
-            r"/system"
-        ]
-        cmd_lower = cmd.lower()
-        targets_critical = any(re.search(p, cmd_lower) for p in CRITICAL_TARGETS)
-        is_forkbomb = bool(re.search(r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", cmd_lower))
-        is_reg_hklm = "reg" in base_cmd and "delete" in cmd_lower and "hklm" in cmd_lower
-        is_rm_root = "rm" in base_cmd and "-" in cmd_lower and bool(re.search(r"(?:^|\s)/+(?:\s|$)", cmd_lower))
-        is_blocked_signature = is_forkbomb or is_reg_hklm or is_rm_root
-        is_blocked = base_cmd in BLOCKED_COMMANDS or is_blocked_signature
-        is_dangerous = base_cmd in DANGER_COMMANDS
-        if is_blocked or (is_dangerous and targets_critical):
+        is_blocked = any(re.search(rf"\b{re.escape(b)}\b", cmd_normalised) for b in BLOCKED_COMMANDS)
+        DANGER_COMMANDS = {"del", "rmdir", "rd", "rm", "taskkill", "killall"}
+        is_dangerous = any(re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in DANGER_COMMANDS)
+        if is_blocked:
             return (1, (
                 "\nSecurity Error: Flyshell has blocked execution of this command.\n"
                 f"This command '{cmd}' is permanently restricted by Flyshell safety policy.\n"

@@ -1,7 +1,7 @@
 # src\flyshell\core\data.py
 
-BUILD = 98
-VERSION = "0.97"
+BUILD = 99
+VERSION = "1.0.0"
 
 from pathlib import Path
 import json

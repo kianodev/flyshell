@@ -18,9 +18,14 @@ def hash_password(password, salt=None):
     return pwd_hash.hex(), salt.hex()
 
 def verify_password(stored_hash: str, stored_salt: str, password: str) -> bool:
-    salt_bytes = bytes.fromhex(stored_salt)
-    attempt_hash, _ = hash_password(password, salt_bytes)
-    return secrets.compare_digest(attempt_hash, stored_hash)
+    if not stored_hash or not stored_salt or not password:
+        return False
+    try:
+        salt_bytes = bytes.fromhex(stored_salt)
+        attempt_hash, _ = hash_password(password, salt_bytes)
+        return secrets.compare_digest(attempt_hash, stored_hash)
+    except (ValueError, TypeError):
+        return False
 
 def setup_acc() -> bool:
     print("\nWelcome to Flyshell, New User!")

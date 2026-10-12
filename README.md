@@ -1,150 +1,194 @@
 # Flyshell
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Licence](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
+![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
 
-> **⚠️ Disclaimer:** Flyshell is currently undergoing major structural refactoring. Some installation and usage documentation may be temporarily inaccurate or out of date.
+> Documentation last updated: v1.0.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
-Flyshell provides a sandboxed, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only Python standard libraries.
+Flyshell provides a modular, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only Python standard libraries.
 
 No extra packages required, just install and enjoy!
 
 ## Key Features
 
-1. **Zero External Dependencies**: Flyshell is built entirely with native Python modules with absolutely zero third-party packages required to enjoy full functionality.
-2. **Dynamic Plugin Architecture**: Flyshell employs a dynamic plugin architecture that automatically scans and supports any plugin in plugin/ that follows the Flyshell contract (this is defined in `base_plugin.py`).
-3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 100K iterations) with constant-time equality comparisons to prevent timing attacks on password information.
+1. **Zero External Dependencies** - Flyshell is built entirely with native Python modules with absolutely zero third-party packages required to enjoy full functionality.
+2. **Dynamic Plugin Architecture**: Flyshell employs a dynamic plugin architecture that automatically scans for plugins in the User Directory following the standard defined in `src/flyshell/abstract/base_plugin.py`.
+3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 600,000 iterations) with constant-time equality comparisons to prevent timing attacks on password information.
 4. **Cross-Platform Support**: Flyshell is fully supported by Windows (NT), macOS (Darwin) and Linux installations with native OS management and POSIX-aware parsing. Note that Flyshell is **not** supported by any other systems.
 5. **State and History Persistence**: Flyshell has a fully encapsulated SQL storage system using SQLite3 providing session metrics and ISO 8601 UTC audit logging.
 
-Versions of Flyshell prior to v0.39 used a JSON storage file; these files are handled and migrated automatically.
-
 ## System Requirements
 
-1. **Python**: Your Python installation or IDE must support **Python 3.10 or newer** as Flyshell utilises structural pattern matching features. Older Python installations will be rejected by Flyshell on boot or it may crash entirely.
+1. **Python**: Your Python installation or IDE must support **Python 3.10 or newer** as Flyshell utilises structural pattern matching features. Older Python installations will be rejected by Flyshell on boot or could crash the system.
 2. **Operating System**: Your operating system must be **Windows 10/11, macOS (Darwin) or Linux**. Any other operating system will be rejected by Flyshell on boot.
 
 ## System Architecture
 
-> **⚠️ Note (v0.70+):** The below system architecture tree describes an older version of Flyshell prior to v0.70. Once refactoring is complete, this document will be updated with the new setup.
-
 ```
 flyshell/
-├── core/
-│   ├── auth.py             # Salted PBKDF2 HMAC auth & lock screen logic
-│   ├── base_plugin.py      # Abstract base class & plugin storage contracts
-│   ├── console.py          # Main REPL execution loop
-│   ├── data.py             # Centralised persistent storage engine
-│   ├── directory.py        # Command dispatching & POSIX input parser
-│   ├── loader.py           # Dynamic runtime plugin discovery engine
-│   └── system.py           # Native shell command implementations
-├── plugin/                 # Drop-in directory for community & custom plugins
-├── flyshell.db             # Local SQL state file (this is auto-generated when run for the first time)
-└── main.py                 # Root boot checker & platform verification entry point
+├── .github/
+│   └── workflows/
+│       └── pytest.yml
+├── src/
+│   └── flyshell/
+│       ├── abstract/
+│       │   ├── __init__.py
+│       │   ├── base_cmd.py
+│       │   ├── base_plugin.py
+│       │   └── parent_cmd.py
+│       ├── builtin/
+│       │   ├── __init__.py
+│       │   ├── fs.py
+│       │   ├── system.py
+│       │   └── utils.py
+│       ├── core/
+│       │   ├── __init__.py
+│       │   ├── auth.py
+│       │   ├── console.py
+│       │   ├── data.py
+│       │   ├── directory.py
+│       │   └── loader.py
+│       ├── __init__.py
+│       └── main.py
+├── tests/
+│   ├── test_auth.py
+│   ├── test_data.py
+│   ├── test_directory.py
+│   ├── test_loader.py
+│   └── test_security.py
+├── .gitignore
+├── LICENSE
+├── pyproject.toml
+└── README.md
 ```
 
-## Getting Started
+## Installing Flyshell
 
-> **⚠️ Note (v0.77+):** The below installation guide is out of date and will not work. At step 2, instead of entering 'python main.py' you should enter 'python -m src.flyshell.main'.
+There are two methods to install Flyshell.
 
-To install Flyshell on your machine and get started, follow the below process:
+### Method 1: Install via `pip` (Best for General Use)
 
-### 1. Installation
+Install Flyshell through `pip`:
+```bash
+pip install flyshell
+```
 
-Clone this repository to your local machine using Git:
+Then, you can simply run Flyshell:
+```bash
+flyshell
+```
+
+### Method 2: Install from source via `git` (Best for Development & Custom Plugins)
+
+Clone the GitHub repository:
 ```bash
 git clone https://github.com/kianodev/flyshell.git
+```
+
+Switch to the Flyshell directory and install in editable mode:
+```bash
 cd flyshell
+pip install -e .
 ```
 
-### 2. Booting the Shell
+### Adding optional dependencies
 
-Launch Flyshell via Python 3:
+To install Readline (on Windows):
 ```bash
-python main.py
+pip install -e .[readline]
 ```
-If that fails, try:
+
+To install the development and testing suite (including Pytest):
 ```bash
-python3 main.py
+pip install -e .[dev]
 ```
-On initial launch, Flyshell will prompt you to initialise your profile and secure password.
 
-### 3. Exploring the System
+## Exploring Flyshell
 
-Once Flyshell has launched, you will see an interface that looks something like this:
+Once you have installed Flyshell using either of the methods above, you will be prompted to initialise your user profile. Once this is complete, you will be greeted with a prompt that looks like this:
 ```console
-Flyshell [version] (current_dir)>>
+Flyshell [v1.x.x] (current_dir)>>
 ```
+
 From this stage, you can enter a wide variety of commands. To see the commands list for your installation, type `cmds` or `help` to return a full up-to-date directory. Use `fs plugins` to return plugin information.
 
 Flyshell also supports command chaining out of the box. Use `;` to chain commands together regardless of result, `&&` to execute only on success and `||` to execute only on failure.
 
-To close Flyshell once you are done, enter `kill` onto the command line then confirm.
+Use `-h` or `--help` after any command to return that command's specific help list.
+
+To close Flyshell once you are done, enter `kill` onto the command line then confirm, or press Ctrl + D to close the session immediately.
 
 ## Creating Custom Plugins
 
-> **⚠️ Note (v0.76+):** The steps below are deprecated following recent storage and packaging refactoring. Updated plugin documentation will be provided once refactoring is complete.
-
 Flyshell features an extensible plugin API. This API supports both single-file and multi-file plugins. Follow the below guide to create your own.
 
-Plugins must inherit from the `BasePlugin` contract and be stored under the `plugin/` directory.
+Plugins must inherit from the `BasePlugin` contract defined in `src/flyshell/abstract/base_plugin.py`. Plugins are stored in the User Directory. Navigate to your App Storage folder:
+- **Windows**: `%APPDATA%\Flyshell\plugins`
+- **macOS**: `~/Library/Application Support/Flyshell/plugins`
+- **Linux**: `~/.local/share/Flyshell/plugins`
 
-All plugins, whilst not required, should have a title (`name`) and desc (`description`) defined in their master file. Flyshell can read this information for both `fs plugins` and `[my_plugin] -h` / `--help` which are both supported out of the box. Flyshell will discover, inspect and import your plugin from the `plugin/` folder without you having to alter any internal code.
+Place your plugins inside the `plugins/` folder.
 
-### Single-File Plugins
+All plugins should define the required attributes. Flyshell can read this information for both `fs plugins` and `[my_plugin] -h` / `--help` which are both supported out of the box. Flyshell will discover, inspect and import your plugin from the `plugins/` folder without you having to alter any internal code.
 
-Single-file plugins should be a single file, e.g. `my_plugin.py`.
+### The Entry-Point
 
-This file serves as the entry point for your file and should look like this:
+All plugins must have an entry-point file. For single-file plugins, this is the plugin file. For multi-file plugins, this file must be named `plugin.py` and stored directly inside of your plugin's own folder.
+
+This file is what enables Flyshell to speak to your plugin.
+
 ```python
-# \plugin\my_plugin.py
+# Entry-point (my_plugin.py or my_plugin\plugin.py)
 
-from core.base_plugin import BasePlugin
+from flyshell import BasePlugin # This is required
 
 class MyPlugin(BasePlugin):
-	# Name and description (Flyshell can read these)
-	name = "My Plugin"
-	description = "This is my plugin. You can use it."
+	name = "My Plugin" # The name you want visible to Flyshell
+	description = "This is my plugin." # A short one-line explaining what your plugin does
+	version = "1.0.0" # Default is 1.0.0
+	author = "kianodev" # You can put your name, your GitHub handle, or leave blank to make it 'Unknown'
+	usage = "" # (OPTIONAL) Explain how to use your plugin
+	extended_help = "" # (OPTIONAL) A more detailed, multi-line guide containing specific assistance
+	
+	def on_load(self): # (OPTIONAL) Enables your program to handle specialist set-up tasks before execute()
+		pass
+
+	def on_unload(self): # (OPTIONAL) Enables your program to handle specialist shut-down tasks
+		super().on_unload() # If you use a custom on_unload(), end it with this
+
 
 	def execute(self, args): # This is what Flyshell calls to execute
 		print(f"Hello! Arguments: {args}")
 		return
 ```
 
-### Multi-File Plugins
+### Extra Functions
 
-Multi-file plugins follow the same contract but are stricter in how they must be structured.
-1. Create a directory `my_plugin/` within the `plugin/` directory.
-2. Create a file called `plugin.py` - this is your entrypoint. It is mandatory that it is called `plugin.py` and cannot be called anything else.
-3. This file uses the same template as single-file plugins. You can import as many of your plugin's other files as you like. Flyshell will handle import errors automatically by safely killing the plugin on any error with an internally handled Exception.
+Additional functions are available for you to use:
 
-### File Management
+1. `get_data(key, default=None)`: Retrieves a value from local plugin memory.
+2. `set_data(key, value)`: Updates a key in local memory and automatically persists it to SQLite via `save_storage()`.
+3. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
+4. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
 
-The `BasePlugin` inherited class provides storage access as context for your plugin to use.
+Plugins save automatically on shut-down. If `on_unload()` is not used, it is automatic. If `on_unload()` is used, `super().on_unload()` saves your files.
 
-Plugins get passed their own storage directory. To access a particular item:
-```python
-self.storage.get("key", default)
-```
+### Built-in Attributes
 
-To update a specific attribute:
-```python
-self.storage["key"] = value
-```
+Every plugin has direct access to the following instance variables:
 
-To load the entire storage (refresh) your storage:
-```python
-self.load_storage()
-```
+- `self.plugin_name` (`str`): The unique name identifier used to invoke the plugin.
+- `self.storage` (`dict`): In-memory key-value data automatically loaded from the persistent database.
+- `self.context` (`dict`): Environmental metadata provided at start-up, within it:
+  - `self.context["metadata"]["host_os"]`: Operating system (e.g., `'Windows'`, `'Linux'`, `'Darwin'`).
+  - `self.context["metadata"]["version"]`: Current Flyshell version.
+  - `self.context["file_path"]`: Full path to the plugin's source file.
 
-To save changes to disk:
-```python
-self.save_storage()
-```
-However, your plugin will **automatically save** on unload and there is no need to call this before shutting the plugin as Flyshell calls it for you.
+### Extra Notes
 
-For plugins using multiple files or functions, unless `self` is passed to other files they cannot be accessed except within `plugin.py`.
+You are welcome to catch errors yourself. However, Flyshell will handle them automatically. That said, if you would like your plugin to continue after an error, you need to implement error handling yourself as the default system closes your plugin.
