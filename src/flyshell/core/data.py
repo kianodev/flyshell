@@ -1,13 +1,7 @@
 # src\flyshell\core\data.py
 
-BUILD = 97
-VERSION = "0.96"
-
-if __name__ == "__main__":
-    print("Error: This file is a Flyshell system module and cannot be run directly.")
-    print("To launch Flyshell, please launch using 'python main.py'")
-    import sys
-    sys.exit(0)
+BUILD = 98
+VERSION = "0.97"
 
 from pathlib import Path
 import json

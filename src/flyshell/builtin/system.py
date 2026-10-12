@@ -1,11 +1,5 @@
 # src\flyshell\builtin\system.py
 
-if __name__ == "__main__":
-    print("Error: This file is a Flyshell system module and cannot be run directly.")
-    print("To launch Flyshell, please launch using 'python main.py'")
-    import sys
-    sys.exit(0)
-
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import auth, data
 

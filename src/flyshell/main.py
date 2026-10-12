@@ -18,7 +18,9 @@ def boot_check():
     core_dir = PACKAGE_ROOT / "core"
     REQUIRED_COMPONENTS = [
         abstract_dir,
+        abstract_dir / "base_cmd.py",
         abstract_dir / "base_plugin.py",
+        abstract_dir / "parent_cmd.py",
         builtin_dir,
         builtin_dir / "fs.py",
         builtin_dir / "system.py",
@@ -46,6 +48,7 @@ def boot_check():
     if missing:
         return False
     print("\nFlyshell will now check internal additional packages and features. These are not required.")
+    print("Internal packages are not always automatically installed.")
     tests_dir = PROJECT_ROOT / "tests"
     TESTING_COMPONENTS = [
         tests_dir,
@@ -62,21 +65,21 @@ def boot_check():
             test_present.append(str(path))
         else:
             test_missing.append(str(path))
-    if test_present == []:
-        print("No internal additional packages and features are installed.")
     for i in test_present:
-            print(f"✅ {i} - File found")
+        print(f"✅ {i} - File found")
+    for i in test_missing:
+        print(f"⚠️ {i} - Non-essential test not installed")
     print("\nFlyshell will now check external additional packages and features. These are not required.")
     from flyshell.core import console
     try:
         import pytest
         print("✅ Pytest - Available (System tests can be run if present)")
     except ImportError:
-        print("Pytest - Unavailable (This does not affect your general performance)")
+        print("⚠️ Pytest - Unavailable (This does not affect your general performance)")
     if console.check_readline():
         print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
     else:
-        print("Terminal Readline - Unavailable (This does not affect your performance)")
+        print("⚠️ Terminal Readline - Unavailable (This does not affect your performance)")
     return True
 
 def main():
@@ -89,7 +92,7 @@ def main():
             if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 if sys.version_info < (3, 10):
                     print("\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell.")
-                    print("\nFlyshell cannot launch because it requires Python 3.10 or newer.")
+                    print("Flyshell cannot launch because it requires Python 3.10 or newer.")
                     sys.exit(1)
                 print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
@@ -101,7 +104,7 @@ def main():
                     sys.exit(0)
             else:
                 print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
-                print("\nFlyshell cannot launch because your operating system is not supported.")
+                print("Flyshell cannot launch because your operating system is not supported.")
                 sys.exit(1)
         else:
             print("\nFlyshell cannot launch until the above file paths are restored.")

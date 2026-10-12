@@ -1,7 +1,8 @@
 # src\flyshell\abstract\parent_cmd.py
 
-from typing import Dict, List, Optional, Tuple, Union
 from flyshell.abstract.base_cmd import BaseCmd
+
+from typing import Dict, List, Optional, Tuple, Union
 
 class ParentCmd(BaseCmd):
     min_args: int = 1
