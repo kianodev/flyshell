@@ -1,60 +1,29 @@
 # src\flyshell\core\data.py
 
-BUILD = 99
-VERSION = "1.0.0"
+from flyshell import constants as c
 
-from pathlib import Path
 import json
-import os
-import platform
 import sqlite3
 import time
 
-HOST_OS = platform.system()
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-def get_app_dir() -> Path:
-    home = Path.home()
-    if HOST_OS == "Windows":
-        base = Path(os.environ.get("APPDATA", home / "AppData" / "Roaming"))
-    elif HOST_OS == "Darwin":
-        base = home / "Library" / "Application Support"
-    else:
-        base = Path(os.environ.get("XDG_DATA_HOME", home / ".local" / "share"))
-    app_dir = base / "Flyshell"
-    app_dir.mkdir(parents=True, exist_ok=True)
-    return app_dir
-
-APP_DIR = get_app_dir()
-FILE_PATH = APP_DIR / "flyshell.db"
-USER_PLUGIN_DIR = APP_DIR / "plugins"
-
-SESSION_START_TIME = time.time()
-SESSION_CMD_COUNT = 0
-PLUGINS = {}
-
 def get_storage_size() -> str:
-    if not FILE_PATH.exists():
+    if not c.FILE_PATH.exists():
         return "File not found"
-    num_bytes = float(FILE_PATH.stat().st_size)
+    num_bytes = float(c.FILE_PATH.stat().st_size)
     for unit in ["B", "KB", "MB", "GB"]:
         if num_bytes < 1024.0:
             return f"{int(num_bytes)} {unit}" if unit == "B" else f"{num_bytes:.2f} {unit}"
         num_bytes /= 1024.0
     return f"{num_bytes:.2f} TB"
 
-def _get_connection(filename=FILE_PATH):
+def _get_connection(filename=c.FILE_PATH):
     conn = sqlite3.connect(filename)
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
-INITIALISED = set()
-
-def initialise(filename=FILE_PATH):
-    global INITIALISED
+def initialise(filename=c.FILE_PATH, initialised=c.INITIALISED):
     target = str(filename)
-    if target in INITIALISED:
+    if target in initialised:
         return
     with _get_connection(filename) as conn:
         conn.execute("PRAGMA foreign_keys = ON;")
@@ -100,9 +69,9 @@ def initialise(filename=FILE_PATH):
                     );
                 """)
                 conn.execute("PRAGMA user_version = 1;")
-    INITIALISED.add(target)
+    initialised.add(target)
 
-def get_auth(filename=FILE_PATH) -> dict | None:
+def get_auth(filename=c.FILE_PATH) -> dict | None:
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute("SELECT username, hash, salt, created_at FROM auth WHERE id = 1").fetchone()
@@ -110,7 +79,7 @@ def get_auth(filename=FILE_PATH) -> dict | None:
             return None
         return {"username": row[0], "hash": row[1], "salt": row[2], "created_at": row[3]}
 
-def set_auth(username: str, pwd_hash: str, salt: str, filename=FILE_PATH) -> None:
+def set_auth(username: str, pwd_hash: str, salt: str, filename=c.FILE_PATH) -> None:
     initialise(filename)
     now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with _get_connection(filename) as conn:
@@ -120,20 +89,20 @@ def set_auth(username: str, pwd_hash: str, salt: str, filename=FILE_PATH) -> Non
                 VALUES (1, ?, ?, ?, ?)
             """, (username, pwd_hash, salt, now_utc))
 
-def clear_auth(filename=FILE_PATH) -> bool:
+def clear_auth(filename=c.FILE_PATH) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
             cursor = conn.execute("DELETE FROM auth WHERE id = 1")
             return cursor.rowcount > 0
 
-def append_history(cmd: str, timestamp: str, filename=FILE_PATH) -> None:
+def append_history(cmd: str, timestamp: str, filename=c.FILE_PATH) -> None:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
             conn.execute("INSERT INTO cmd_history (command, timestamp) VALUES (?, ?)", (cmd, timestamp))
 
-def get_history(limit: int | None = None, filename=FILE_PATH) -> list[dict]:
+def get_history(limit: int | None = None, filename=c.FILE_PATH) -> list[dict]:
     initialise(filename)
     with _get_connection(filename) as conn:
         if limit is not None and limit > 0:
@@ -145,14 +114,14 @@ def get_history(limit: int | None = None, filename=FILE_PATH) -> list[dict]:
             rows = conn.execute(query).fetchall()
         return [{"command": r[0], "timestamp": r[1]} for r in rows]
 
-def clear_history(filename=FILE_PATH) -> bool:
+def clear_history(filename=c.FILE_PATH) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
             conn.execute("DELETE FROM cmd_history")
             return True
 
-def get_config(key: str, default=None, filename=FILE_PATH):
+def get_config(key: str, default=None, filename=c.FILE_PATH):
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute("SELECT value FROM core_config WHERE key = ?", (key,)).fetchone()
@@ -163,7 +132,7 @@ def get_config(key: str, default=None, filename=FILE_PATH):
         except (ValueError, TypeError):
             return row[0]
 
-def set_config(key: str, value, filename=FILE_PATH) -> None:
+def set_config(key: str, value, filename=c.FILE_PATH) -> None:
     initialise(filename)
     serialized = json.dumps(value)
     with _get_connection(filename) as conn:
@@ -173,14 +142,14 @@ def set_config(key: str, value, filename=FILE_PATH) -> None:
                 VALUES (?, ?)
             """, (key, serialized))
 
-def delete_config(key: str, filename=FILE_PATH) -> bool:
+def delete_config(key: str, filename=c.FILE_PATH) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
             cursor = conn.execute("DELETE FROM core_config WHERE key = ?", (key,))
             return cursor.rowcount > 0
 
-def register_plugin(plugin_name: str, filename=FILE_PATH) -> None:
+def register_plugin(plugin_name: str, filename=c.FILE_PATH) -> None:
     initialise(filename)
     now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with _get_connection(filename) as conn:
@@ -190,7 +159,7 @@ def register_plugin(plugin_name: str, filename=FILE_PATH) -> None:
                 VALUES (?, ?, 1)
             """, (plugin_name, now_utc))
 
-def get_plugin_data(plugin_name: str, key: str, default=None, filename=FILE_PATH):
+def get_plugin_data(plugin_name: str, key: str, default=None, filename=c.FILE_PATH):
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute("""
@@ -203,7 +172,7 @@ def get_plugin_data(plugin_name: str, key: str, default=None, filename=FILE_PATH
         except (ValueError, TypeError):
             return row[0]
 
-def set_plugin_data(plugin_name: str, key: str, value, filename=FILE_PATH) -> None:
+def set_plugin_data(plugin_name: str, key: str, value, filename=c.FILE_PATH) -> None:
     initialise(filename)
     register_plugin(plugin_name, filename=filename)
     serialized = json.dumps(value)
@@ -214,7 +183,7 @@ def set_plugin_data(plugin_name: str, key: str, value, filename=FILE_PATH) -> No
                 VALUES (?, ?, ?)
             """, (plugin_name, key, serialized))
 
-def get_all_plugin_data(plugin_name: str, filename=FILE_PATH) -> dict:
+def get_all_plugin_data(plugin_name: str, filename=c.FILE_PATH) -> dict:
     initialise(filename)
     with _get_connection(filename) as conn:
         rows = conn.execute("SELECT key, value FROM plugin_kv WHERE plugin_name = ?", (plugin_name,)).fetchall()
@@ -226,7 +195,7 @@ def get_all_plugin_data(plugin_name: str, filename=FILE_PATH) -> dict:
                 result[k] = v
         return result
 
-def purge_plugin(plugin_name: str, filename=FILE_PATH) -> bool:
+def purge_plugin(plugin_name: str, filename=c.FILE_PATH) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:

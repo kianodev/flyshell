@@ -1,5 +1,6 @@
 # src\flyshell\core\directory.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.builtin import fs, system, utils
@@ -60,7 +61,7 @@ def log(cmd):
 
 def _execute_single(raw_cmd: str) -> int:
     try:
-        posix_mode = False if data.HOST_OS == "Windows" else True
+        posix_mode = False if c.HOST_OS == "Windows" else True
         cmd = shlex.split(raw_cmd, posix=posix_mode)
     except ValueError as e:
         print("\nCommand Error: Invalid syntax.")
@@ -77,8 +78,8 @@ def _execute_single(raw_cmd: str) -> int:
                 return command.execute(args)
             command.help()
             return 0
-        elif cmd_name in data.PLUGINS:
-            plugin = data.PLUGINS[cmd_name]
+        elif cmd_name in c.PLUGINS:
+            plugin = c.PLUGINS[cmd_name]
             if hasattr(plugin, "help"):
                 plugin.help()
                 print()
@@ -87,8 +88,8 @@ def _execute_single(raw_cmd: str) -> int:
                 print(f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n")
                 return 1
     if "-d" in args or "--docs" in args:
-        if cmd_name in data.PLUGINS:
-            plugin = data.PLUGINS[cmd_name]
+        if cmd_name in c.PLUGINS:
+            plugin = c.PLUGINS[cmd_name]
             if hasattr(plugin, "show_docs") and plugin.show_docs():
                 return 0
             print(f"\nPlugin Error: Plugin '{cmd_name}' has not provided documentation.\n")
@@ -106,7 +107,7 @@ def _execute_single(raw_cmd: str) -> int:
             print(f"\nCommand Error: Failed during execution of '{cmd_name}'.")
             print(f"Details: {e}\n")
             return 1
-        data.SESSION_CMD_COUNT += 1
+        c.SESSION_CMD_COUNT += 1
         if isinstance(result, tuple):
             code, message = result
             if message:
@@ -119,9 +120,9 @@ def _execute_single(raw_cmd: str) -> int:
                 print(result)
             return 0
         return 0
-    elif cmd_name in data.PLUGINS:
+    elif cmd_name in c.PLUGINS:
         log(raw_cmd)
-        plugin = data.PLUGINS[cmd_name]
+        plugin = c.PLUGINS[cmd_name]
         try:
             result = plugin.execute(args)
             return result if isinstance(result, int) else 0
@@ -156,7 +157,7 @@ def _parse_commands(raw_cmd: str) -> list:
             escape = False
             i += 1
             continue
-        is_windows = (data.HOST_OS == "Windows")
+        is_windows = (c.HOST_OS == "Windows")
         if char == "\\":
             if not is_windows:
                 escape = True

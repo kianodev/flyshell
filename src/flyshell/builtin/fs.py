@@ -1,5 +1,6 @@
 # src\flyshell\builtin\fs.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.core import data
@@ -64,10 +65,10 @@ class FsInfo(BaseCmd):
         return (0, (
             "\nFlyshell System Information:\n"
             "System Name: Flyshell\n"
-            f"System Version: {data.VERSION}\n"
-            f"System Build: {data.BUILD}\n"
-            f"Host Operating System: '{data.HOST_OS}'\n"
-            f"Installed Plugin Count: {len(data.PLUGINS)}\n"
+            f"System Version: {c.VERSION}\n"
+            f"System Build: {c.BUILD}\n"
+            f"Host Operating System: '{c.HOST_OS}'\n"
+            f"Installed Plugin Count: {len(c.PLUGINS)}\n"
             "Original Release Date: 8th August 2026\n"
         ))
 
@@ -98,13 +99,13 @@ class FsPlugins(BaseCmd):
     def execute(self, args):
         lines = ["\nInstalled Plugins:"]
         if data.PLUGINS:
-            for name, plugin in data.PLUGINS.items():
+            for name, plugin in c.PLUGINS.items():
                 p_name = getattr(plugin, "name", name)
                 p_desc = getattr(plugin, "description", "No description provided.")
                 lines.append(f"Plugin '{name}' [{p_name}]: {p_desc}")
         else:
             lines.append("No plugins installed.")
-        lines.append(f"\nTotal available plugins: {len(data.PLUGINS)}\n")
+        lines.append(f"\nTotal available plugins: {len(c.PLUGINS)}\n")
         return (0, "\n".join(lines))
 
 class FsStatus(BaseCmd):
@@ -115,7 +116,7 @@ class FsStatus(BaseCmd):
     aliases = []
 
     def execute(self, args):
-        uptime = int(time.time() - data.SESSION_START_TIME)
+        uptime = int(time.time() - c.SESSION_START_TIME)
         mins, secs = divmod(uptime, 60)
         hours, mins = divmod(mins, 60)
         uptime_str = f"{hours}h {mins}m {secs}s"
@@ -128,12 +129,12 @@ class FsStatus(BaseCmd):
             "\nFlyshell System Status:\n"
             f"User: '{current_user}'\n"
             f"Session Uptime: {uptime_str}\n"
-            f"Commands (Session): {data.SESSION_CMD_COUNT}\n"
+            f"Commands (Session): {c.SESSION_CMD_COUNT}\n"
             f"Commands (Lifetime): {total_history_count}\n"
             f"Working Directory: '{os.getcwd()}'\n"
             f"Storage File Size: {storage_size_str}\n"
             f"Python Environment: v{sys.version.split()[0]}\n"
-            f"\nFlyshell Version {data.VERSION} (Build {data.BUILD})\n"
+            f"\nFlyshell Version {c.VERSION} (Build {c.BUILD})\n"
         ))
 
 class FsVersion(BaseCmd):
@@ -143,7 +144,7 @@ class FsVersion(BaseCmd):
     options = None
     aliases = []
     def execute(self, args):
-        return (0, f"\nYou are on Flyshell Version {data.VERSION} (Build {data.BUILD})\n")
+        return (0, f"\nYou are on Flyshell Version {c.VERSION} (Build {c.BUILD})\n")
 
 class Fs(ParentCmd):
     name = "fs"

@@ -1,40 +1,20 @@
 # src\flyshell\main.py
 
+from flyshell import constants as c
+
 from pathlib import Path
 import os
 import sys
 
-PACKAGE_ROOT = Path(__file__).resolve().parent
-SRC_DIR = PACKAGE_ROOT.parent
-PROJECT_ROOT = SRC_DIR.parent
-
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+if str(c.SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(c.SRC_DIR))
 
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
-    abstract_dir = PACKAGE_ROOT / "abstract"
-    builtin_dir = PACKAGE_ROOT / "builtin"
-    core_dir = PACKAGE_ROOT / "core"
-    REQUIRED_COMPONENTS = [
-        abstract_dir,
-        abstract_dir / "base_cmd.py",
-        abstract_dir / "base_plugin.py",
-        abstract_dir / "parent_cmd.py",
-        builtin_dir,
-        builtin_dir / "fs.py",
-        builtin_dir / "system.py",
-        builtin_dir / "utils.py",
-        core_dir,
-        core_dir / "auth.py",
-        core_dir / "console.py",
-        core_dir / "data.py",
-        core_dir / "directory.py",
-        core_dir / "loader.py",
-    ]
     present = []
     missing = []
-    for path in REQUIRED_COMPONENTS:
+    for obj in c.REQUIRED_COMPONENTS:
+        path = Path(c.PACKAGE_ROOT / obj)
         if path.exists():
             present.append(str(path))
         else:
@@ -47,7 +27,7 @@ def boot_check():
         print(f"❌ {i} - FILE NOT FOUND")
     if missing:
         return False
-    tests_dir = PROJECT_ROOT / "tests"
+    tests_dir = c.PROJECT_ROOT / "tests"
     if tests_dir.exists():
         print("\nFlyshell will now check internal additional packages and features. These are not required.")
         for path in tests_dir.glob("test_*.py"):
@@ -67,17 +47,17 @@ def boot_check():
 
 def main():
     os.system("")
-    print("\033[H\033[2J", end="")
+    print(c.CLEAR_SCREEN, end="")
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
     try:
         if boot_check():
             from flyshell.core import auth, console, data, loader
-            if data.HOST_OS in ["Windows", "Darwin", "Linux"]:
-                if sys.version_info < (3, 10):
+            if c.HOST_OS in ["Windows", "Darwin", "Linux"]:
+                if sys.version_info < c.SUPPORTED_PYTHON:
                     print("\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell.")
                     print("Flyshell cannot launch because it requires Python 3.10 or newer.")
                     sys.exit(1)
-                print(f"\nYour OS '{data.HOST_OS}' is compatible with Flyshell.")
+                print(f"\nYour OS '{c.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
                 if auth.login_flow():

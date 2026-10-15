@@ -1,5 +1,6 @@
 # src\flyshell\core\console.py
 
+from flyshell import constants as c
 from flyshell.core import data
 from flyshell.core.directory import execute_line
 
@@ -32,28 +33,16 @@ def load_history():
 
 def boot():
     load_history()
-    print("\033[H\033[2J", end="")
-    print(f"\nBoot successful, welcome to Flyshell! (Version {data.VERSION})")
+    print(c.CLEAR_SCREEN, end="")
+    print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION})")
     user_info = data.get_auth() or {}
     username = user_info.get("username")
-    GREETINGS = [
-        f"Hi {username}, what's it going to be today?",
-        f"The mic is yours, {username}, go and blow me away!",
-        f"Hey {username}, let's get this party started!",
-        f"What's up, {username}? Let's go!",
-        f"I'm awaiting your first command, {username}!",
-        f"How's it going {username}? I'm here to help.",
-        f"{username}, it's your call! Show me what you've got, what are we doing today?",
-        f"My wish is your command, {username}! (unless it's not on my command list)",
-        f"I have goods for you {username}, it's called a Command Interface.",
-        f"I'm your boss! Wait, no... sorry... you, {username}, are my boss!",
-    ]
-    greeting = random.choice(GREETINGS)
+    greeting = random.choice(c.GREETINGS).format(username=username)
     print(f"\n{greeting}\n")
     while True:
         try:
             folder = os.path.basename(os.getcwd())
-            raw_cmd = input(f"Flyshell [v{data.VERSION}] ({folder})>>")
+            raw_cmd = input(f"Flyshell [v{c.VERSION}] ({folder})>>")
             if not raw_cmd.strip():
                 continue
             execute_line(raw_cmd)

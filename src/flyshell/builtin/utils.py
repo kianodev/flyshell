@@ -1,5 +1,6 @@
 # src\flyshell\builtin\utils.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import data
 
@@ -17,7 +18,7 @@ class Clear(BaseCmd):
     aliases = ["cls"]
 
     def execute(self, args):
-        return (0, "\033[H\033[2J")
+        return (0, c.CLEAR_SCREEN)
 
 class History(BaseCmd):
     name = "history"
@@ -83,7 +84,7 @@ class Reboot(BaseCmd):
             cmd = sys.argv
         else:
             cmd = [sys.executable] + sys.argv
-        if data.HOST_OS == "Windows":
+        if c.HOST_OS == "Windows":
             old_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
             try:
                 p = subprocess.run(cmd)

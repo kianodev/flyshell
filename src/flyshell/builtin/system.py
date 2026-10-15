@@ -1,5 +1,6 @@
 # src\flyshell\builtin\system.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import auth, data
 
@@ -8,7 +9,6 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 
 class Cd(BaseCmd):
     name = "cd"
@@ -68,9 +68,9 @@ class OpenFile(BaseCmd):
         if not (is_path or is_url or is_bin):
             return (1, f"\nCommand Error: File or application '{target}' could not be found.\n")
         try:
-            if data.HOST_OS == "Windows":
+            if c.HOST_OS == "Windows":
                 os.startfile(target)
-            elif data.HOST_OS == "Darwin":
+            elif c.HOST_OS == "Darwin":
                 subprocess.Popen(["open", target], stderr=subprocess.DEVNULL)
             else:
                 subprocess.Popen(["xdg-open", target], stderr=subprocess.DEVNULL)
@@ -95,10 +95,8 @@ class SysExe(BaseCmd):
             override = False
         cmd = " ".join(args).strip().strip('"\'')
         cmd_normalised = " ".join(cmd.lower().split())
-        BLOCKED_COMMANDS = {"format", "diskpart", "dd"}
-        is_blocked = any(re.search(rf"\b{re.escape(b)}\b", cmd_normalised) for b in BLOCKED_COMMANDS)
-        DANGER_COMMANDS = {"del", "rmdir", "rd", "rm", "taskkill", "killall"}
-        is_dangerous = any(re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in DANGER_COMMANDS)
+        is_blocked = any(re.search(rf"\b{re.escape(b)}\b", cmd_normalised) for b in c.BLOCKED_COMMANDS)
+        is_dangerous = any(re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in c.DANGER_COMMANDS)
         if is_blocked:
             return (1, (
                 "\nSecurity Error: Flyshell has blocked execution of this command.\n"

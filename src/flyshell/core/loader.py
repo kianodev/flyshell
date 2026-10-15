@@ -1,5 +1,6 @@
 # src\flyshell\core\loader.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data
 from flyshell.core.directory import COMMAND_REGISTRY
@@ -10,11 +11,9 @@ import inspect
 import os
 import sys
 
-RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
-
 def scan_plugins(plugin_folder=None):
-    folder = Path(plugin_folder) if plugin_folder else data.USER_PLUGIN_DIR
-    data.PLUGINS.clear()
+    folder = Path(plugin_folder) if plugin_folder else c.USER_PLUGIN_DIR
+    c.PLUGINS.clear()
     if not folder.exists():
         folder.mkdir(parents=True, exist_ok=True)
         print("\nNo plugins found.")
@@ -53,7 +52,7 @@ def scan_plugins(plugin_folder=None):
     first_print = True
     for name, entries in candidates.items():
         failed = False
-        if name in RESERVED_NAMES:
+        if name in c.RESERVED_NAMES:
             print(f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded.")
             failed = True
         if len(entries) > 1:
@@ -64,7 +63,7 @@ def scan_plugins(plugin_folder=None):
         if failed:
             continue
         instance, _ = entries[0]
-        data.PLUGINS[name] = instance
+        c.PLUGINS[name] = instance
         if first_print:
             print("\nInstalled Plugins:")
             first_print = False
@@ -81,9 +80,9 @@ def build_context(plugin_name, file_path=None):
         "plugin_name": plugin_name,
         "file_path": str(file_path) if file_path else None,
         "metadata": {
-            "host_os": data.HOST_OS,
-            "version": data.VERSION,
-            "build": data.BUILD
+            "host_os": c.HOST_OS,
+            "version": c.VERSION,
+            "build": c.BUILD
         },
         "storage": plugin_storage
     }

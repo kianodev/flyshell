@@ -14,7 +14,7 @@ license = { text = "MIT" }
 flyshell = "flyshell.main:main"
 
 [tool.setuptools.dynamic]
-version = { attr = "flyshell.core.data.VERSION" }
+version = { attr = "flyshell.constants.VERSION" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
