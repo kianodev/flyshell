@@ -11,6 +11,7 @@ import inspect
 import os
 import sys
 
+
 def scan_plugins(plugin_folder=None):
     folder = Path(plugin_folder) if plugin_folder else c.USER_PLUGIN_DIR
     c.PLUGINS.clear()
@@ -53,12 +54,18 @@ def scan_plugins(plugin_folder=None):
     for name, entries in candidates.items():
         failed = False
         if name in c.RESERVED_NAMES:
-            print(f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded.")
+            print(
+                f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded."
+            )
             failed = True
         if len(entries) > 1:
             paths = "\n    - ".join(str(path) for _, path in entries)
-            print(f"\n⚠️ Collision Error - Multiple plugins named '{name}' detected: {paths}")
-            print(f"The above plugins will not be loaded. Please rename them to unique names.")
+            print(
+                f"\n⚠️ Collision Error - Multiple plugins named '{name}' detected: {paths}"
+            )
+            print(
+                f"The above plugins will not be loaded. Please rename them to unique names."
+            )
             failed = True
         if failed:
             continue
@@ -74,16 +81,13 @@ def scan_plugins(plugin_folder=None):
     else:
         print("\nNo plugins loaded.")
 
+
 def build_context(plugin_name, file_path=None):
     plugin_storage = data.get_all_plugin_data(plugin_name)
     context = {
         "plugin_name": plugin_name,
         "file_path": str(file_path) if file_path else None,
-        "metadata": {
-            "host_os": c.HOST_OS,
-            "version": c.VERSION,
-            "build": c.BUILD
-        },
-        "storage": plugin_storage
+        "metadata": {"host_os": c.HOST_OS, "version": c.VERSION, "build": c.BUILD},
+        "storage": plugin_storage,
     }
     return context

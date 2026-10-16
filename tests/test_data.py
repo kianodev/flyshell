@@ -3,12 +3,14 @@
 from flyshell.core import data
 import sqlite3
 
+
 def test_database_initialises_with_user_version(tmp_path):
     test_db = tmp_path / "test_flyshell.db"
     data.initialise(filename=test_db)
     with sqlite3.connect(test_db) as conn:
         version = conn.execute("PRAGMA user_version;").fetchone()[0]
     assert version == 1
+
 
 def test_auth_set_get_and_clear(tmp_path):
     test_db = tmp_path / "test_flyshell.db"
@@ -24,6 +26,7 @@ def test_auth_set_get_and_clear(tmp_path):
     assert deleted is True
     assert data.get_auth(filename=test_db) is None
 
+
 def test_cmd_history_append_order_and_limit(tmp_path):
     test_db = tmp_path / "test_flyshell.db"
     data.append_history("cd /", "2026-10-10T10:00:00Z", filename=test_db)
@@ -38,16 +41,21 @@ def test_cmd_history_append_order_and_limit(tmp_path):
     data.clear_history(filename=test_db)
     assert data.get_history(filename=test_db) == []
 
+
 def test_core_config_crud(tmp_path):
     test_db = tmp_path / "test_flyshell.db"
     assert data.get_config("theme", default="light", filename=test_db) == "light"
     data.set_config("theme", "dark", filename=test_db)
     assert data.get_config("theme", filename=test_db) == "dark"
     data.set_config("settings", {"bell": False, "font_size": 12}, filename=test_db)
-    assert data.get_config("settings", filename=test_db) == {"bell": False, "font_size": 12}
+    assert data.get_config("settings", filename=test_db) == {
+        "bell": False,
+        "font_size": 12,
+    }
     deleted = data.delete_config("theme", filename=test_db)
     assert deleted is True
     assert data.get_config("theme", filename=test_db) is None
+
 
 def test_plugin_storage_and_cascading_purge(tmp_path):
     test_db = tmp_path / "test_flyshell.db"
@@ -56,8 +64,13 @@ def test_plugin_storage_and_cascading_purge(tmp_path):
     data.set_plugin_data("scratchpad", "draft", "hello world", filename=test_db)
     assert data.get_plugin_data("notes", "font", filename=test_db) == "monospace"
     assert data.get_plugin_data("notes", "count", filename=test_db) == 42
-    assert data.get_all_plugin_data("notes", filename=test_db) == {"font": "monospace", "count": 42}
+    assert data.get_all_plugin_data("notes", filename=test_db) == {
+        "font": "monospace",
+        "count": 42,
+    }
     purged = data.purge_plugin("notes", filename=test_db)
     assert purged is True
     assert data.get_all_plugin_data("notes", filename=test_db) == {}
-    assert data.get_plugin_data("scratchpad", "draft", filename=test_db) == "hello world"
+    assert (
+        data.get_plugin_data("scratchpad", "draft", filename=test_db) == "hello world"
+    )

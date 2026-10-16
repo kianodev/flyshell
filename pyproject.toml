@@ -21,7 +21,10 @@ where = ["src"]
 
 [project.optional-dependencies]
 dev = [
+    "black",
+    "flake8",
     "pytest",
+    "pytest-cov",
 ]
 readline = [
     "pyreadline3; sys_platform == 'win32'",

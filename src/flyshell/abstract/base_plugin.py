@@ -3,6 +3,7 @@
 from flyshell.core import data
 from pathlib import Path
 
+
 class BasePlugin:
     name: str = "Unnamed Plugin"
     description: str = "No description provided."
@@ -30,7 +31,7 @@ class BasePlugin:
         lines = [
             f"\nPlugin: {self.name} (v{self.version})",
             f"Description: {self.description}",
-            f"Author: {self.author}"
+            f"Author: {self.author}",
         ]
         if self.usage:
             lines.append(f"Usage: {self.usage}")

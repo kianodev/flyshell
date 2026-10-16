@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 
+
 class Cd(BaseCmd):
     name = "cd"
     description = "Change the current working directory"
@@ -27,7 +28,11 @@ class Cd(BaseCmd):
         except PermissionError:
             return (1, f"\nSystem Error: Permission denied. Cannot access '{target}'\n")
         except OSError as e:
-            return (1, f"\nCommand Error: Invalid path syntax '{target}'. ({e.strerror})\n")
+            return (
+                1,
+                f"\nCommand Error: Invalid path syntax '{target}'. ({e.strerror})\n",
+            )
+
 
 class Dir(BaseCmd):
     name = "dir"
@@ -51,6 +56,7 @@ class Dir(BaseCmd):
         except Exception as e:
             return (1, f"\nSystem Error: Unable to list directory ({e})\n")
 
+
 class OpenFile(BaseCmd):
     name = "open"
     description = "Open the specified file path"
@@ -59,14 +65,17 @@ class OpenFile(BaseCmd):
     aliases = []
 
     def execute(self, args):
-        target = " ".join(args).strip().strip('"\'')
+        target = " ".join(args).strip().strip("\"'")
         if not target:
             return (0, "")
         is_path = os.path.exists(target)
         is_url = target.startswith(("http://", "https://"))
         is_bin = shutil.which(target) is not None
         if not (is_path or is_url or is_bin):
-            return (1, f"\nCommand Error: File or application '{target}' could not be found.\n")
+            return (
+                1,
+                f"\nCommand Error: File or application '{target}' could not be found.\n",
+            )
         try:
             if c.HOST_OS == "Windows":
                 os.startfile(target)
@@ -77,6 +86,7 @@ class OpenFile(BaseCmd):
             return (0, f"\nSUCCESS! Launched '{target}' application or file.\n")
         except Exception as e:
             return (1, f"\nSystem Error: Failed to open '{target}': {e}\n")
+
 
 class SysExe(BaseCmd):
     name = "sys"
@@ -93,18 +103,28 @@ class SysExe(BaseCmd):
                 return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
         else:
             override = False
-        cmd = " ".join(args).strip().strip('"\'')
+        cmd = " ".join(args).strip().strip("\"'")
         cmd_normalised = " ".join(cmd.lower().split())
-        is_blocked = any(re.search(rf"\b{re.escape(b)}\b", cmd_normalised) for b in c.BLOCKED_COMMANDS)
-        is_dangerous = any(re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in c.DANGER_COMMANDS)
+        is_blocked = any(
+            re.search(rf"\b{re.escape(b)}\b", cmd_normalised)
+            for b in c.BLOCKED_COMMANDS
+        )
+        is_dangerous = any(
+            re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in c.DANGER_COMMANDS
+        )
         if is_blocked:
-            return (1, (
-                "\nSecurity Error: Flyshell has blocked execution of this command.\n"
-                f"This command '{cmd}' is permanently restricted by Flyshell safety policy.\n"
-                "Flyshell has blocked your command to prevent damage to your computer.\n"
-            ))
+            return (
+                1,
+                (
+                    "\nSecurity Error: Flyshell has blocked execution of this command.\n"
+                    f"This command '{cmd}' is permanently restricted by Flyshell safety policy.\n"
+                    "Flyshell has blocked your command to prevent damage to your computer.\n"
+                ),
+            )
         elif is_dangerous and not override:
-            password = getpass.getpass("\nThis command is restricted. To execute, enter your password: ")
+            password = getpass.getpass(
+                "\nThis command is restricted. To execute, enter your password: "
+            )
             auth_info = data.get_auth() or {}
             stored_hash = auth_info.get("hash")
             stored_salt = auth_info.get("salt")

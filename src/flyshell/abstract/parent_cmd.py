@@ -4,6 +4,7 @@ from flyshell.abstract.base_cmd import BaseCmd
 
 from typing import Dict, List, Optional, Tuple, Union
 
+
 class ParentCmd(BaseCmd):
     min_args: int = 1
     subcommands: Dict[str, BaseCmd] = {}
@@ -31,10 +32,16 @@ class ParentCmd(BaseCmd):
             if sub in seen:
                 continue
             seen.add(sub)
-            label = f"{sub.name} (alias: {', '.join(sub.aliases)})" if sub.aliases else sub.name
+            label = (
+                f"{sub.name} (alias: {', '.join(sub.aliases)})"
+                if sub.aliases
+                else sub.name
+            )
             opt = f" [args: {sub.options}]" if sub.options else ""
             print(f"{label} - {sub.description}{opt}")
-        print(f"\nFor subcommand assistance use '{self.name} <subcmd> -h' or '--help'\n")
+        print(
+            f"\nFor subcommand assistance use '{self.name} <subcmd> -h' or '--help'\n"
+        )
 
     def execute(self, args: List[str]) -> Union[int, Tuple[int, str], str, None]:
         if not args or args[0] in ("-h", "--help"):
@@ -43,7 +50,9 @@ class ParentCmd(BaseCmd):
         sub_name = args[0].lower()
         sub_args = args[1:]
         if sub_name not in self._sub_registry:
-            print(f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'.")
+            print(
+                f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'."
+            )
             print(f"Use '{self.name} -h' or '--help' to see all valid subcommands.\n")
             return 1
         target = self._sub_registry[sub_name]
@@ -51,7 +60,9 @@ class ParentCmd(BaseCmd):
             target.help(prefix=self.name)
             return 0
         if len(sub_args) < target.min_args:
-            print(f"\nCommand Error: '{self.name} {target.name}' requires at least {target.min_args} argument(s).")
+            print(
+                f"\nCommand Error: '{self.name} {target.name}' requires at least {target.min_args} argument(s)."
+            )
             if target.options:
                 print(f"Accepted arguments: {target.options}")
             print()

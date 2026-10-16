@@ -9,6 +9,7 @@ import sys
 if str(c.SRC_DIR) not in sys.path:
     sys.path.insert(0, str(c.SRC_DIR))
 
+
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
     present = []
@@ -29,21 +30,32 @@ def boot_check():
         return False
     tests_dir = c.PROJECT_ROOT / "tests"
     if tests_dir.exists():
-        print("\nFlyshell will now check internal additional packages and features. These are not required.")
+        print(
+            "\nFlyshell will now check internal additional packages and features. These are not required."
+        )
         for path in tests_dir.glob("test_*.py"):
             print(f"✅ {path.name} - Test found")
         try:
             import pytest
+
             print(f"✅ Your tests can be run using Pytest.")
         except ImportError:
             print(f"⚠️ Your tests cannot be run as Pytest is not installed.")
-    print("\nFlyshell will now check external additional packages and features. These are not required.")
+    print(
+        "\nFlyshell will now check external additional packages and features. These are not required."
+    )
     from flyshell.core import console
+
     if console.check_readline():
-        print("✅ Terminal Readline - Available (Use arrow keys to navigate input history)")
+        print(
+            "✅ Terminal Readline - Available (Use arrow keys to navigate input history)"
+        )
     else:
-        print("⚠️ Terminal Readline - Unavailable (This does not affect your performance)")
+        print(
+            "⚠️ Terminal Readline - Unavailable (This does not affect your performance)"
+        )
     return True
+
 
 def main():
     os.system("")
@@ -52,10 +64,15 @@ def main():
     try:
         if boot_check():
             from flyshell.core import auth, console, data, loader
+
             if c.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 if sys.version_info < c.SUPPORTED_PYTHON:
-                    print("\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell.")
-                    print("Flyshell cannot launch because it requires Python 3.10 or newer.")
+                    print(
+                        "\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell."
+                    )
+                    print(
+                        "Flyshell cannot launch because it requires Python 3.10 or newer."
+                    )
                     sys.exit(1)
                 print(f"\nYour OS '{c.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
@@ -66,8 +83,12 @@ def main():
                     print("Shutting down...\n")
                     sys.exit(0)
             else:
-                print(f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported.")
-                print("Flyshell cannot launch because your operating system is not supported.")
+                print(
+                    f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported."
+                )
+                print(
+                    "Flyshell cannot launch because your operating system is not supported."
+                )
                 sys.exit(1)
         else:
             print("\nFlyshell cannot launch until the above file paths are restored.")
@@ -83,13 +104,15 @@ def main():
         choice = input("[y/n]?: ")
         if choice.lower() == "y":
             import traceback
+
             raw = traceback.extract_tb(e.__traceback__)
-            last_frame = raw[-1] 
+            last_frame = raw[-1]
             print("\nTraceback details:")
             print(f"File: '{last_frame[0]}'")
             print(f"Line: {last_frame[1]}")
             print(f"Exception message: '{e}'")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

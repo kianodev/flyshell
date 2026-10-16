@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 
+
 class Clear(BaseCmd):
     name = "clear"
     description = "Clear the screen"
@@ -19,6 +20,7 @@ class Clear(BaseCmd):
 
     def execute(self, args):
         return (0, c.CLEAR_SCREEN)
+
 
 class History(BaseCmd):
     name = "history"
@@ -42,7 +44,7 @@ class History(BaseCmd):
             return (0, "\nHistory is empty.\n")
         lines = [
             "\nCommand History:",
-            f"Showing last {len(history_entries)} entries.\n"
+            f"Showing last {len(history_entries)} entries.\n",
         ]
         for i, entry in enumerate(history_entries, start=1):
             cmd = entry.get("command", "")
@@ -51,6 +53,7 @@ class History(BaseCmd):
             lines.append(f"#{i}: {cmd} [at {date_part} @ {time_part} UTC]")
         lines.append("")
         return (0, "\n".join(lines))
+
 
 class Kill(BaseCmd):
     name = "kill"
@@ -67,6 +70,7 @@ class Kill(BaseCmd):
         else:
             return (1, "\nAction cancelled.\n")
 
+
 class Reboot(BaseCmd):
     name = "reboot"
     description = "Reboot the Flyshell system"
@@ -77,7 +81,7 @@ class Reboot(BaseCmd):
     def execute(self, args):
         print("\nRestarting Flyshell...\n")
         is_direct_script = (
-            sys.argv[0].lower().endswith(".exe") 
+            sys.argv[0].lower().endswith(".exe")
             or os.path.basename(sys.argv[0]) == "flyshell"
         )
         if is_direct_script:
@@ -94,6 +98,7 @@ class Reboot(BaseCmd):
         else:
             os.execv(cmd[0], cmd)
 
+
 class Sleep(BaseCmd):
     name = "sleep"
     description = "Sleep the system for a specified time"
@@ -103,7 +108,10 @@ class Sleep(BaseCmd):
 
     def execute(self, args):
         if not args or not args[0].replace(".", "", 1).isdigit():
-            return (1, f"\nCommand Error: Invalid argument '{args[0] if args else ''}'\n")
+            return (
+                1,
+                f"\nCommand Error: Invalid argument '{args[0] if args else ''}'\n",
+            )
         secs = float(args[0])
         try:
             print(f"\nPausing Flyshell for {secs} second(s).")

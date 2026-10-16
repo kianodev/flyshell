@@ -9,13 +9,15 @@ import re
 import secrets
 import sys
 
+
 def hash_password(password, salt=None):
     if salt is None:
         salt = secrets.token_bytes(16)
     elif isinstance(salt, str):
         salt = bytes.fromhex(salt)
-    pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 600000)
+    pwd_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 600000)
     return pwd_hash.hex(), salt.hex()
+
 
 def verify_password(stored_hash: str, stored_salt: str, password: str) -> bool:
     if not stored_hash or not stored_salt or not password:
@@ -26,6 +28,7 @@ def verify_password(stored_hash: str, stored_salt: str, password: str) -> bool:
         return secrets.compare_digest(attempt_hash, stored_hash)
     except (ValueError, TypeError):
         return False
+
 
 def setup_acc() -> bool:
     print("\nWelcome to Flyshell, New User!")
@@ -58,7 +61,7 @@ def setup_acc() -> bool:
         has_upper = any(char.isupper() for char in password)
         has_lower = any(char.islower() for char in password)
         has_digit = any(char.isdigit() for char in password)
-        has_speci = bool(re.search(r'[^a-zA-Z0-9]', password))
+        has_speci = bool(re.search(r"[^a-zA-Z0-9]", password))
         if len(password) >= 10 and has_upper and has_lower and has_digit and has_speci:
             break
         else:
@@ -70,14 +73,11 @@ def setup_acc() -> bool:
             print(f"You have {i} attempts remaining.\n")
             continue
     pwd_hash, salt = hash_password(password)
-    auth_data = {
-        "username": username,
-        "hash": pwd_hash,
-        "salt": salt
-    }
+    auth_data = {"username": username, "hash": pwd_hash, "salt": salt}
     data.set_auth(username, pwd_hash, salt)
     print("\nSUCCESS: Account created successfully!")
     return True
+
 
 def login_flow(is_lock=False) -> bool:
     auth_info = data.get_auth()
@@ -106,6 +106,7 @@ def login_flow(is_lock=False) -> bool:
             print("Too many attempts.\n")
             return False
         print(f"You have {i} attempts remaining.\n")
+
 
 class Lock(BaseCmd):
     name = "lock"

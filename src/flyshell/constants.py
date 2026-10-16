@@ -7,8 +7,9 @@ import os
 import platform
 import time
 
-BUILD = 100
-VERSION = "1.0.1"
+BUILD = 101
+VERSION = "1.0.2"
+
 
 def _resolve_app_dir() -> Path:
     home = Path.home()
@@ -21,6 +22,7 @@ def _resolve_app_dir() -> Path:
     target = base / "Flyshell"
     target.mkdir(parents=True, exist_ok=True)
     return target
+
 
 HOST_OS = platform.system()
 PACKAGE_ROOT = Path(__file__).resolve().parent
@@ -64,14 +66,14 @@ REQUIRED_COMPONENTS = [
 ]
 
 GREETINGS = [
-        "Hi {username}, what's it going to be today?",
-        "The mic is yours, {username}, go and blow me away!",
-        "Hey {username}, let's get this party started!",
-        "What's up, {username}? Let's go!",
-        "I'm awaiting your first command, {username}!",
-        "How's it going {username}? I'm here to help.",
-        "{username}, it's your call! Show me what you've got, what are we doing today?",
-        "My wish is your command, {username}! (unless it's not on my command list)",
-        "I have goods for you {username}, it's called a Command Interface.",
-        "I'm your boss! Wait, no... sorry... you, {username}, are my boss!",
-    ]
+    "Hi {username}, what's it going to be today?",
+    "The mic is yours, {username}, go and blow me away!",
+    "Hey {username}, let's get this party started!",
+    "What's up, {username}? Let's go!",
+    "I'm awaiting your first command, {username}!",
+    "How's it going {username}? I'm here to help.",
+    "{username}, it's your call! Show me what you've got, what are we doing today?",
+    "My wish is your command, {username}! (unless it's not on my command list)",
+    "I have goods for you {username}, it's called a Command Interface.",
+    "I'm your boss! Wait, no... sorry... you, {username}, are my boss!",
+]

@@ -10,18 +10,22 @@ import sys
 
 readline = None
 
+
 def check_readline() -> bool:
     global readline
     try:
         import readline
+
         return True
     except ImportError:
         try:
             import pyreadline3 as readline
+
             return True
         except ImportError:
             readline = None
             return False
+
 
 def load_history():
     if not readline:
@@ -30,6 +34,7 @@ def load_history():
     for entry in history_entries:
         if isinstance(entry, dict) and "command" in entry:
             readline.add_history(entry["command"])
+
 
 def boot():
     load_history()

@@ -2,6 +2,7 @@
 
 from typing import List, Optional, Tuple, Union
 
+
 class BaseCmd:
     name: str = ""
     description: str = ""
@@ -10,7 +11,9 @@ class BaseCmd:
     aliases: List[str] = []
 
     def execute(self, args: List[str]) -> Union[int, Tuple[int, str], str, None]:
-        raise NotImplementedError(f"Command '{self.__class__.__name__}' has not implemented the execute method")
+        raise NotImplementedError(
+            f"Command '{self.__class__.__name__}' has not implemented the execute method"
+        )
 
     def help(self, prefix: str = ""):
         full_name = f"{prefix} {self.name}".strip() if prefix else self.name

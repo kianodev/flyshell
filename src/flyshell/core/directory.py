@@ -24,16 +24,29 @@ class Cmds(BaseCmd):
             if cmd in seen_cmds:
                 continue
             seen_cmds.add(cmd)
-            cmd_label = f"{cmd.name} (alias: {', '.join(cmd.aliases)})" if cmd.aliases else cmd.name
+            cmd_label = (
+                f"{cmd.name} (alias: {', '.join(cmd.aliases)})"
+                if cmd.aliases
+                else cmd.name
+            )
             if not cmd.options:
-                lines.append(f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s))")
+                lines.append(
+                    f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s))"
+                )
             else:
-                lines.append(f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s)) [args: {cmd.options}]")
+                lines.append(
+                    f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s)) [args: {cmd.options}]"
+                )
 
         lines.append(f"\nTotal available commands: {len(seen_cmds)}")
-        lines.append("Use '-h' or '--help' after any command to reveal its specific help list.")
-        lines.append("Flyshell also supports ;, && and || command chaining. Give it a go!\n")
+        lines.append(
+            "Use '-h' or '--help' after any command to reveal its specific help list."
+        )
+        lines.append(
+            "Flyshell also supports ;, && and || command chaining. Give it a go!\n"
+        )
         return (0, "\n".join(lines))
+
 
 INSTALLED_COMMANDS: list[BaseCmd] = [
     system.Cd(),
@@ -55,9 +68,11 @@ for cmd_obj in INSTALLED_COMMANDS:
     for alias_name in cmd_obj.aliases:
         COMMAND_REGISTRY[alias_name] = cmd_obj
 
+
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data.append_history(cmd, utc_now)
+
 
 def _execute_single(raw_cmd: str) -> int:
     try:
@@ -85,19 +100,25 @@ def _execute_single(raw_cmd: str) -> int:
                 print()
                 return 0
             else:
-                print(f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n")
+                print(
+                    f"\nPlugin Error: Plugin '{cmd_name}' does not provide help details.\n"
+                )
                 return 1
     if "-d" in args or "--docs" in args:
         if cmd_name in c.PLUGINS:
             plugin = c.PLUGINS[cmd_name]
             if hasattr(plugin, "show_docs") and plugin.show_docs():
                 return 0
-            print(f"\nPlugin Error: Plugin '{cmd_name}' has not provided documentation.\n")
+            print(
+                f"\nPlugin Error: Plugin '{cmd_name}' has not provided documentation.\n"
+            )
             return 1
     if cmd_name in COMMAND_REGISTRY:
         command = COMMAND_REGISTRY[cmd_name]
         if len(args) < command.min_args:
-            print(f"\nCommand Error: '{cmd_name}' requires at least {command.min_args} parameter(s).\n")
+            print(
+                f"\nCommand Error: '{cmd_name}' requires at least {command.min_args} parameter(s).\n"
+            )
             return 1
         if cmd[0] != "history":
             log(raw_cmd)
@@ -127,7 +148,9 @@ def _execute_single(raw_cmd: str) -> int:
             result = plugin.execute(args)
             return result if isinstance(result, int) else 0
         except NotImplementedError:
-            print(f"\nPlugin Error: '{cmd_name}' has not implemented the execute method.\n")
+            print(
+                f"\nPlugin Error: '{cmd_name}' has not implemented the execute method.\n"
+            )
             return 1
         except Exception as e:
             print(f"\nPlugin Error: '{cmd_name}' crashed unexpectedly.")
@@ -138,8 +161,11 @@ def _execute_single(raw_cmd: str) -> int:
             if hasattr(plugin, "on_unload"):
                 plugin.on_unload()
     else:
-        print(f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n")
+        print(
+            f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n"
+        )
         return 1
+
 
 def _parse_commands(raw_cmd: str) -> list:
     chain = []
@@ -157,7 +183,7 @@ def _parse_commands(raw_cmd: str) -> list:
             escape = False
             i += 1
             continue
-        is_windows = (c.HOST_OS == "Windows")
+        is_windows = c.HOST_OS == "Windows"
         if char == "\\":
             if not is_windows:
                 escape = True
@@ -182,8 +208,8 @@ def _parse_commands(raw_cmd: str) -> list:
             i += 1
             continue
         if not in_single_quote and not in_double_quote:
-            if raw_cmd[i:i+2] in ("&&", "||"):
-                op = raw_cmd[i:i+2]
+            if raw_cmd[i : i + 2] in ("&&", "||"):
+                op = raw_cmd[i : i + 2]
                 cmd_str = "".join(current).strip()
                 if cmd_str:
                     chain.append((pending_op, cmd_str))
@@ -212,6 +238,7 @@ def _parse_commands(raw_cmd: str) -> list:
     if final_cmd:
         chain.append((pending_op, final_cmd))
     return chain
+
 
 def execute_line(raw_cmd: str):
     chain = _parse_commands(raw_cmd)
