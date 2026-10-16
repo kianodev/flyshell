@@ -3,6 +3,7 @@
 from flyshell import constants as c
 
 from pathlib import Path
+import importlib.util
 import os
 import sys
 
@@ -35,12 +36,10 @@ def boot_check():
         )
         for path in tests_dir.glob("test_*.py"):
             print(f"✅ {path.name} - Test found")
-        try:
-            import pytest
-
-            print(f"✅ Your tests can be run using Pytest.")
-        except ImportError:
-            print(f"⚠️ Your tests cannot be run as Pytest is not installed.")
+        if importlib.util.find_spec("pytest") is not None:
+            print("✅ Your tests can be run using Pytest.")
+        else:
+            print("⚠️ Your tests cannot be run as Pytest is not installed.")
     print(
         "\nFlyshell will now check external additional packages and features. These are not required."
     )

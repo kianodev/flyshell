@@ -3,12 +3,10 @@
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data
-from flyshell.core.directory import COMMAND_REGISTRY
 
 from pathlib import Path
 import importlib.util
 import inspect
-import os
 import sys
 
 
@@ -64,7 +62,7 @@ def scan_plugins(plugin_folder=None):
                 f"\n⚠️ Collision Error - Multiple plugins named '{name}' detected: {paths}"
             )
             print(
-                f"The above plugins will not be loaded. Please rename them to unique names."
+                "The above plugins will not be loaded. Please rename them to unique names."
             )
             failed = True
         if failed:
