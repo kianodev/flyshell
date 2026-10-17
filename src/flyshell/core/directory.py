@@ -3,7 +3,7 @@
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.builtin import fs, system, utils
+from flyshell.builtin import diskops, fs, system, utils
 from flyshell.core import auth, data
 
 from datetime import datetime, timezone
@@ -52,7 +52,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     system.Cd(),
     Cmds(),
     utils.Clear(),
-    system.Dir(),
+    diskops.Dir(),
     fs.Fs(),
     utils.History(),
     utils.Kill(),

@@ -7,8 +7,8 @@ import os
 import platform
 import time
 
-BUILD = 105
-VERSION = "1.0.6"
+BUILD = 106
+VERSION = "1.0.7"
 
 
 def _resolve_app_dir() -> Path:
@@ -53,6 +53,7 @@ REQUIRED_COMPONENTS = [
     "abstract/base_plugin.py",
     "abstract/parent_cmd.py",
     "builtin",
+    "builtin/diskops.py",
     "builtin/fs.py",
     "builtin/system.py",
     "builtin/utils.py",
