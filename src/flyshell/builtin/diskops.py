@@ -30,6 +30,7 @@ class Dir(BaseCmd):
         except Exception as e:
             return (1, f"\nSystem Error: Unable to list directory ({e})\n")
 
+
 class MkDir(BaseCmd):
     name = "mkdir"
     description = "Create a new directory from the current working directory"
@@ -50,7 +51,10 @@ class MkDir(BaseCmd):
         except FileExistsError:
             return (1, f"\nSystem Error: Directory '{target}' already exists.\n")
         except FileNotFoundError:
-            return (1, f"\nSystem Error: Parent directory does not exist. Use '-p' or '--parents' to create parent directories.\n")
+            return (
+                1,
+                "\nSystem Error: Parent directory does not exist. Use '-p' or '--parents' to create parent directories.\n",
+            )
         except PermissionError:
             return (1, f"\nSystem Error: Permission denied. Cannot create '{target}'\n")
         except Exception as e:
@@ -69,23 +73,35 @@ class RmDir(BaseCmd):
         path_tokens = [arg for arg in args if arg not in ("-f", "--force")]
         raw_target = " ".join(path_tokens).strip("\"'")
         target_path = Path(raw_target).expanduser().resolve()
-        if not target_path.exists():
-            return (1, f"\nSystem Error: Directory '{raw_target}' not found.\n")
-        if not target_path.is_dir():
-            return (1, f"\nCommand Error: '{raw_target}' is a file, not a directory.\n")
-        if target_path == target_path.anchor or target_path.parent == target_path:
+        if target_path == target_path.parent or str(target_path) == target_path.anchor:
             return (
                 1,
                 "\nSecurity Error: Flyshell has blocked this action.\n"
                 "You cannot delete the root filesystem directory.\n",
             )
-        flyshell_app = c.APP_DIR.resolve()
-        flyshell_package = c.PACKAGE_ROOT.resolve()
-        if target_path in (flyshell_app, flyshell_package) or flyshell_app in target_path.parents or flyshell_package in target_path.parents:
+        critical_system_dirs = [
+            Path.home().parent.resolve(),
+            Path.home().resolve(),
+        ]
+        if c.HOST_OS == "Windows":
+            system_drive = os.environ.get("SystemDrive", "C:")
+            critical_system_dirs.extend([
+                Path(f"{system_drive}\\Windows").resolve(),
+                Path(f"{system_drive}\\Program Files").resolve(),
+                Path(f"{system_drive}\\Program Files (x86)").resolve(),
+            ])
+        else:
+            critical_system_dirs.extend([
+                Path("/bin").resolve(),
+                Path("/etc").resolve(),
+                Path("/usr").resolve(),
+                Path("/var").resolve(),
+            ])
+        if target_path in critical_system_dirs:
             return (
                 1,
                 "\nSecurity Error: Flyshell has blocked this action.\n"
-                f"You cannot delete '{raw_target}' because it contains core Flyshell files or data.\n",
+                f"Target '{raw_target}' is a protected operating system directory.\n",
             )
         if target_path == Path(os.getcwd()).resolve():
             return (
@@ -93,6 +109,19 @@ class RmDir(BaseCmd):
                 "\nSystem Error: Cannot remove current working directory.\n"
                 "Switch to a different directory using 'cd' first.\n",
             )
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if target_path == protected or target_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Target '{raw_target}' contains or belongs to Flyshell system files.\n"
+                    "If you wish to delete Flyshell, use the host.\n",
+                )
         try:
             has_contents = any(target_path.iterdir())
             if has_contents and not force:
@@ -107,8 +136,17 @@ class RmDir(BaseCmd):
                 os.rmdir(target_path)
             return (0, f"\nSUCCESS! Removed directory '{raw_target}'\n")
         except PermissionError:
-            return (1, f"\nSystem Error: Permission denied. Cannot delete '{raw_target}'\n")
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot delete '{raw_target}'\n",
+            )
         except OSError as e:
-            return (1, f"\nSystem Error: Unable to remove directory '{raw_target}' ({e.strerror})\n")
+            return (
+                1,
+                f"\nSystem Error: Unable to remove directory '{raw_target}' ({e.strerror})\n",
+            )
         except Exception as e:
-            return (1, f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n")
+            return (
+                1,
+                f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n",
+            )
