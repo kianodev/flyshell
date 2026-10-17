@@ -57,8 +57,10 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     utils.History(),
     utils.Kill(),
     auth.Lock(),
+    diskops.MkDir(),
     system.OpenFile(),
     utils.Reboot(),
+    diskops.RmDir(),
     utils.Sleep(),
     system.SysExe(),
 ]
