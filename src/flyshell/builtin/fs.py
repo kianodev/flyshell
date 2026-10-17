@@ -79,8 +79,7 @@ class FsDel(BaseCmd):
                 )
                 if choice == "y":
                     data.clear_history()
-                    for name in list(c.PLUGINS.keys()):
-                        data.purge_plugin(name)
+                    data.purge_all_plugin_data()
                     return (0, "\nAll non-auth system data purged successfully.\n")
                 return (1, "\nAction cancelled.\n")
             case _:
