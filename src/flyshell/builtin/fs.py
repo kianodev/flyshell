@@ -79,7 +79,7 @@ class FsDel(BaseCmd):
                 )
                 if choice == "y":
                     data.clear_history()
-                    for name in list(data.PLUGINS.keys()):
+                    for name in list(c.PLUGINS.keys()):
                         data.purge_plugin(name)
                     return (0, "\nAll non-auth system data purged successfully.\n")
                 return (1, "\nAction cancelled.\n")
@@ -139,7 +139,7 @@ class FsPlugins(BaseCmd):
 
     def execute(self, args):
         lines = ["\nInstalled Plugins:"]
-        if data.PLUGINS:
+        if c.PLUGINS:
             for name, plugin in c.PLUGINS.items():
                 p_name = getattr(plugin, "name", name)
                 p_desc = getattr(plugin, "description", "No description provided.")
