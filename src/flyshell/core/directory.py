@@ -31,11 +31,11 @@ class Cmds(BaseCmd):
             )
             if not cmd.options:
                 lines.append(
-                    f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s))"
+                    f"{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s))"
                 )
             else:
                 lines.append(
-                    f"\n{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s)) [args: {cmd.options}]"
+                    f"{cmd_label}: {cmd.description} (Requires {cmd.min_args} parameter(s)) [args: {cmd.options}]"
                 )
 
         lines.append(f"\nTotal available commands: {len(seen_cmds)}")
