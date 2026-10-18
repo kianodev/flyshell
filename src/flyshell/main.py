@@ -1,20 +1,24 @@
 # src\flyshell\main.py
 
-from flyshell import constants as c
-
 from pathlib import Path
 import importlib.util
 import os
 import sys
-
-if str(c.SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(c.SRC_DIR))
 
 
 def boot_check():
     print("\nFlyshell will now check that your modules exist.")
     present = []
     missing = []
+    try:
+        from flyshell import constants as c
+
+        if str(c.SRC_DIR) not in sys.path:
+            sys.path.insert(0, str(c.SRC_DIR))
+    except ImportError:
+        print(
+            "\nCRITICAL BOOT ERROR: Failed to initialise system due to corrupted or missing files.\n"
+        )
     for obj in c.REQUIRED_COMPONENTS:
         path = Path(c.PACKAGE_ROOT / obj)
         if path.exists():
@@ -58,11 +62,12 @@ def boot_check():
 
 def main():
     os.system("")
-    print(c.CLEAR_SCREEN, end="")
+    print("\033[H\033[2J", end="")
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
     try:
         if boot_check():
-            from flyshell.core import auth, console, data, loader
+            from flyshell import constants as c
+            from flyshell.core import auth, console, loader
 
             if c.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 if sys.version_info < c.SUPPORTED_PYTHON:

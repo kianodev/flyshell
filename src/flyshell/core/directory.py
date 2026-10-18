@@ -61,9 +61,11 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     diskops.MkDir(),
     system.OpenFile(),
     utils.Reboot(),
+    diskops.Rm(),
     diskops.RmDir(),
     utils.Sleep(),
     system.SysExe(),
+    diskops.Touch(),
 ]
 COMMAND_REGISTRY: dict[str, BaseCmd] = {}
 for cmd_obj in INSTALLED_COMMANDS:

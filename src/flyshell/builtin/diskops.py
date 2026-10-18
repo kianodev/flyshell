@@ -32,7 +32,10 @@ class Cat(BaseCmd):
                     skip_next = True
                     continue
                 else:
-                    return (1, f"\nCommand Error: '{token}' requires a positive integer limit.\n")
+                    return (
+                        1,
+                        f"\nCommand Error: '{token}' requires a positive integer limit.\n",
+                    )
             filtered_args.append(token)
         if not filtered_args:
             return (1, "\nCommand Error: Target file not specified.\n")
@@ -62,7 +65,10 @@ class Cat(BaseCmd):
             output_lines.append(f"\nEnd of '{target_path.name}'\n")
             return (0, "\n".join(output_lines))
         except PermissionError:
-            return (1, f"\nSystem Error: Permission denied. Cannot read '{raw_target}'\n")
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot read '{raw_target}'\n",
+            )
         except Exception as e:
             return (1, f"\nSystem Error: Failed to read file '{raw_target}' ({e})\n")
 
@@ -120,18 +126,24 @@ class MkDir(BaseCmd):
             return (1, f"\nSystem Error: Unable to create directory '{target}' ({e})\n")
 
 
-class RmDir(BaseCmd):
-    name = "rmdir"
-    description = "Remove the specified directory"
+class Rm(BaseCmd):
+    name = "rm"
+    description = "Remove files from the filesystem"
     min_args = 1
-    options = "Target directory"
-    aliases = []
+    options = "Target file"
+    aliases = ["del"]
 
     def execute(self, args):
         force = ("-f" in args) or ("--force" in args)
-        path_tokens = [arg for arg in args if arg not in ("-f", "--force")]
+        recursive = ("-r" in args) or ("--recursive" in args)
+        flags = {"-f", "--force", "-r", "--recursive"}
+        path_tokens = [arg for arg in args if arg not in flags]
+        if not path_tokens:
+            return (1, "\nCommand Error: No target file or directory specified.\n")
         raw_target = " ".join(path_tokens).strip("\"'")
         target_path = Path(raw_target).expanduser().resolve()
+        if not target_path.exists():
+            return (1, f"\nSystem Error: Target '{raw_target}' not found.\n")
         if target_path == target_path.parent or str(target_path) == target_path.anchor:
             return (
                 1,
@@ -156,6 +168,102 @@ class RmDir(BaseCmd):
                 Path("/usr").resolve(),
                 Path("/var").resolve(),
             ])
+        if target_path in critical_system_dirs:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked this action.\n"
+                f"Target '{raw_target}' is a protected operating system directory.\n",
+            )
+        if target_path == Path(os.getcwd()).resolve():
+            return (
+                1,
+                "\nSystem Error: Cannot remove current working directory.\n"
+                "Switch to a different directory using 'cd' first.\n",
+            )
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if target_path == protected or target_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Target '{raw_target}' contains or belongs to Flyshell system files.\n"
+                    "If you wish to delete Flyshell, use the host.\n",
+                )
+        is_directory = target_path.is_dir()
+        if is_directory and not recursive:
+            return (
+                1,
+                f"\nCommand Error: '{raw_target}' is a directory.\n"
+                "Use '-r' or '--recursive' to remove directories.\n",
+            )
+        if not force:
+            target_type = "directory and all its contents" if is_directory else "file"
+            prompt_msg = f"\nAre you sure you want to permanently delete {target_type} '{raw_target}'? [y/n]: "
+            try:
+                confirm = input(prompt_msg).strip().lower()
+            except (KeyboardInterrupt, EOFError):
+                return (1, "\nDeletion cancelled by user.\n")
+            if confirm != "y":
+                return (0, "\nOperation cancelled. No files were deleted.\n")
+        try:
+            if is_directory:
+                shutil.rmtree(target_path)
+                return (0, f"\nSUCCESS! Deleted directory '{raw_target}' and all its contents.\n")
+            else:
+                os.remove(target_path)
+                return (0, f"\nSUCCESS! Deleted file '{raw_target}'\n")
+        except PermissionError:
+            return (1, f"\nSystem Error: Permission denied. Cannot remove '{raw_target}'\n")
+        except OSError as e:
+            return (1, f"\nSystem Error: Unable to remove '{raw_target}' ({e.strerror})\n")
+        except Exception as e:
+            return (1, f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n")
+
+
+class RmDir(BaseCmd):
+    name = "rmdir"
+    description = "Remove the specified directory"
+    min_args = 1
+    options = "Target directory"
+    aliases = []
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        path_tokens = [arg for arg in args if arg not in ("-f", "--force")]
+        raw_target = " ".join(path_tokens).strip("\"'")
+        target_path = Path(raw_target).expanduser().resolve()
+        if target_path == target_path.parent or str(target_path) == target_path.anchor:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked this action.\n"
+                "You cannot delete the root filesystem directory.\n",
+            )
+        critical_system_dirs = [
+            Path.home().parent.resolve(),
+            Path.home().resolve(),
+        ]
+        if c.HOST_OS == "Windows":
+            system_drive = os.environ.get("SystemDrive", "C:")
+            critical_system_dirs.extend(
+                [
+                    Path(f"{system_drive}\\Windows").resolve(),
+                    Path(f"{system_drive}\\Program Files").resolve(),
+                    Path(f"{system_drive}\\Program Files (x86)").resolve(),
+                ]
+            )
+        else:
+            critical_system_dirs.extend(
+                [
+                    Path("/bin").resolve(),
+                    Path("/etc").resolve(),
+                    Path("/usr").resolve(),
+                    Path("/var").resolve(),
+                ]
+            )
         if target_path in critical_system_dirs:
             return (
                 1,
@@ -208,4 +316,46 @@ class RmDir(BaseCmd):
             return (
                 1,
                 f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n",
+            )
+
+
+class Touch(BaseCmd):
+    name = "touch"
+    description = "Create a new empty file or update timestamps of an existing file"
+    min_args = 1
+    options = "Target file"
+    aliases = []
+
+    def execute(self, args):
+        raw_target = " ".join(args).strip("\"'")
+        target_path = Path(raw_target).expanduser().resolve()
+        if target_path.is_dir():
+            return (
+                1,
+                f"\nCommand Error: '{raw_target}' is a directory, not a file.\n",
+            )
+        if not target_path.parent.exists():
+            return (
+                1,
+                f"\nSystem Error: Cannot create file '{raw_target}'. Parent directory does not exist.\n",
+            )
+        try:
+            if target_path.exists():
+                target_path.touch()
+                return (
+                    0,
+                    f"\nSUCCESS! Updated timestamp for existing file '{raw_target}'\n",
+                )
+            else:
+                target_path.touch(exist_ok=False)
+                return (0, f"\nSUCCESS! Created file '{raw_target}'\n")
+        except PermissionError:
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot access '{raw_target}'.\n",
+            )
+        except Exception as e:
+            return (
+                1,
+                f"\nSystem Error: Failed to touch file '{raw_target}' ({e})\n",
             )
