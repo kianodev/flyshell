@@ -269,12 +269,8 @@ class Rename(BaseCmd):
     def execute(self, args):
         raw_src = args[0].strip("\"'")
         raw_new_name = args[1].strip("\"'")
-        if "/" in raw_new_name or "\\" in raw_new_name:
-            return (
-                1,
-                "\nCommand Error: The new name must not contain path separators ('/' or '\\')\n"
-                "Use 'mv' to move items between different folders.\n",
-            )
+        if raw_new_name in (".", "..") or "/" in raw_new_name or "\\" in raw_new_name:
+            return (1, "\nCommand Error: Invalid file name.\n")
         src_path = Path(raw_src).expanduser().resolve()
         if not src_path.exists():
             return (1, f"\nSystem Error: Target '{raw_src}' not found.\n")

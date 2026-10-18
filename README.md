@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
 
-> Documentation last updated: v1.0.0
+> Documentation last updated: v1.1.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
@@ -43,6 +43,7 @@ flyshell/
 │       │   └── parent_cmd.py
 │       ├── builtin/
 │       │   ├── __init__.py
+│       │   ├── diskops.py
 │       │   ├── fs.py
 │       │   ├── system.py
 │       │   └── utils.py
@@ -54,6 +55,7 @@ flyshell/
 │       │   ├── directory.py
 │       │   └── loader.py
 │       ├── __init__.py
+│       ├── constants.py
 │       └── main.py
 ├── tests/
 │   ├── test_auth.py
