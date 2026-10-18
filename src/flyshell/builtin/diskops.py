@@ -73,6 +73,69 @@ class Cat(BaseCmd):
             return (1, f"\nSystem Error: Failed to read file '{raw_target}' ({e})\n")
 
 
+class Copy(BaseCmd):
+    name = "cp"
+    description = "Copy files or directories to a new destination"
+    min_args = 2
+    options = "Source, then destination"
+    aliases = ["copy"]
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        flags = {"-f", "--force"}
+        path_tokens = [arg for arg in args if arg not in flags]
+        if len(path_tokens) < 2:
+            return (
+                1,
+                "\nCommand Error: 'cp' requires both a source and destination path.\n",
+            )
+        raw_src = path_tokens[0].strip("\"'")
+        raw_dst = path_tokens[1].strip("\"'")
+        src_path = Path(raw_src).expanduser().resolve()
+        dst_path = Path(raw_dst).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Source '{raw_src}' not found.\n")
+        if dst_path.exists() and dst_path.is_dir():
+            final_dst = dst_path / src_path.name
+        else:
+            final_dst = dst_path
+        if final_dst.exists() and not force:
+            try:
+                confirm = (
+                    input(
+                        f"\nDestination '{final_dst.name}' already exists. Overwrite? [y/n]: "
+                    )
+                    .strip()
+                    .lower()
+                )
+            except KeyboardInterrupt:
+                return (1, "\nCopy cancelled by user.\n")
+            if confirm != "y":
+                return (0, "\nOperation cancelled. No files were copied.\n")
+        try:
+            if src_path.is_dir():
+                shutil.copytree(src_path, final_dst, dirs_exist_ok=force)
+                return (
+                    0,
+                    f"\nSUCCESS! Copied directory '{src_path.name}' -> '{final_dst}'\n",
+                )
+            else:
+                shutil.copy2(src_path, final_dst)
+                return (
+                    0,
+                    f"\nSUCCESS! Copied file '{src_path.name}' -> '{final_dst}'\n",
+                )
+        except PermissionError:
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot copy to '{final_dst}'\n",
+            )
+        except shutil.SameFileError:
+            return (1, "\nSystem Error: Source and destination are the same.\n")
+        except Exception as e:
+            return (1, f"\nSystem Error: Failed to copy '{raw_src}' ({e})\n")
+
+
 class Dir(BaseCmd):
     name = "dir"
     description = "List all files in the current working directory"
@@ -126,6 +189,76 @@ class MkDir(BaseCmd):
             return (1, f"\nSystem Error: Unable to create directory '{target}' ({e})\n")
 
 
+class Move(BaseCmd):
+    name = "mv"
+    description = "Move or relocate files and directories"
+    min_args = 2
+    options = "Source, then destination"
+    aliases = ["move"]
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        flags = {"-f", "--force"}
+        path_tokens = [arg for arg in args if arg not in flags]
+        if len(path_tokens) < 2:
+            return (
+                1,
+                "\nCommand Error: 'mv' requires both a source and a destination path.\n",
+            )
+        raw_src = path_tokens[0].strip("\"'")
+        raw_dst = path_tokens[1].strip("\"'")
+        src_path = Path(raw_src).expanduser().resolve()
+        dst_path = Path(raw_dst).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Source '{raw_src}' not found.\n")
+        if src_path == src_path.parent or str(src_path) == src_path.anchor:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked moving the root filesystem.\n",
+            )
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if src_path == protected or src_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Source '{raw_src}' contains or belongs to Flyshell system files.\n",
+                )
+        if dst_path.exists() and dst_path.is_dir():
+            final_dst = dst_path / src_path.name
+        else:
+            final_dst = dst_path
+        if final_dst.exists() and not force:
+            try:
+                confirm = (
+                    input(
+                        f"\nDestination '{final_dst.name}' already exists. Overwrite? [y/n]: "
+                    )
+                    .strip()
+                    .lower()
+                )
+            except KeyboardInterrupt:
+                return (1, "\nMove cancelled by user.\n")
+            if confirm != "y":
+                return (0, "\nOperation cancelled. No files were moved.\n")
+        try:
+            shutil.move(str(src_path), str(final_dst))
+            return (0, f"\nSUCCESS! Moved '{src_path.name}' -> '{final_dst}'\n")
+        except PermissionError:
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot move to '{final_dst}'\n",
+            )
+        except shutil.SameFileError:
+            return (1, "\nSystem Error: Source and destination are the same.\n")
+        except Exception as e:
+            return (1, f"\nSystem Error: Failed to move '{raw_src}' ({e})\n")
+
+
 class Rm(BaseCmd):
     name = "rm"
     description = "Remove files from the filesystem"
@@ -156,18 +289,22 @@ class Rm(BaseCmd):
         ]
         if c.HOST_OS == "Windows":
             system_drive = os.environ.get("SystemDrive", "C:")
-            critical_system_dirs.extend([
-                Path(f"{system_drive}\\Windows").resolve(),
-                Path(f"{system_drive}\\Program Files").resolve(),
-                Path(f"{system_drive}\\Program Files (x86)").resolve(),
-            ])
+            critical_system_dirs.extend(
+                [
+                    Path(f"{system_drive}\\Windows").resolve(),
+                    Path(f"{system_drive}\\Program Files").resolve(),
+                    Path(f"{system_drive}\\Program Files (x86)").resolve(),
+                ]
+            )
         else:
-            critical_system_dirs.extend([
-                Path("/bin").resolve(),
-                Path("/etc").resolve(),
-                Path("/usr").resolve(),
-                Path("/var").resolve(),
-            ])
+            critical_system_dirs.extend(
+                [
+                    Path("/bin").resolve(),
+                    Path("/etc").resolve(),
+                    Path("/usr").resolve(),
+                    Path("/var").resolve(),
+                ]
+            )
         if target_path in critical_system_dirs:
             return (
                 1,
@@ -212,16 +349,28 @@ class Rm(BaseCmd):
         try:
             if is_directory:
                 shutil.rmtree(target_path)
-                return (0, f"\nSUCCESS! Deleted directory '{raw_target}' and all its contents.\n")
+                return (
+                    0,
+                    f"\nSUCCESS! Deleted directory '{raw_target}' and all its contents.\n",
+                )
             else:
                 os.remove(target_path)
                 return (0, f"\nSUCCESS! Deleted file '{raw_target}'\n")
         except PermissionError:
-            return (1, f"\nSystem Error: Permission denied. Cannot remove '{raw_target}'\n")
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot remove '{raw_target}'\n",
+            )
         except OSError as e:
-            return (1, f"\nSystem Error: Unable to remove '{raw_target}' ({e.strerror})\n")
+            return (
+                1,
+                f"\nSystem Error: Unable to remove '{raw_target}' ({e.strerror})\n",
+            )
         except Exception as e:
-            return (1, f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n")
+            return (
+                1,
+                f"\nSystem Error: Unexpected error removing '{raw_target}' ({e})\n",
+            )
 
 
 class RmDir(BaseCmd):
