@@ -22,6 +22,22 @@ class Clear(BaseCmd):
         return (0, c.CLEAR_SCREEN)
 
 
+class Echo(BaseCmd):
+    name = "echo"
+    description = "Print arguments to terminal"
+    min_args = 1
+    options = "Message"
+    aliases = []
+
+    def execute(self, args):
+        text = " ".join(args)
+        try:
+            text = text.encode("utf-8").decode("unicode_escape")
+        except Exception:
+            pass
+        return (0, f"\n{text}\n")
+
+
 class History(BaseCmd):
     name = "history"
     description = "View command history"

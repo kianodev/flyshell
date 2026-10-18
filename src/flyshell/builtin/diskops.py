@@ -259,6 +259,55 @@ class Move(BaseCmd):
             return (1, f"\nSystem Error: Failed to move '{raw_src}' ({e})\n")
 
 
+class Rename(BaseCmd):
+    name = "rename"
+    description = "Rename a file or directory"
+    min_args = 2
+    options = "Old name, then new name"
+    aliases = []
+
+    def execute(self, args):
+        raw_src = args[0].strip("\"'")
+        raw_new_name = args[1].strip("\"'")
+        if "/" in raw_new_name or "\\" in raw_new_name:
+            return (
+                1,
+                "\nCommand Error: The new name must not contain path separators ('/' or '\\')\n"
+                "Use 'mv' to move items between different folders.\n",
+            )
+        src_path = Path(raw_src).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Target '{raw_src}' not found.\n")
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if src_path == protected or src_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Target '{raw_src}' contains or belongs to Flyshell system files.\n",
+                )
+        new_path = src_path.parent / raw_new_name
+        if new_path.exists():
+            return (
+                1,
+                f"\nSystem Error: An item named '{raw_new_name}' already exists in this folder.\n",
+            )
+        try:
+            src_path.rename(new_path)
+            return (0, f"\nSUCCESS! Renamed '{src_path.name}' -> '{new_path.name}'\n")
+        except PermissionError:
+            return (
+                1,
+                f"\nSystem Error: Permission denied. Cannot rename '{raw_src}'\n",
+            )
+        except Exception as e:
+            return (1, f"\nSystem Error: Failed to rename '{raw_src}' ({e})\n")
+
+
 class Rm(BaseCmd):
     name = "rm"
     description = "Remove files from the filesystem"
