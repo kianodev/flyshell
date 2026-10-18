@@ -8,6 +8,65 @@ import os
 import shutil
 
 
+class Cat(BaseCmd):
+    name = "cat"
+    description = "Display the contents of a text file"
+    min_args = 1
+    options = "Target file"
+    aliases = ["read"]
+
+    def execute(self, args):
+        show_numbers = ("-n" in args) or ("--number" in args)
+        limit = None
+        filtered_args = []
+        skip_next = False
+        for i, token in enumerate(args):
+            if skip_next:
+                skip_next = False
+                continue
+            if token in ("-n", "--number"):
+                continue
+            if token in ("-l", "--limit"):
+                if i + 1 < len(args) and args[i + 1].isdigit():
+                    limit = int(args[i + 1])
+                    skip_next = True
+                    continue
+                else:
+                    return (1, f"\nCommand Error: '{token}' requires a positive integer limit.\n")
+            filtered_args.append(token)
+        if not filtered_args:
+            return (1, "\nCommand Error: Target file not specified.\n")
+        raw_target = " ".join(filtered_args).strip("\"'")
+        target_path = Path(raw_target).expanduser().resolve()
+        if not target_path.exists():
+            return (1, f"\nSystem Error: File '{raw_target}' not found.\n")
+        if target_path.is_dir():
+            return (1, f"\nSystem Error: '{raw_target}' is a directory, not a file.\n")
+        try:
+            with open(target_path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+            total_lines = len(lines)
+            if total_lines == 0:
+                return (1, f"\nSystem Error: '{raw_target}' is empty.\n")
+            if limit is not None:
+                lines = lines[:limit]
+            output_lines = [
+                f"\nDisplaying contents of file '{target_path.name}' ({len(lines)}/{total_lines} lines)\n"
+            ]
+            for line_idx, line in enumerate(lines, start=1):
+                clean_line = line.rstrip("\r\n")
+                if show_numbers:
+                    output_lines.append(f"{line_idx:4d} | {clean_line}")
+                else:
+                    output_lines.append(clean_line)
+            output_lines.append(f"\nEnd of '{target_path.name}'\n")
+            return (0, "\n".join(output_lines))
+        except PermissionError:
+            return (1, f"\nSystem Error: Permission denied. Cannot read '{raw_target}'\n")
+        except Exception as e:
+            return (1, f"\nSystem Error: Failed to read file '{raw_target}' ({e})\n")
+
+
 class Dir(BaseCmd):
     name = "dir"
     description = "List all files in the current working directory"

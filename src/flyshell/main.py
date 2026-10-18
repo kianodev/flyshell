@@ -83,7 +83,7 @@ def main():
                     sys.exit(0)
             else:
                 print(
-                    f"\nCRITICAL ERROR: Host operating system '{data.HOST_OS}' is not supported."
+                    f"\nCRITICAL ERROR: Host operating system '{c.HOST_OS}' is not supported."
                 )
                 print(
                     "Flyshell cannot launch because your operating system is not supported."

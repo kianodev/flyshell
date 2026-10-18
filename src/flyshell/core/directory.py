@@ -49,6 +49,7 @@ class Cmds(BaseCmd):
 
 
 INSTALLED_COMMANDS: list[BaseCmd] = [
+    diskops.Cat(),
     system.Cd(),
     Cmds(),
     utils.Clear(),
