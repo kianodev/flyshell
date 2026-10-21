@@ -43,28 +43,28 @@ class ParentCmd(BaseCmd):
             f"\nFor subcommand assistance use '{self.name} <subcmd> -h' or '--help'\n"
         )
 
-    def execute(self, args: List[str]) -> Union[int, Tuple[int, str], str, None]:
+    def execute(self, args: List[str]) -> Tuple[int, str]:
         if not args or args[0] in ("-h", "--help"):
             self.help()
-            return 0
+            return (0, "")
         sub_name = args[0].lower()
         sub_args = args[1:]
         if sub_name not in self._sub_registry:
-            print(
-                f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'."
+            err = (
+                f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'.\n"
+                f"Use '{self.name} -h' or '--help' to see all valid subcommands.\n"
             )
-            print(f"Use '{self.name} -h' or '--help' to see all valid subcommands.\n")
-            return 1
+            return (1, err)
         target = self._sub_registry[sub_name]
         if "-h" in sub_args or "--help" in sub_args:
             target.help(prefix=self.name)
-            return 0
+            return (0, "")
         if len(sub_args) < target.min_args:
-            print(
+            err_lines = [
                 f"\nCommand Error: '{self.name} {target.name}' requires at least {target.min_args} argument(s)."
-            )
+            ]
             if target.options:
-                print(f"Accepted arguments: {target.options}")
-            print()
-            return 1
+                err_lines.append(f"Accepted arguments: {target.options}")
+            err_lines.append("")
+            return (1, "\n".join(err_lines))
         return target.execute(sub_args)

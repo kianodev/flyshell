@@ -83,8 +83,7 @@ class Kill(BaseCmd):
         if choice == "y":
             print("\nShutting down...")
             sys.exit(0)
-        else:
-            return (1, "\nAction cancelled.\n")
+        return (1, "\nAction cancelled.\n")
 
 
 class Reboot(BaseCmd):
@@ -113,6 +112,7 @@ class Reboot(BaseCmd):
                 signal.signal(signal.SIGINT, old_handler)
         else:
             os.execv(cmd[0], cmd)
+        return (0, "")
 
 
 class Sleep(BaseCmd):

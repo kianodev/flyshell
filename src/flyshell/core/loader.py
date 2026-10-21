@@ -1,4 +1,4 @@
-# src/flyshell/core/loader.py
+# src\flyshell\core\loader.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
