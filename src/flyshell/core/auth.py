@@ -102,7 +102,7 @@ def login_flow(is_lock=False) -> bool:
         i -= 1
         print("\nAccount Error: Password does not match.")
         if i == 0:
-            print("Too many attempts.\n")
+            print("Too many attempts.")
             return False
         print(f"You have {i} attempts remaining.\n")
 
@@ -118,5 +118,4 @@ class Lock(BaseCmd):
         if login_flow(is_lock=True):
             return (0, "")
         else:
-            print("\nShutting down...\n")
-            sys.exit(0)
+            return (-1, "\nShutting down...\n")

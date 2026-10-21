@@ -8,6 +8,7 @@ from flyshell.core import auth, data
 
 from datetime import datetime, timezone
 import shlex
+import sys
 
 
 class Cmds(BaseCmd):
@@ -145,6 +146,10 @@ def _execute_single(raw_cmd: str) -> int:
             code, message = result
             if message:
                 print(message)
+            if code == -1:
+                sys.exit(0)
+            elif code == -2:
+                sys.exit(1)
             return code
         elif isinstance(result, int):
             return result

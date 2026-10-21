@@ -84,7 +84,7 @@ def main():
                 if auth.login_flow():
                     console.boot()
                 else:
-                    print("Shutting down...\n")
+                    print("\nShutting down...\n")
                     sys.exit(0)
             else:
                 print(

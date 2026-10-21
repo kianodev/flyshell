@@ -81,8 +81,7 @@ class Kill(BaseCmd):
     def execute(self, args):
         choice = input("\nAre you sure [y/n]?: ").strip().lower()
         if choice == "y":
-            print("\nShutting down...")
-            sys.exit(0)
+            return (-1, "\nShutting down...\n")
         return (1, "\nAction cancelled.\n")
 
 
