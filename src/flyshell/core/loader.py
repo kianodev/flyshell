@@ -1,4 +1,4 @@
-# src\flyshell\core\loader.py
+# src/flyshell/core/loader.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
@@ -33,10 +33,17 @@ def scan_plugins(plugin_folder=None):
             if entry.exists():
                 file_path = entry
                 plugin_name = item.name
-        if not file_path:
+        if not file_path or not plugin_name:
+            continue
+        if plugin_name in RESERVED_NAMES:
+            print(
+                f"\n⚠️ Collision Error - Plugin '{plugin_name}' conflicts with a built-in Flyshell command and will not be loaded."
+            )
             continue
         try:
             spec = importlib.util.spec_from_file_location(plugin_name, file_path)
+            if spec is None or spec.loader is None:
+                continue
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             for _, obj in inspect.getmembers(module, inspect.isclass):
@@ -51,12 +58,6 @@ def scan_plugins(plugin_folder=None):
     loaded_count = 0
     first_print = True
     for name, entries in candidates.items():
-        failed = False
-        if name in RESERVED_NAMES:
-            print(
-                f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded."
-            )
-            failed = True
         if len(entries) > 1:
             paths = "\n    - ".join(str(path) for _, path in entries)
             print(
@@ -65,8 +66,6 @@ def scan_plugins(plugin_folder=None):
             print(
                 "The above plugins will not be loaded. Please rename them to unique names."
             )
-            failed = True
-        if failed:
             continue
         instance, _ = entries[0]
         c.PLUGINS[name] = instance

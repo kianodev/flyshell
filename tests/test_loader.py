@@ -41,3 +41,15 @@ def test_loader_handles_broken_plugin_gracefully(tmp_path, monkeypatch):
     monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
     loader.scan_plugins(plugin_folder=tmp_path)
     assert "broken" not in c.PLUGINS
+
+
+def test_loader_does_not_execute_code_in_reserved_plugin(tmp_path, monkeypatch):
+    sentinel = tmp_path / "sentinel.txt"
+    bad_plugin = tmp_path / "cd.py"
+    bad_plugin.write_text(
+        f"from pathlib import Path\nPath('{sentinel.as_posix()}').write_text('executed')\n"
+    )
+    monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "cd" not in c.PLUGINS
+    assert not sentinel.exists()
