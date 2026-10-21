@@ -3,6 +3,7 @@
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import data
+from flyshell.core.directory import RESERVED_NAMES
 
 from pathlib import Path
 import importlib.util
@@ -51,7 +52,7 @@ def scan_plugins(plugin_folder=None):
     first_print = True
     for name, entries in candidates.items():
         failed = False
-        if name in c.RESERVED_NAMES:
+        if name in RESERVED_NAMES:
             print(
                 f"\n⚠️ Collision Error - Plugin '{name}' conflicts with a built-in Flyshell command and will not be loaded."
             )

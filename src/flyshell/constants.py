@@ -1,14 +1,12 @@
 # src\flyshell\constants.py
 
-from flyshell.core.directory import COMMAND_REGISTRY
-
 from pathlib import Path
 import os
 import platform
 import time
 
-BUILD = 113
-VERSION = "1.1.0"
+BUILD = 114
+VERSION = "1.1.1"
 
 
 def _resolve_app_dir() -> Path:
@@ -36,7 +34,6 @@ SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0
 
 PLUGINS = {}
-RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
 BLOCKED_COMMANDS = frozenset({"format", "diskpart", "dd"})
 DANGER_COMMANDS = frozenset({"del", "rmdir", "rd", "rm", "taskkill", "killall"})

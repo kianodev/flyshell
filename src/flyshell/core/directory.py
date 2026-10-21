@@ -71,12 +71,14 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     system.SysExe(),
     diskops.Touch(),
 ]
+
 COMMAND_REGISTRY: dict[str, BaseCmd] = {}
 for cmd_obj in INSTALLED_COMMANDS:
     COMMAND_REGISTRY[cmd_obj.name] = cmd_obj
     for alias_name in cmd_obj.aliases:
         COMMAND_REGISTRY[alias_name] = cmd_obj
 
+RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
