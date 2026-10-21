@@ -31,3 +31,11 @@ def test_sysexe_force_flag_without_arguments_returns_error():
     code, message = system.SysExe().execute(["-f"])
     assert code == 1
     assert "requires at least 1 parameter" in message
+
+
+def test_sysexe_blocks_command_with_path_or_extension():
+    for cmd in ["/bin/dd if=/dev/zero", "diskpart.exe", "format.com"]:
+        tokens = cmd.split()
+        code, message = system.SysExe().execute(tokens)
+        assert code == 1
+        assert "Security Error" in message

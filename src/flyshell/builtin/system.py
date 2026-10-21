@@ -73,32 +73,36 @@ class SysExe(BaseCmd):
     aliases = []
 
     def execute(self, args):
+        if not args:
+            return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
         if args[0] in ["-f", "--force"]:
             override = True
-            args = args[1:]
-            if not args:
+            cmd_args = args[1:]
+            if not cmd_args:
                 return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
         else:
             override = False
-        cmd = " ".join(args).strip().strip("\"'")
-        cmd_normalised = " ".join(cmd.lower().split())
-        is_blocked = any(
-            re.search(rf"\b{re.escape(b)}\b", cmd_normalised)
-            for b in c.BLOCKED_COMMANDS
-        )
-        is_dangerous = any(
-            re.search(rf"\b{re.escape(d)}\b", cmd_normalised) for d in c.DANGER_COMMANDS
-        )
-        if is_blocked:
+            cmd_args = args
+        tokens_lower = [token.lower().strip("\"'") for token in cmd_args]
+
+        def matches_pattern(target_set):
+            for token in tokens_lower:
+                base_name = os.path.splitext(os.path.basename(token))[0]
+                if token in target_set or base_name in target_set:
+                    return True
+            return False
+
+        if matches_pattern(c.BLOCKED_COMMANDS):
+            cmd_display = " ".join(cmd_args)
             return (
                 1,
                 (
                     "\nSecurity Error: Flyshell has blocked execution of this command.\n"
-                    f"This command '{cmd}' is permanently restricted by Flyshell safety policy.\n"
+                    f"This command '{cmd_display}' is permanently restricted by Flyshell safety policy.\n"
                     "Flyshell has blocked your command to prevent damage to your computer.\n"
                 ),
             )
-        elif is_dangerous and not override:
+        if not override and matches_pattern(c.DANGER_COMMANDS):
             password = getpass.getpass(
                 "\nThis command is restricted. To execute, enter your password: "
             )
@@ -109,7 +113,8 @@ class SysExe(BaseCmd):
                 return (1, "\nAccount Error: Password does not match.\n")
         try:
             print()
-            result = subprocess.run(cmd, shell=True)
+            raw_cmd = " ".join(cmd_args)
+            result = subprocess.run(raw_cmd, shell=True)
             print()
             return (result.returncode, "")
         except KeyboardInterrupt:

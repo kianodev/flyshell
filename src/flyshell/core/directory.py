@@ -80,6 +80,7 @@ for cmd_obj in INSTALLED_COMMANDS:
 
 RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
+
 def log(cmd):
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data.append_history(cmd, utc_now)
