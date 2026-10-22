@@ -151,13 +151,9 @@ def _execute_single(raw_cmd: str) -> int:
             elif code == -2:
                 sys.exit(1)
             return code
-        elif isinstance(result, int):
-            return result
-        elif isinstance(result, str):
-            if result:
-                print(result)
-            return 0
-        return 0
+        else:
+            print("\nCommand Error: Unknown exit code error occurred.\n")
+            return 1
     elif cmd_name in c.PLUGINS:
         log(raw_cmd)
         plugin = c.PLUGINS[cmd_name]

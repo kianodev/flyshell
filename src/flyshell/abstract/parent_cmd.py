@@ -2,7 +2,7 @@
 
 from flyshell.abstract.base_cmd import BaseCmd
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 
 class ParentCmd(BaseCmd):

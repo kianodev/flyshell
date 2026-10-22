@@ -7,7 +7,6 @@ import getpass
 import hashlib
 import re
 import secrets
-import sys
 
 
 def hash_password(password, salt=None):

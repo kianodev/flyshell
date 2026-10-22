@@ -6,7 +6,6 @@ from flyshell.core import auth, data
 
 import getpass
 import os
-import re
 import shutil
 import subprocess
 
