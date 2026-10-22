@@ -108,7 +108,7 @@ class Copy(BaseCmd):
                     .strip()
                     .lower()
                 )
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, EOFError):
                 return (1, "\nCopy cancelled by user.\n")
             if confirm != "y":
                 return (0, "\nOperation cancelled. No files were copied.\n")
@@ -241,7 +241,7 @@ class Move(BaseCmd):
                     .strip()
                     .lower()
                 )
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, EOFError):
                 return (1, "\nMove cancelled by user.\n")
             if confirm != "y":
                 return (0, "\nOperation cancelled. No files were moved.\n")

@@ -1,6 +1,6 @@
 # src\flyshell\abstract\base_cmd.py
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 
 class BaseCmd:
@@ -10,7 +10,7 @@ class BaseCmd:
     options: Optional[str] = None
     aliases: List[str] = []
 
-    def execute(self, args: List[str]) -> Union[int, Tuple[int, str], str, None]:
+    def execute(self, args: List[str]) -> Tuple[int, str]:
         raise NotImplementedError(
             f"Command '{self.__class__.__name__}' has not implemented the execute method"
         )
