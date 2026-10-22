@@ -38,25 +38,33 @@ def test_history_limit_and_all_args(tmp_path, monkeypatch):
         lambda limit=None, filename=test_db: (
             data.get_history.__wrapped__(limit=limit, filename=test_db)
             if hasattr(data.get_history, "__wrapped__")
-            else [
-                entry
-                for entry in (
-                    lambda conn: [
-                        {"command": r[0], "timestamp": r[1]}
-                        for r in conn.execute(
-                            "SELECT command, timestamp FROM cmd_history ORDER BY id DESC LIMIT ?"
-                            if limit and limit > 0
-                            else "SELECT command, timestamp FROM cmd_history ORDER BY id ASC",
-                            (limit,) if limit and limit > 0 else (),
-                        ).fetchall()
-                    ]
-                )(data._get_connection(test_db))
-            ][::-1] if limit and limit > 0 else [
-                {"command": r[0], "timestamp": r[1]}
-                for r in data._get_connection(test_db).execute(
-                    "SELECT command, timestamp FROM cmd_history ORDER BY id ASC"
-                ).fetchall()
-            ]
+            else (
+                [
+                    entry
+                    for entry in (
+                        lambda conn: [
+                            {"command": r[0], "timestamp": r[1]}
+                            for r in conn.execute(
+                                (
+                                    "SELECT command, timestamp FROM cmd_history ORDER BY id DESC LIMIT ?"
+                                    if limit and limit > 0
+                                    else "SELECT command, timestamp FROM cmd_history ORDER BY id ASC"
+                                ),
+                                (limit,) if limit and limit > 0 else (),
+                            ).fetchall()
+                        ]
+                    )(data._get_connection(test_db))
+                ][::-1]
+                if limit and limit > 0
+                else [
+                    {"command": r[0], "timestamp": r[1]}
+                    for r in data._get_connection(test_db)
+                    .execute(
+                        "SELECT command, timestamp FROM cmd_history ORDER BY id ASC"
+                    )
+                    .fetchall()
+                ]
+            )
         ),
     )
     data.append_history("cmd1", "2026-01-01T00:00:00Z", filename=test_db)
