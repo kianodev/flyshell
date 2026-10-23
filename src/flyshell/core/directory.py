@@ -103,7 +103,10 @@ def _execute_single(raw_cmd: str) -> int:
         if cmd_name in COMMAND_REGISTRY:
             command = COMMAND_REGISTRY[cmd_name]
             if isinstance(command, ParentCmd):
-                return command.execute(args)
+                code, message = command.execute(args)
+                if message:
+                    print(message)
+                return code
             command.help()
             return 0
         elif cmd_name in c.PLUGINS:
