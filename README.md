@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
 
-> Documentation last updated: v1.1.0
+> Documentation last updated: v1.2.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
@@ -61,8 +61,12 @@ flyshell/
 │   ├── test_auth.py
 │   ├── test_data.py
 │   ├── test_directory.py
+│   ├── test_diskops.py
+│   ├── test_fs.py
 │   ├── test_loader.py
-│   └── test_security.py
+│   ├── test_security.py
+│   └── test_utils.py
+├── .flake8
 ├── .gitignore
 ├── LICENSE
 ├── pyproject.toml
@@ -98,6 +102,11 @@ cd flyshell
 pip install -e .
 ```
 
+After this, you can simply run Flyshell:
+```bash
+flyshell
+```
+
 ### Adding optional dependencies
 
 To install Readline (on Windows):
@@ -123,7 +132,7 @@ Flyshell also supports command chaining out of the box. Use `;` to chain command
 
 Use `-h` or `--help` after any command to return that command's specific help list.
 
-To close Flyshell once you are done, enter `kill` onto the command line then confirm, or press Ctrl + D to close the session immediately.
+To close Flyshell once you are done, enter `kill` onto the command line then confirm, or press Ctrl + D / Ctrl + Z (different keybinds depending on your host configuration) to close the session immediately.
 
 ## Creating Custom Plugins
 
@@ -162,7 +171,6 @@ class MyPlugin(BasePlugin):
 
 	def on_unload(self): # (OPTIONAL) Enables your program to handle specialist shut-down tasks
 		super().on_unload() # If you use a custom on_unload(), end it with this
-
 
 	def execute(self, args): # This is what Flyshell calls to execute
 		print(f"Hello! Arguments: {args}")
