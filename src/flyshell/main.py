@@ -19,6 +19,7 @@ def boot_check():
         print(
             "\nCRITICAL BOOT ERROR: Failed to initialise system due to corrupted or missing files.\n"
         )
+        return False
     for obj in c.REQUIRED_COMPONENTS:
         path = Path(c.PACKAGE_ROOT / obj)
         if path.exists():

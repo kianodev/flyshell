@@ -1,7 +1,7 @@
 # src\flyshell\core\console.py
 
 from flyshell import constants as c
-from flyshell.core import data
+from flyshell.core import data, env
 from flyshell.core.directory import execute_line
 
 import os
@@ -38,6 +38,7 @@ def load_history():
 
 def boot():
     load_history()
+    env.create_env()
     print(c.CLEAR_SCREEN, end="")
     print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION})")
     user_info = data.get_auth() or {}

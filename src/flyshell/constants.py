@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 127
-VERSION = "1.2.2"
+BUILD = 128
+VERSION = "1.2.3"
 
 
 def _resolve_app_dir() -> Path:
@@ -28,6 +28,7 @@ SRC_DIR = PACKAGE_ROOT.parent
 PROJECT_ROOT = SRC_DIR.parent
 APP_DIR = _resolve_app_dir()
 FILE_PATH = APP_DIR / "flyshell.db"
+ENV_PATH = APP_DIR / "flyshell_keys.env"
 USER_PLUGIN_DIR = APP_DIR / "plugins"
 
 SESSION_START_TIME = time.time()
@@ -60,6 +61,7 @@ REQUIRED_COMPONENTS = [
     "core/console.py",
     "core/data.py",
     "core/directory.py",
+    "core/env.py",
     "core/loader.py",
 ]
 
