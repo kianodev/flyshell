@@ -24,7 +24,7 @@ class BasePlugin:
         pass
 
     def on_unload(self):
-        self.save_storage()
+        pass
 
     def execute(self, args: list):
         raise NotImplementedError("Plugins must implement the execute method")

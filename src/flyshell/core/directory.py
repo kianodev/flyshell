@@ -176,6 +176,8 @@ def _execute_single(raw_cmd: str) -> int:
         finally:
             if hasattr(plugin, "on_unload"):
                 plugin.on_unload()
+            if hasattr(plugin, "save_storage"):
+                plugin.save_storage()
     else:
         print(
             f"\nCommand Error: '{cmd_name}' is not a recognised command. Use 'cmds' for help.\n"
