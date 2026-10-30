@@ -12,6 +12,7 @@ class BasePlugin:
     identifier: str = ""
     usage: str = ""
     extended_help: str = ""
+    requires_api = False
 
     def __init__(self, context: dict):
         self.context = context
@@ -39,6 +40,8 @@ class BasePlugin:
         if self.extended_help:
             lines.append("\nDetails:")
             lines.append(self.extended_help)
+        if self.requires_api:
+            lines.append("\nThis plugin requires an API key.")
         print("\n".join(lines))
 
     def show_docs(self) -> bool:
