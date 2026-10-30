@@ -9,6 +9,7 @@ class BasePlugin:
     description: str = "No description provided."
     version: str = "1.0.0"
     author: str = "Unknown"
+    identifier: str = ""
     usage: str = ""
     extended_help: str = ""
 

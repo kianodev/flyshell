@@ -24,36 +24,48 @@ def scan_plugins(plugin_folder=None):
     candidates = {}
     for item in folder.iterdir():
         file_path = None
-        plugin_name = None
+        default_name = None
         if item.is_file() and item.suffix == ".py" and not item.name.startswith("_"):
             file_path = item
-            plugin_name = item.stem
+            default_name = item.stem
         elif item.is_dir() and not item.name.startswith((".", "_")):
             entry = item / "plugin.py"
             if entry.exists():
                 file_path = entry
-                plugin_name = item.name
-        if not file_path or not plugin_name:
+                default_name = item.name
+        if not file_path or not default_name:
             continue
-        if plugin_name in RESERVED_NAMES:
+        if default_name in RESERVED_NAMES:
             print(
-                f"\n⚠️ Collision Error - Plugin '{plugin_name}' conflicts with a built-in Flyshell command and will not be loaded."
+                f"\n⚠️ Collision Error - Plugin '{default_name}' conflicts with a built-in Flyshell command and will not be loaded."
             )
             continue
         try:
-            spec = importlib.util.spec_from_file_location(plugin_name, file_path)
+            module_name = f"plugin_{default_name}"
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
             if spec is None or spec.loader is None:
                 continue
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             for _, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BasePlugin) and obj is not BasePlugin:
-                    ctx = build_context(plugin_name, file_path)
+                    resolved_name = getattr(obj, "identifier", None) or default_name
+
+                    # Also verify the resolved identifier doesn't conflict with a reserved name
+                    if resolved_name in RESERVED_NAMES:
+                        print(
+                            f"\n⚠️ Collision Error - Plugin '{resolved_name}' conflicts with a built-in Flyshell command and will not be loaded."
+                        )
+                        break
+
+                    ctx = build_context(resolved_name, file_path)
                     instance = obj(ctx)
-                    candidates.setdefault(plugin_name, []).append((instance, file_path))
+                    candidates.setdefault(resolved_name, []).append(
+                        (instance, file_path)
+                    )
                     break
         except Exception as e:
-            print(f"\n⚠️ Plugin Failure - Failed to inspect '{plugin_name}'")
+            print(f"\n⚠️ Plugin Failure - Failed to inspect '{default_name}'")
             print(f"Exception code: {e}, Flyshell will still launch.")
     loaded_count = 0
     first_print = True
@@ -72,7 +84,7 @@ def scan_plugins(plugin_folder=None):
         if first_print:
             print("\nInstalled Plugins:")
             first_print = False
-        print(f"✅ - {name}")
+        print(f"✅ - {instance.name} ({name})")
         loaded_count += 1
     if loaded_count > 0:
         print(f"\nTotal of {loaded_count} plugin(s) found.")
