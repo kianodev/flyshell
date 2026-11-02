@@ -113,3 +113,41 @@ def test_directory_execute_fallback_when_keys_missing(
     assert instance.executed is False
     out = capsys.readouterr().out
     assert "Missing required API key(s): secret_key" in out
+
+
+def test_get_all_keys_success(mock_env_file):
+    mock_env_file.write_text("pluginA_token=123\npluginB_secret=xyz\n")
+    code, output = env.get_all_keys()
+    assert code == 0
+    assert "pluginA_token = 123" in output
+    assert "pluginB_secret = xyz" in output
+
+
+def test_get_all_keys_empty_file(mock_env_file):
+    mock_env_file.write_text("")
+    code, output = env.get_all_keys()
+    assert code == 0
+    assert "No API keys configured." in output
+
+
+def test_get_all_keys_missing_file(tmp_path, monkeypatch):
+    missing_path = tmp_path / "does_not_exist.env"
+    monkeypatch.setattr(env, "get_env_path", lambda: missing_path)
+    code, output = env.get_all_keys()
+    assert code == 1
+    assert "Environment file not found" in output
+
+
+def test_get_plugin_keys_formatted_success(mock_env_file):
+    mock_env_file.write_text("weather_api_key=token123\nweather_units=metric\n")
+    code, output = env.get_plugin_keys_formatted("weather")
+    assert code == 0
+    assert "weather" in output
+    assert "api_key = token123" in output
+    assert "units = metric" in output
+
+
+def test_get_plugin_keys_formatted_invalid_input():
+    code, output = env.get_plugin_keys_formatted("")
+    assert code == 1
+    assert "valid plugin name" in output
