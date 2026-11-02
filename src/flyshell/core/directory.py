@@ -160,6 +160,16 @@ def _execute_single(raw_cmd: str) -> int:
     elif cmd_name in c.PLUGINS:
         log(raw_cmd)
         plugin = c.PLUGINS[cmd_name]
+        required_keys = getattr(plugin, "api_keys", [])
+        available_keys = getattr(plugin, "api_keys_data", {})
+        missing = [k for k in required_keys if k not in available_keys]
+        if missing:
+            env_path = getattr(plugin, "env_file_path", "flyshell_keys.env")
+            print(
+                f"\nPlugin Error: Cannot execute '{cmd_name}'. Missing required API key(s): {', '.join(missing)}"
+            )
+            print(f"Define them in {env_path} and retry.\n")
+            return 1
         try:
             result = plugin.execute(args)
             return result if isinstance(result, int) else 0

@@ -12,13 +12,19 @@ class BasePlugin:
     identifier: str = ""
     usage: str = ""
     extended_help: str = ""
-    requires_api = False
+    requires_api: bool = False
+    api_keys: list = []
 
     def __init__(self, context: dict):
         self.context = context
         self.plugin_name = context.get("plugin_name", self.name)
         self.storage = context.get("storage", {})
+        self.api_keys_data = context.get("api_keys", {})
+        self.env_file_path = context.get("env_path", None)
         self.on_load()
+
+    def get_api_key(self, key_name: str, default=None):
+        return self.api_keys_data.get(key_name, default)
 
     def on_load(self):
         pass

@@ -2,7 +2,7 @@
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core import data
+from flyshell.core import data, env
 from flyshell.core.directory import RESERVED_NAMES
 
 from pathlib import Path
@@ -50,15 +50,24 @@ def scan_plugins(plugin_folder=None):
             for _, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BasePlugin) and obj is not BasePlugin:
                     resolved_name = getattr(obj, "identifier", None) or default_name
-
-                    # Also verify the resolved identifier doesn't conflict with a reserved name
                     if resolved_name in RESERVED_NAMES:
                         print(
                             f"\n⚠️ Collision Error - Plugin '{resolved_name}' conflicts with a built-in Flyshell command and will not be loaded."
                         )
                         break
-
-                    ctx = build_context(resolved_name, file_path)
+                    ctx = build_context(resolved_name, default_name, file_path)
+                    required_keys = getattr(obj, "api_keys", [])
+                    found_keys = ctx["api_keys"]
+                    missing_keys = [k for k in required_keys if k not in found_keys]
+                    if missing_keys:
+                        env_file = ctx["env_path"]
+                        print(
+                            f"\n⚠️ API Key Error - Plugin '{resolved_name}' is missing required key(s): {', '.join(missing_keys)}"
+                        )
+                        print(f"Please define them in: {env_file} as:")
+                        for mk in missing_keys:
+                            print(f"{default_name}_{mk}=<your_key>")
+                        break
                     instance = obj(ctx)
                     candidates.setdefault(resolved_name, []).append(
                         (instance, file_path)
@@ -92,11 +101,15 @@ def scan_plugins(plugin_folder=None):
         print("\nNo plugins loaded.")
 
 
-def build_context(plugin_name, file_path=None):
+def build_context(plugin_name, default_name, file_path=None):
     plugin_storage = data.get_all_plugin_data(plugin_name)
+    api_keys = env.get_plugin_api_keys(str(default_name))
     context = {
         "plugin_name": plugin_name,
+        "plugin_dir_name": str(default_name),
         "file_path": str(file_path) if file_path else None,
+        "env_path": str(env.get_env_path()),
+        "api_keys": api_keys,
         "metadata": {"host_os": c.HOST_OS, "version": c.VERSION, "build": c.BUILD},
         "storage": plugin_storage,
     }
