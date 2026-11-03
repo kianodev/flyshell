@@ -83,7 +83,7 @@ class FsDel(BaseCmd):
                     return (0, "\nAll non-auth system data purged successfully.\n")
                 return (1, "\nAction cancelled.\n")
             case _:
-                return (1, f"\nCommand Error: Unknown target '{target}'.\n")
+                return (1, f"\nCommand Error: Unknown target '{target}'\n")
 
 
 class FsInfo(BaseCmd):

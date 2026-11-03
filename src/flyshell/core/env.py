@@ -1,4 +1,4 @@
-# src/flyshell/core/env.py
+# src\flyshell\core\env.py
 
 from pathlib import Path
 from flyshell import constants as c
@@ -156,7 +156,41 @@ def set_plugin_api_key(plugin_name: str, key_name: str, value: str) -> tuple[int
             new_lines.append(f"{target_key}={clean_val}")
         env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
         action = "Updated" if updated else "Added"
-        return (0, f"SUCCESS! {action.lower()} key '{target_key}'.")
+        return (0, f"SUCCESS! {action} key '{target_key}'")
 
     except Exception as e:
         return (1, f"File Error: Failed to write to '{env_path}': {e}")
+
+
+def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
+    if not plugin_name or not key_name:
+        return (1, "Command Error: Both plugin name and key name are required.")
+    target_key = f"{plugin_name.strip().lower()}_{key_name.strip().lower()}"
+    env_path = get_env_path()
+    if not env_path.exists():
+        return (
+            1,
+            f"File Config Error: Environment file not found at '{env_path}'",
+        )
+    try:
+        lines = env_path.read_text(encoding="utf-8").splitlines()
+        new_lines = []
+        found = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped and not stripped.startswith("#") and "=" in stripped:
+                k, _ = stripped.split("=", 1)
+                clean_k = k.strip().replace("[", "").replace("]", "").lower()
+                if clean_k == target_key:
+                    found = True
+                    continue
+            new_lines.append(line)
+        if not found:
+            return (
+                1,
+                f"Command Error: Key '{target_key}' not found in '{env_path.name}'",
+            )
+        env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+        return (0, f"SUCCESS! Removed key '{target_key}' from Flyshell environment.")
+    except Exception as e:
+        return (1, f"File Error: Failed to update '{env_path}': {e}")
