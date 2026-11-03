@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 131
-VERSION = "1.2.6"
+BUILD = 132
+VERSION = "1.2.7"
 
 
 def _resolve_app_dir() -> Path:

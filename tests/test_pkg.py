@@ -36,7 +36,7 @@ def test_pkg_unknown_subcommand():
 def test_pkg_api_all_keys(mock_env_file):
     mock_env_file.write_text("dummy_token=123\n")
     parent = pkg.Pkg()
-    code, msg = parent.execute(["api"])
+    code, msg = parent.execute(["api", "view"])
     assert code == 0
     assert "dummy_token = 123" in msg
 
@@ -44,7 +44,7 @@ def test_pkg_api_all_keys(mock_env_file):
 def test_pkg_api_plugin_keys(mock_env_file):
     mock_env_file.write_text("weather_key=secret\nother_key=skip\n")
     parent = pkg.Pkg()
-    code, msg = parent.execute(["api", "weather"])
+    code, msg = parent.execute(["api", "view", "weather"])
     assert code == 0
     assert "key = secret" in msg
     assert "other_key" not in msg

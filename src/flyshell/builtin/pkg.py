@@ -9,17 +9,34 @@ from flyshell.core import env
 class PkgApi(BaseCmd):
     name: str = "api"
     description: str = "View configured package/plugin API keys"
-    min_args: int = 0
-    options: str = "Package name"
+    min_args: int = 1
+    options: str = "'add'/'view', then package/key details"
     aliases: List[str] = ["keys"]
 
     def execute(self, args: List[str]) -> Tuple[int, str]:
-        if not args:
-            code, output = env.get_all_keys()
-        else:
-            package_name = args[0]
-            code, output = env.get_plugin_keys_formatted(package_name)
-        return (code, f"\n{output}\n")
+        arg = args[0]
+        remaining_args = args[1:]
+        match arg:
+            case "add":
+                if len(remaining_args) < 3:
+                    return (
+                        1,
+                        "\nCommand Error: Define a package name, a key name and a value.\n",
+                    )
+                plugin_name = remaining_args[0]
+                key_name = remaining_args[1]
+                val = " ".join(remaining_args[2:])
+                code, output = env.set_plugin_api_key(plugin_name, key_name, val)
+                return (code, f"\n{output}\n")
+            case "view":
+                if not remaining_args:
+                    code, output = env.get_all_keys()
+                else:
+                    package_name = remaining_args[0]
+                    code, output = env.get_plugin_keys_formatted(package_name)
+                return (code, f"\n{output}\n")
+            case _:
+                return (1, f"\nCommand Error: Unknown target '{arg}'.\n")
 
 
 class Pkg(ParentCmd):
