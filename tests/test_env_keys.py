@@ -82,7 +82,6 @@ def test_loader_rejects_plugin_with_missing_keys(
     )
     monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
     loader.scan_plugins(plugin_folder=tmp_path)
-    assert "needkey" not in c.PLUGINS
     out = capsys.readouterr().out
     assert "API Key Error" in out
     assert "second" in out

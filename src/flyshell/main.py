@@ -82,6 +82,7 @@ def main():
                 print(f"\nYour OS '{c.HOST_OS}' is compatible with Flyshell.")
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
+                loader.check_plugin_api_keys()
                 if auth.login_flow():
                     console.boot()
                 else:
