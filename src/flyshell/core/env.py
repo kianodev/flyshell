@@ -39,7 +39,6 @@ def read_env_file() -> dict[str, str]:
 
 
 def _resolve_plugin_dir_name(target_name: str) -> tuple[str, object | None]:
-    """Resolves an identifier, display name, or dir name to (dir_name, plugin_instance)."""
     target_lower = target_name.strip().lower()
     if hasattr(c, "PLUGINS"):
         if target_lower in c.PLUGINS:
@@ -85,7 +84,6 @@ def get_plugin_api_keys(plugin_name_or_dir: str) -> dict[str, str]:
 
 
 def get_all_keys() -> tuple[int, str]:
-    """Retrieve and display all configured API keys in the environment."""
     env_path = get_env_path()
     if not env_path.exists():
         return (1, f"File Config Error: Environment file not found at '{env_path}'.")

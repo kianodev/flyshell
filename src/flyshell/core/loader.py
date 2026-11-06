@@ -67,7 +67,7 @@ def scan_plugins(plugin_folder=None):
                         print(f"Please define them in: {env_file} as:")
                         for mk in missing_keys:
                             print(f"{default_name}_{mk}=<your_key>")
-                        break
+                        print("You can do this once Flyshell has booted.")
                     instance = obj(ctx)
                     candidates.setdefault(resolved_name, []).append(
                         (instance, file_path)
@@ -114,3 +114,34 @@ def build_context(plugin_name, default_name, file_path=None):
         "storage": plugin_storage,
     }
     return context
+
+
+def check_plugin_api_keys():
+    if not c.PLUGINS:
+        return
+    print("\nFlyshell will now check plugin API keys.")
+    has_keys_to_report = False
+    for identifier, plugin in c.PLUGINS.items():
+        required_keys = getattr(plugin, "api_keys", [])
+        configured_keys = getattr(plugin, "api_keys_data", {})
+        dir_name = plugin.context.get("plugin_dir_name", identifier)
+        if not required_keys and not configured_keys:
+            continue
+        has_keys_to_report = True
+        configured_lookup = {k.lower(): (k, v) for k, v in configured_keys.items()}
+        seen_keys = set()
+        print(f"\nPlugin: {plugin.name} ({identifier})")
+        for req in required_keys:
+            req_lower = req.lower()
+            seen_keys.add(req_lower)
+            if req_lower in configured_lookup:
+                orig_k, _ = configured_lookup[req_lower]
+                print(f"✅ {orig_k} - Key found [Required]")
+            else:
+                print(f"⚠️ {req} - KEY NOT FOUND [Required]")
+                print(f"Please define in the .env file as: {dir_name}_{req}=<your_key>")
+        for k_lower, (orig_k, _) in sorted(configured_lookup.items()):
+            if k_lower not in seen_keys:
+                print(f"✅ {orig_k} - Key found [Optional/Extra]")
+    if not has_keys_to_report:
+        print("✅ No API keys required for any loaded plugins.")
