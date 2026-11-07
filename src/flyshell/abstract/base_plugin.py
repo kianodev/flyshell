@@ -13,6 +13,7 @@ class BasePlugin:
     usage: str = ""
     extended_help: str = ""
     api_keys: list = []
+    third_pty_libs: list = []
 
     def __init__(self, context: dict):
         self.context = context
@@ -45,8 +46,10 @@ class BasePlugin:
         if self.extended_help:
             lines.append("\nDetails:")
             lines.append(self.extended_help)
-        if self.requires_api:
-            lines.append("\nThis plugin requires an API key.")
+        if self.api_keys:
+            lines.append("\nThis plugin requires one or more API keys.")
+        if self.third_pty_libs:
+            lines.append("\nThis plugin requires third party dependencies.")
         print("\n".join(lines))
 
     def show_docs(self) -> bool:
