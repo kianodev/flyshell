@@ -59,7 +59,9 @@ def scan_plugins(plugin_folder=None):
                     required_keys = getattr(obj, "api_keys", [])
                     found_keys = ctx["api_keys"]
                     found_keys_lower = {k.lower(): v for k, v in found_keys.items()}
-                    missing_keys = [k for k in required_keys if k.lower() not in found_keys_lower]
+                    missing_keys = [
+                        k for k in required_keys if k.lower() not in found_keys_lower
+                    ]
                     if missing_keys:
                         env_file = ctx["env_path"]
                         print(

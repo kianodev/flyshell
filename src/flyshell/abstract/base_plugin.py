@@ -12,7 +12,6 @@ class BasePlugin:
     identifier: str = ""
     usage: str = ""
     extended_help: str = ""
-    requires_api: bool = False
     api_keys: list = []
 
     def __init__(self, context: dict):
