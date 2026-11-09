@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
 
-> Documentation last updated: v1.2.0
+> Documentation last updated: v1.3.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
 
@@ -30,47 +30,32 @@ No extra packages required, just install and enjoy!
 ## System Architecture
 
 ```
-flyshell/
-├── .github/
-│   └── workflows/
-│       └── pytest.yml
-├── src/
-│   └── flyshell/
-│       ├── abstract/
-│       │   ├── __init__.py
-│       │   ├── base_cmd.py
-│       │   ├── base_plugin.py
-│       │   └── parent_cmd.py
-│       ├── builtin/
-│       │   ├── __init__.py
-│       │   ├── diskops.py
-│       │   ├── fs.py
-│       │   ├── system.py
-│       │   └── utils.py
-│       ├── core/
-│       │   ├── __init__.py
-│       │   ├── auth.py
-│       │   ├── console.py
-│       │   ├── data.py
-│       │   ├── directory.py
-│       │   └── loader.py
-│       ├── __init__.py
-│       ├── constants.py
-│       └── main.py
-├── tests/
-│   ├── test_auth.py
-│   ├── test_data.py
-│   ├── test_directory.py
-│   ├── test_diskops.py
-│   ├── test_fs.py
-│   ├── test_loader.py
-│   ├── test_security.py
-│   └── test_utils.py
-├── .flake8
-├── .gitignore
-├── LICENSE
-├── pyproject.toml
-└── README.md
+src/
+└── flyshell/
+    ├── abstract/
+    │   ├── __init__.py
+    │   ├── base_cmd.py
+    │   ├── base_plugin.py
+    │   └── parent_cmd.py
+    ├── builtin/
+    │   ├── __init__.py
+    │   ├── diskops.py
+    │   ├── fs.py
+    │   ├── pkg.py
+    │   ├── system.py
+    │   └── utils.py
+    ├── core/
+    │   ├── __init__.py
+    │   ├── auth.py
+    │   ├── console.py
+    │   ├── data.py
+    │   ├── deps.py
+    │   ├── directory.py
+    │   ├── env.py
+    │   └── loader.py
+    ├── __init__.py
+    ├── constants.py
+    └── main.py
 ```
 
 ## Installing Flyshell
@@ -165,12 +150,14 @@ class MyPlugin(BasePlugin):
 	author = "kianodev" # You can put your name, your GitHub handle, or leave blank to make it 'Unknown'
 	usage = "" # (OPTIONAL) Explain how to use your plugin
 	extended_help = "" # (OPTIONAL) A more detailed, multi-line guide containing specific assistance
+	api_keys = [] # (OPTIONAL) Define any required key names here. Use get_api_key(key_name) to call the key. Please add all keys in CAPITALS.
+	third_pty_libs = [] # (OPTIONAL) Define all required third party libraries / dependencies here. Use their Python import names as this is how Flyshell checks them.
 	
 	def on_load(self): # (OPTIONAL) Enables your program to handle specialist set-up tasks before execute()
 		pass
 
 	def on_unload(self): # (OPTIONAL) Enables your program to handle specialist shut-down tasks
-		super().on_unload() # If you use a custom on_unload(), end it with this
+		pass
 
 	def execute(self, args): # This is what Flyshell calls to execute
 		print(f"Hello! Arguments: {args}")
@@ -185,8 +172,9 @@ Additional functions are available for you to use:
 2. `set_data(key, value)`: Updates a key in local memory and automatically persists it to SQLite via `save_storage()`.
 3. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
 4. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
+5. `get_api_key(key)`: Fetches the specified API key from `flyshell_keys.env`.
 
-Plugins save automatically on shut-down. If `on_unload()` is not used, it is automatic. If `on_unload()` is used, `super().on_unload()` saves your files.
+Plugins save automatically on shut-down.
 
 ### Built-in Attributes
 
