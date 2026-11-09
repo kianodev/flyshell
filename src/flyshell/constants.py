@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 138
-VERSION = "1.2.13"
+BUILD = 139
+VERSION = "1.2.14"
 
 
 def _resolve_app_dir() -> Path:
@@ -61,6 +61,7 @@ REQUIRED_COMPONENTS = [
     "core/auth.py",
     "core/console.py",
     "core/data.py",
+    "core/deps.py",
     "core/directory.py",
     "core/env.py",
     "core/loader.py",

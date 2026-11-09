@@ -2,9 +2,10 @@
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core import data, env
+from flyshell.core import data, deps, env
 from flyshell.core.directory import RESERVED_NAMES
 
+from typing import Dict, List
 from pathlib import Path
 import importlib.util
 import inspect
@@ -148,3 +149,28 @@ def check_plugin_api_keys():
                 print(f"✅ {orig_k} - Key found [Optional/Extra]")
     if not has_keys_to_report:
         print("✅ No API keys required for any loaded plugins.")
+
+
+def check_all_plugin_dependencies() -> Dict[str, List[str]]:
+    if not c.PLUGINS:
+        return {}
+    print("\nFlyshell will now check plugin third-party dependencies.")
+    plugins_with_deps = False
+    all_missing: Dict[str, List[str]] = {}
+    for identifier, plugin in c.PLUGINS.items():
+        declared = getattr(plugin, "third_pty_libs", [])
+        if not declared:
+            continue
+        plugins_with_deps = True
+        installed, missing = deps.verify_plugin_dependencies(plugin)
+        print(f"\nPlugin: {plugin.name} ({identifier})")
+        for dep in installed:
+            print(f"✅ {dep} - Dependency found")
+        for dep in missing:
+            print(f"⚠️ {dep} - DEPENDENCY NOT FOUND")
+            print(f"Install using: 'sys pip install {dep}' once system has booted.")
+        if missing:
+            all_missing[identifier] = missing
+    if not plugins_with_deps:
+        print("✅ No third-party dependencies required for any loaded plugins.")
+    return all_missing

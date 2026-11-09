@@ -6,7 +6,7 @@ import os
 import sys
 
 
-def boot_check():
+def boot_check() -> bool:
     print("\nFlyshell will now check that your modules exist.")
     present = []
     missing = []
@@ -17,7 +17,7 @@ def boot_check():
             sys.path.insert(0, str(c.SRC_DIR))
     except ImportError:
         print(
-            "\nCRITICAL BOOT ERROR: Failed to initialise system due to corrupted or missing files.\n"
+            "\nCRITICAL BOOT ERROR: Failed to initialise system due to corrupted or missing files."
         )
         return False
     for obj in c.REQUIRED_COMPONENTS:
@@ -83,6 +83,7 @@ def main():
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
                 loader.check_plugin_api_keys()
+                loader.check_all_plugin_dependencies()
                 if auth.login_flow():
                     console.boot()
                 else:

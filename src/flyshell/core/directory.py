@@ -4,7 +4,7 @@ from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.builtin import diskops, fs, pkg, system, utils
-from flyshell.core import auth, data
+from flyshell.core import auth, data, deps
 
 from datetime import datetime, timezone
 import shlex
@@ -170,6 +170,13 @@ def _execute_single(raw_cmd: str) -> int:
                 f"\nPlugin Error: Cannot execute '{cmd_name}'. Missing required API key(s): {', '.join(missing)}"
             )
             print(f"Define them in {env_path} and retry.\n")
+            return 1
+        _, missing_deps = deps.verify_plugin_dependencies(plugin)
+        if missing_deps:
+            print(
+                f"\nPlugin Error: Cannot execute '{cmd_name}'. Missing dependency/dependencies: {', '.join(missing_deps)}"
+            )
+            print(f"Please run 'sys pip install {' '.join(missing_deps)}'\n")
             return 1
         try:
             result = plugin.execute(args)
