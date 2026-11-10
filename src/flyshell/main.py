@@ -82,6 +82,16 @@ def main():
                     )
                     sys.exit(1)
                 print(f"\nYour OS '{c.HOST_OS}' is compatible with Flyshell.")
+                from flyshell.native import diskops_bridge
+
+                if diskops_bridge.has_native_support():
+                    print(
+                        "\n✅ C Extensions Available - Native C binaries are present and will be used where applicable.\n"
+                    )
+                else:
+                    print(
+                        "\n⚠️ C Extensions Unavailable - Flyshell will revert to legacy Python objects where applicable.\n"
+                    )
                 print("Flyshell will now boot.")
                 loader.scan_plugins()
                 loader.check_plugin_api_keys()

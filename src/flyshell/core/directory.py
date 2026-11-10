@@ -4,8 +4,10 @@ from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.accounts import auth
-from flyshell.builtin import diskops, fs, pkg, system, utils
+from flyshell.builtin import diskops as diskops_legacy
+from flyshell.builtin import fs, pkg, system, utils
 from flyshell.core import data
+from flyshell.native import diskops_handler as diskops
 from flyshell.startup import deps
 
 from datetime import datetime, timezone
@@ -56,24 +58,24 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     system.Cd(),
     Cmds(),
     utils.Clear(),
-    diskops.Copy(),
-    diskops.Dir(),
+    diskops_legacy.Copy(),
+    diskops_legacy.Dir(),
     utils.Echo(),
     fs.Fs(),
     utils.History(),
     utils.Kill(),
     auth.Lock(),
-    diskops.MkDir(),
-    diskops.Move(),
+    diskops_legacy.MkDir(),
+    diskops_legacy.Move(),
     system.OpenFile(),
     pkg.Pkg(),
     utils.Reboot(),
-    diskops.Rename(),
-    diskops.Rm(),
-    diskops.RmDir(),
+    diskops_legacy.Rename(),
+    diskops_legacy.Rm(),
+    diskops_legacy.RmDir(),
     utils.Sleep(),
     system.SysExe(),
-    diskops.Touch(),
+    diskops_legacy.Touch(),
 ]
 
 COMMAND_REGISTRY: dict[str, BaseCmd] = {}

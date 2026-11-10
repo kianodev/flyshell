@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 147
-VERSION = "1.3.7"
+BUILD = 148
+VERSION = "1.3.8"
 
 
 def _resolve_app_dir() -> Path:
@@ -47,12 +47,17 @@ INITIALISED = set()
 
 REQUIRED_COMPONENTS = [
     "abstract",
+    "abstract/__init__.py",
     "abstract/base_cmd.py",
     "abstract/base_plugin.py",
     "abstract/parent_cmd.py",
     "accounts",
+    "accounts/__init__.py",
     "accounts/auth.py",
+    "bin",
+    "bin/__init__.py",
     "builtin",
+    "builtin/__init__.py",
     "builtin/diskops.py",
     "builtin/fs.py",
     "builtin/pkg.py",
@@ -60,11 +65,19 @@ REQUIRED_COMPONENTS = [
     "builtin/utils.py",
     "constants.py",
     "core",
+    "core/__init__.py",
     "core/console.py",
     "core/data.py",
     "core/directory.py",
+    "__init__.py",
     "main.py",
+    "native",
+    "native/__init__.py",
+    "native/legacy/diskops.py",
+    "native/diskops_bridge.py",
+    "native/diskops_handler.py",
     "startup",
+    "startup/__init__.py",
     "startup/deps.py",
     "startup/env.py",
     "startup/loader.py",

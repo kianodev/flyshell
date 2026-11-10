@@ -8,15 +8,16 @@ sources = [
 ]
 
 if sys.platform == "win32":
-    sources.append("c_src/diskops/win32/placeholder.c")
+    sources.append("c_src/diskops/win32/cat.c")
 else:
-    sources.append("c_src/diskops/posix/placeholder.c")
+    sources.append("c_src/diskops/posix/cat.c")
 
-native_disk = Extension(
+native_diskops = Extension(
     name="flyshell.bin._native_diskops",
     sources=sources,
+    include_dirs=["c_src/diskops/shared"],
 )
 
 setup(
-    ext_modules=[native_disk],
+    ext_modules=[native_diskops],
 )
