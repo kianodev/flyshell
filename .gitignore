@@ -46,3 +46,7 @@ dist/
 .coverage.*
 coverage.xml
 htmlcov/
+
+# C-bindings
+*.pyd
+*.so

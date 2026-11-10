@@ -9,12 +9,36 @@ permissions:
   contents: read
 
 jobs:
-  pypi-publish:
-    name: Build & Publish Release
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - name: Build wheels via cibuildwheel
+        uses: pypa/cibuildwheel@v2.22.0
+
+      - name: Store wheels as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution (sdist)
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -22,15 +46,34 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: "3.12"
 
-      - name: Install build tool
+      - name: Build sdist
         run: |
           python -m pip install --upgrade pip
           pip install build
+          python -m build --sdist
 
-      - name: Build sdist and initial wheel
-        run: python -m build
+      - name: Store sdist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
 
-      - name: Publish to PyPI
+  publish_pypi:
+    name: Publish to PyPI via OIDC
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download all built wheels and sdist
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

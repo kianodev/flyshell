@@ -8,3 +8,15 @@ except ImportError:
     BasePlugin = None
     __all__ = []
     pass
+
+
+try:
+    from . import _native_disk
+except ImportError:
+    _native_disk = None
+
+
+def check_native() -> bool:
+    if _native_disk is not None:
+        return _native_disk.ping() == 42
+    return False

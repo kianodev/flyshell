@@ -1,6 +1,7 @@
 # tests/test_diskops.py
 
 from flyshell.builtin import diskops
+import flyshell
 
 
 def test_touch_creates_file_and_updates_timestamp(tmp_path):
@@ -119,3 +120,7 @@ def test_rmdir_empty_and_non_empty(tmp_path):
     code, msg = cmd.execute(["-f", str(target_dir)])
     assert code == 0
     assert not target_dir.exists()
+
+
+def test_native_disk_c_ext():
+    assert flyshell.check_native() is True
