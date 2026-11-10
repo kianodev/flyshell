@@ -1,9 +1,9 @@
-# src\flyshell\builtin\pkg.py
+# src/flyshell/builtin/pkg.py
 
 from typing import List, Tuple
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.core import env
+from flyshell.startup import env
 
 
 class PkgApi(BaseCmd):
@@ -32,7 +32,7 @@ class PkgApi(BaseCmd):
                 if len(remaining_args) < 2:
                     return (
                         1,
-                        "\nCommand Error: define a package name and a key name for deletion.\n",
+                        "\nCommand Error: Define a package name and a key name for deletion.\n",
                     )
                 plugin_name = remaining_args[0]
                 key_name = remaining_args[1]

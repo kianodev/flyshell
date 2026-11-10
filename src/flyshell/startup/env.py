@@ -1,4 +1,4 @@
-# src\flyshell\core\env.py
+# src/flyshell/startup/env.py
 
 from pathlib import Path
 from flyshell import constants as c

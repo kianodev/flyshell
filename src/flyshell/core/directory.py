@@ -1,10 +1,12 @@
-# src\flyshell\core\directory.py
+# src/flyshell/core/directory.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
+from flyshell.accounts import auth
 from flyshell.builtin import diskops, fs, pkg, system, utils
-from flyshell.core import auth, data, deps
+from flyshell.core import data
+from flyshell.startup import deps
 
 from datetime import datetime, timezone
 import shlex

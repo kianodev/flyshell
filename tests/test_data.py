@@ -1,4 +1,4 @@
-# \tests\test_data.py
+# tests/test_data.py
 
 from flyshell.core import data
 import sqlite3

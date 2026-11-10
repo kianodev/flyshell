@@ -1,4 +1,4 @@
-# tests\test_directory.py
+# tests/test_directory.py
 
 from flyshell.core import directory
 

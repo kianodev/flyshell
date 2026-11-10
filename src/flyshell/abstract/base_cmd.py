@@ -1,4 +1,4 @@
-# src\flyshell\abstract\base_cmd.py
+# src/flyshell/abstract/base_cmd.py
 
 from typing import List, Optional, Tuple
 

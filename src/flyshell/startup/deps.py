@@ -1,4 +1,4 @@
-# src\flyshell\core\deps.py
+# src/flyshell/startup/deps.py
 
 from typing import List, Tuple
 import importlib.util

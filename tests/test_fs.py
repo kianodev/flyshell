@@ -1,4 +1,4 @@
-# tests\test_fs.py
+# tests/test_fs.py
 
 from flyshell.builtin import fs
 

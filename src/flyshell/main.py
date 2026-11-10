@@ -1,4 +1,4 @@
-# src\flyshell\main.py
+# src/flyshell/main.py
 
 from pathlib import Path
 import importlib.util
@@ -68,7 +68,9 @@ def main():
     try:
         if boot_check():
             from flyshell import constants as c
-            from flyshell.core import auth, console, loader
+            from flyshell.accounts import auth
+            from flyshell.core import console
+            from flyshell.startup import loader
 
             if c.HOST_OS in ["Windows", "Darwin", "Linux"]:
                 if sys.version_info < c.SUPPORTED_PYTHON:

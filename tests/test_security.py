@@ -1,7 +1,8 @@
 # tests/test_security.py
 
 from flyshell.builtin import system
-from flyshell.core import auth, data
+from flyshell.accounts import auth
+from flyshell.core import data
 
 
 def test_sysexe_blocks_prohibited_base_commands():

@@ -1,4 +1,4 @@
-# src\flyshell\core\data.py
+# src/flyshell/core/data.py
 
 from flyshell import constants as c
 

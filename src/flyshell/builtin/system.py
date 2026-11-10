@@ -1,8 +1,9 @@
-# src\flyshell\builtin\system.py
+# src/flyshell/builtin/system.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
-from flyshell.core import auth, data
+from flyshell.accounts import auth
+from flyshell.core import data
 
 import getpass
 import os

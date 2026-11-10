@@ -1,17 +1,15 @@
-# tests\test_env_keys.py
-
-# tests/test_env_api_keys.py
+# tests/test_env.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core import directory, env, loader
+from flyshell.core import directory
+from flyshell.startup import env, loader
 
 import pytest
 
 
 @pytest.fixture
 def mock_env_file(tmp_path, monkeypatch):
-    """Sets up a temporary flyshell_keys.env and points env/c.APP_DIR to it."""
     env_file = tmp_path / "flyshell_keys.env"
     monkeypatch.setattr(c, "APP_DIR", tmp_path)
     monkeypatch.setattr(env, "get_env_path", lambda: env_file)

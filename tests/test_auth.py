@@ -1,6 +1,6 @@
-# \tests\test_auth.py
+# tests/test_auth.py
 
-from flyshell.core import auth
+from flyshell.accounts import auth
 
 
 def test_hash_password_generates_hex():

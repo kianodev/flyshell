@@ -1,4 +1,4 @@
-# tests\test_utils.py
+# tests/test_utils.py
 
 from flyshell.builtin import utils
 from flyshell.core import data

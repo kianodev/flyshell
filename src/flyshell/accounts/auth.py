@@ -1,4 +1,4 @@
-# src\flyshell\core\auth.py
+# src/flyshell/accounts/auth.py
 
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import data

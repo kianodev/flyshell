@@ -1,8 +1,8 @@
-# \tests\test_loader.py
+# tests/test_loader.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core import loader
+from flyshell.startup import loader
 
 
 def test_loader_rejects_command_name_collision(tmp_path, monkeypatch):

@@ -1,8 +1,9 @@
-# src\flyshell\core\console.py
+# src/flyshell/core/console.py
 
 from flyshell import constants as c
-from flyshell.core import data, env
+from flyshell.core import data
 from flyshell.core.directory import execute_line
+from flyshell.startup import env
 
 import os
 import random

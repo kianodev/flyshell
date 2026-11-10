@@ -1,7 +1,7 @@
-# tests\test_third_deps_check.py
+# tests/test_deps.py
 
 from flyshell import constants as c
-from flyshell.core import deps, loader
+from flyshell.startup import deps, loader
 
 from unittest.mock import MagicMock, patch
 

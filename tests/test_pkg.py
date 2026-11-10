@@ -2,7 +2,7 @@
 
 from flyshell import constants as c
 from flyshell.builtin import pkg
-from flyshell.core import env
+from flyshell.startup import env
 
 import pytest
 

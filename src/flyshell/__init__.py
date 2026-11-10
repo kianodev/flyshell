@@ -1,3 +1,5 @@
+# src/flyshell/__init__.py
+
 try:
     from flyshell.abstract.base_plugin import BasePlugin
 

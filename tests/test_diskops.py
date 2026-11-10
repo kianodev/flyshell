@@ -1,4 +1,4 @@
-# tests\test_diskops.py
+# tests/test_diskops.py
 
 from flyshell.builtin import diskops
 

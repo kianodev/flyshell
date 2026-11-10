@@ -1,4 +1,4 @@
-# src\flyshell\builtin\fs.py
+# src/flyshell/builtin/fs.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd

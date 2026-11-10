@@ -1,12 +1,12 @@
-# src\flyshell\constants.py
+# src/flyshell/constants.py
 
 from pathlib import Path
 import os
 import platform
 import time
 
-BUILD = 142
-VERSION = "1.3.2"
+BUILD = 143
+VERSION = "1.3.3"
 
 
 def _resolve_app_dir() -> Path:
@@ -50,6 +50,8 @@ REQUIRED_COMPONENTS = [
     "abstract/base_cmd.py",
     "abstract/base_plugin.py",
     "abstract/parent_cmd.py",
+    "accounts",
+    "accounts/auth.py",
     "builtin",
     "builtin/diskops.py",
     "builtin/fs.py",
@@ -58,13 +60,14 @@ REQUIRED_COMPONENTS = [
     "builtin/utils.py",
     "constants.py",
     "core",
-    "core/auth.py",
     "core/console.py",
     "core/data.py",
-    "core/deps.py",
     "core/directory.py",
-    "core/env.py",
-    "core/loader.py",
+    "main.py",
+    "startup",
+    "startup/deps.py",
+    "startup/env.py",
+    "startup/loader.py",
 ]
 
 GREETINGS = [

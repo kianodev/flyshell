@@ -1,4 +1,4 @@
-# src\flyshell\builtin\diskops.py
+# src/flyshell/builtin/diskops.py
 
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd

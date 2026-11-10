@@ -1,4 +1,4 @@
-# src\flyshell\abstract\parent_cmd.py
+# src/flyshell/abstract/parent_cmd.py
 
 from flyshell.abstract.base_cmd import BaseCmd
 
