@@ -75,7 +75,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     diskops_legacy.RmDir(),
     utils.Sleep(),
     system.SysExe(),
-    diskops_legacy.Touch(),
+    diskops.Touch(),
 ]
 
 COMMAND_REGISTRY: dict[str, BaseCmd] = {}

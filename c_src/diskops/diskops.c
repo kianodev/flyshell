@@ -4,8 +4,9 @@
 #include <Python.h>
 #include "shared/native_errors.h"
 
-/* Prototype declared in both posix/cat.c and win32/cat.c */
 Result cat(const char* path, char** out_buf, size_t* out_size);
+
+Result touch(const char* path);
 
 static PyObject* method_ping(PyObject* self, PyObject* args) {
     return PyLong_FromLong(42);
@@ -25,7 +26,6 @@ static PyObject* method_cat(PyObject* self, PyObject* args) {
         return Py_BuildValue("(is)", (int)res, "");
     }
 
-    /* Convert C buffer to Python unicode string */
     PyObject* content = PyUnicode_FromStringAndSize(buf, size);
     free(buf);
 
@@ -38,10 +38,21 @@ static PyObject* method_cat(PyObject* self, PyObject* args) {
     return ret;
 }
 
+static PyObject* method_touch(PyObject* self, PyObject* args) {
+    const char* path;
+    if (!PyArg_ParseTuple(args, "s", &path)) {
+        return NULL;
+    }
+
+    Result res = touch(path);
+    return Py_BuildValue("(is)", (int)res, "");
+}
+
 static PyMethodDef DiskopsMethods[] = {
     {"ping", method_ping, METH_NOARGS, "Health check ping."},
     {"cat",  method_cat,  METH_VARARGS, "Read file content natively."},
-    {NULL, NULL, 0, NULL}
+    {"touch", method_touch, METH_VARARGS, "Touch or create file natively."},
+    {NULL, NULL, 0, NULL},
 };
 
 static struct PyModuleDef diskopsmodule = {

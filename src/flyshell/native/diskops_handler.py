@@ -60,3 +60,23 @@ class Cat(BaseCmd):
                 output_lines.append(clean_line)
         output_lines.append(f"\nEnd of '{target_path.name}'\n")
         return (0, "\n".join(output_lines))
+
+
+class Touch(BaseCmd):
+    name = "touch"
+    description = "Create an empty file or update existing file timestamps"
+    min_args = 1
+    options = "Target file"
+
+    def execute(self, args):
+        if not args:
+            return (1, "\nCommand Error: Target file not specified.\n")
+        raw_target = " ".join(args).strip("\"'")
+        target_path = Path(raw_target).expanduser().resolve()
+        if bridge.has_native_support() and hasattr(bridge._native, "touch"):
+            code, _ = bridge._native.touch(str(target_path))
+        else:
+            code, _ = legacy.lgc_touch(target_path)
+        if code != 0:
+            return bridge.translate_error(code, raw_target)
+        return (0, f"\nSUCCESS! File '{raw_target}' touched successfully.\n")

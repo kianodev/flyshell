@@ -20,3 +20,21 @@ def lgc_cat(target_path: Path) -> tuple[int, str]:
         return (-14, "")  # ERR_DECODE
     except Exception:
         return (-13, "")  # ERR_IO
+
+
+def lgc_touch(target_path: Path) -> tuple[int, str]:
+    if target_path.is_dir():
+        return (-3, "")  # ERR_IS_DIR
+    try:
+        target_path.touch(exist_ok=True)
+        return (0, "")  # SUCCESS
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except FileNotFoundError:
+        return (-1, "")  # ERR_NOT_FOUND
+    except OSError as e:
+        if getattr(e, "errno", None) == 28:  # ENOSPC
+            return (-12, "")
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
