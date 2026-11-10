@@ -1,14 +1,23 @@
 # setup.py
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Extension, setup
+import sys
+
+sources = [
+    "c_src/diskops/diskops.c",
+    "c_src/diskops/shared/placeholder.c",
+]
+
+if sys.platform == "win32":
+    sources.append("c_src/diskops/win32/placeholder.c")
+else:
+    sources.append("c_src/diskops/posix/placeholder.c")
 
 native_disk = Extension(
-    name="flyshell._native_disk",
-    sources=["c_src/diskops.c"],
+    name="flyshell.bin._native_diskops",
+    sources=sources,
 )
 
 setup(
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
     ext_modules=[native_disk],
 )

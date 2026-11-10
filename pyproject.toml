@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
@@ -21,7 +21,8 @@ dynamic = ["version"]
 description = "A modular, zero-dependency command-line environment in Python."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 
 [project.scripts]
 flyshell = "flyshell.main:main"

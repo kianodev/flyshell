@@ -50,3 +50,5 @@ htmlcov/
 # C-bindings
 *.pyd
 *.so
+src/flyshell/bin/*.pyd
+src/flyshell/bin/*.so

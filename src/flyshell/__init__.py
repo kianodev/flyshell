@@ -11,12 +11,12 @@ except ImportError:
 
 
 try:
-    from . import _native_disk
+    from flyshell.bin import _native_diskops
 except ImportError:
-    _native_disk = None
+    _native_diskops = None
 
 
 def check_native() -> bool:
-    if _native_disk is not None:
-        return _native_disk.ping() == 42
+    if _native_diskops is not None:
+        return _native_diskops.ping() == 42
     return False

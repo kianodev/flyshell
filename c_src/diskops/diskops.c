@@ -1,4 +1,4 @@
-// c_src/diskops.c
+// c_src/diskops/diskops.c
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -17,13 +17,13 @@ static PyMethodDef NativeDiskMethods[] = {
 
 static struct PyModuleDef nativediskmodule = {
     PyModuleDef_HEAD_INIT,
-    "_native_disk",
+    "_native_diskops",
     "Native C engine backend for Flyshell",
     -1,
     NativeDiskMethods
 };
 
 
-PyMODINIT_FUNC PyInit__native_disk(void) {
+PyMODINIT_FUNC PyInit__native_diskops(void) {
     return PyModule_Create(&nativediskmodule);
 }
