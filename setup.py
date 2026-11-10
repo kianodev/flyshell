@@ -5,7 +5,6 @@ import sys
 
 sources = [
     "c_src/diskops/diskops.c",
-    "c_src/diskops/shared/placeholder.c",
 ]
 
 if sys.platform == "win32":
