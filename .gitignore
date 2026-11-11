@@ -52,3 +52,6 @@ htmlcov/
 *.so
 src/flyshell/bin/*.pyd
 src/flyshell/bin/*.so
+
+# Local development
+.dev/

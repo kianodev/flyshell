@@ -5,13 +5,16 @@ import sys
 
 sources = [
     "c_src/diskops/diskops.c",
+    "c_src/diskops/shared/dir_types.c",
 ]
 
 if sys.platform == "win32":
     sources.append("c_src/diskops/win32/cat.c")
+    sources.append("c_src/diskops/win32/dir.c")
     sources.append("c_src/diskops/win32/touch.c")
 else:
     sources.append("c_src/diskops/posix/cat.c")
+    sources.append("c_src/diskops/posix/dir.c")
     sources.append("c_src/diskops/posix/touch.c")
 
 native_diskops = Extension(

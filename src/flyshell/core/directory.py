@@ -59,7 +59,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     Cmds(),
     utils.Clear(),
     diskops_legacy.Copy(),
-    diskops_legacy.Dir(),
+    diskops.Dir(),
     utils.Echo(),
     fs.Fs(),
     utils.History(),

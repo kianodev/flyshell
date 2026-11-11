@@ -1,6 +1,7 @@
 # src/flyshell/native/legacy/diskops.py
 
 from pathlib import Path
+import os
 
 
 def lgc_cat(target_path: Path) -> tuple[int, str]:
@@ -22,6 +23,30 @@ def lgc_cat(target_path: Path) -> tuple[int, str]:
         return (-13, "")  # ERR_IO
 
 
+def lgc_dir(target_path: Path) -> tuple[int, list[tuple[str, bool]]]:
+    if not target_path.exists():
+        return (-1, [])  # ERR_NOT_FOUND
+    if not target_path.is_dir():
+        return (-4, [])  # ERR_NOT_DIR
+    try:
+        entries: list[tuple[str, bool]] = []
+        with os.scandir(target_path) as it:
+            for entry in it:
+                try:
+                    entries.append((entry.name, entry.is_dir()))
+                except OSError:
+                    entries.append((entry.name, False))
+        return (0, entries)  # SUCCESS
+    except PermissionError:
+        return (-2, [])  # ERR_PERMISSION
+    except OSError as e:
+        if getattr(e, "errno", None) == 20:
+            return (-4, [])  # ERR_NOT_DIR
+        return (-13, [])  # ERR_IO
+    except Exception:
+        return (-99, [])  # ERR_UNKNOWN
+
+
 def lgc_touch(target_path: Path) -> tuple[int, str]:
     if target_path.is_dir():
         return (-3, "")  # ERR_IS_DIR
@@ -33,8 +58,8 @@ def lgc_touch(target_path: Path) -> tuple[int, str]:
     except FileNotFoundError:
         return (-1, "")  # ERR_NOT_FOUND
     except OSError as e:
-        if getattr(e, "errno", None) == 28:  # ENOSPC
-            return (-12, "")
+        if getattr(e, "errno", None) == 28:
+            return (-12, "")  # ERR_NO_SPACE
         return (-13, "")  # ERR_IO
     except Exception:
         return (-99, "")  # ERR_UNKNOWN
