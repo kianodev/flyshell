@@ -4,7 +4,7 @@
 ![Licence](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
-![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
+![Tests](https://github.com/kianodev/flyshell/actions/workflows/build.yml/badge.svg)
 
 > Documentation last updated: v1.3.0
 

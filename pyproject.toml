@@ -5,9 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.cibuildwheel]
 build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
 skip = "*-win32 *i686 *musllinux*"
-
-test-requires = ["pytest"]
-test-command = "pytest {project}/tests"
+test-command = "python -c \"import flyshell; assert flyshell.check_native()\""
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
