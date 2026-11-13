@@ -6,11 +6,11 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/build.yml/badge.svg)
 
-> Documentation last updated: v1.3.0
+> Documentation last updated: v1.4.0
 
-A modular, zero-dependency command-line environment and extensible runtime interface built in Python.
+A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
-Flyshell provides a modular, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only Python standard libraries.
+Flyshell provides a modular, extensible shell environment featuring dynamic runtime plugin loading, session persistence, secure authentication, and cross-platform process isolation, using only standard libraries.
 
 No extra packages required, just install and enjoy!
 
@@ -21,6 +21,7 @@ No extra packages required, just install and enjoy!
 3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 600,000 iterations) with constant-time equality comparisons to prevent timing attacks on password information.
 4. **Cross-Platform Support**: Flyshell is fully supported by Windows (NT), macOS (Darwin) and Linux installations with native OS management and POSIX-aware parsing. Note that Flyshell is **not** supported by any other systems.
 5. **State and History Persistence**: Flyshell has a fully encapsulated SQL storage system using SQLite3 providing session metrics and ISO 8601 UTC audit logging.
+6. **Automatic C-Extension Compilation**: If installed via `pip`, Flyshell is distributed with more than 20 wheels suitable for most builds of popular operating systems.
 
 ## System Requirements
 
@@ -37,6 +38,11 @@ src/
     │   ├── base_cmd.py
     │   ├── base_plugin.py
     │   └── parent_cmd.py
+    ├── accounts/
+    │   ├── __init__.py
+    │   └── auth.py
+    ├── bin/
+    │   └── __init__.py
     ├── builtin/
     │   ├── __init__.py
     │   ├── diskops.py
@@ -46,17 +52,27 @@ src/
     │   └── utils.py
     ├── core/
     │   ├── __init__.py
-    │   ├── auth.py
     │   ├── console.py
     │   ├── data.py
+    │   └── directory.py
+    ├── native/
+    │   ├── legacy/
+    │   │   ├── __init__.py
+    │   │   └── diskops.py
+    │   ├── __init__.py
+    │   ├── diskops_bridge.py
+    │   └── diskops_handler.py
+    ├── startup/
+    │   ├── __init__.py
     │   ├── deps.py
-    │   ├── directory.py
     │   ├── env.py
     │   └── loader.py
     ├── __init__.py
     ├── constants.py
     └── main.py
 ```
+
+For a full tree, please see `docs/project_structure.md`.
 
 ## Installing Flyshell
 
@@ -85,6 +101,11 @@ Switch to the Flyshell directory and install in editable mode:
 ```bash
 cd flyshell
 pip install -e .
+```
+
+Flyshell now uses C-binaries, you must compile these:
+```bash
+python setup.py build_ext --inplace
 ```
 
 After this, you can simply run Flyshell:
@@ -148,6 +169,7 @@ class MyPlugin(BasePlugin):
 	description = "This is my plugin." # A short one-line explaining what your plugin does
 	version = "1.0.0" # Default is 1.0.0
 	author = "kianodev" # You can put your name, your GitHub handle, or leave blank to make it 'Unknown'
+  identifier = "" # (OPTIONAL) Alternative name for your plugin command (defaults to dir / file name)
 	usage = "" # (OPTIONAL) Explain how to use your plugin
 	extended_help = "" # (OPTIONAL) A more detailed, multi-line guide containing specific assistance
 	api_keys = [] # (OPTIONAL) Define any required key names here. Use get_api_key(key_name) to call the key. Please add all keys in CAPITALS.

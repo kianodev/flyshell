@@ -1,10 +1,30 @@
 # Flyshell Changelog
 
-> Documentation last updated: v1.3.0
+> Documentation last updated: v1.4.0
 
 ##  Release Notes
 
 The below section details all releases since v1.0.0 (12 October 2026).
+
+### Flyshell v1.4.0 - The Native C Extensions Update ⚡
+
+> This update was released on 13 November 2026.
+
+Welcome to **Flyshell v1.4.0**! This release has officially made Flyshell a polyglot ecosystem, introducing C binaries for three former `diskops.py` commands and paving the way for a major transition.
+
+#### 🌟 What's New?
+
+Flyshell has added compiled C binaries, introducing several refactors as a result:
+* A native C extension `_native_diskops` has been added to Flyshell
+* `cat`, `dir` and `touch` have been migrated to C implementations
+* Python fallbacks have remained for C-extension modules
+* C binaries are compiled and stored in `src/flyshell/bin` without any compiler required on your computer*
+
+In addition, CI workflows have been expanded:
+* **Trusted OIDC Publishing**: Flyshell is now published to PyPI via the official GitHub Actions OIDC workflow.
+* **Automated Build Checks**: Redundant `pytest` checks have been removed in favour of compound checks.
+
+*If installed via `pip` only. Users installing via `git` will require a compiler.
 
 ### Flyshell v1.3.0 - The Plugin Suite Update 🔗
 
