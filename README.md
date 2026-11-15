@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/build.yml/badge.svg)
 
-> Documentation last updated: v1.4.0
+> Documentation last updated: v1.4.5
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -160,7 +160,7 @@ All plugins must have an entry-point file. For single-file plugins, this is the 
 This file is what enables Flyshell to speak to your plugin.
 
 ```python
-# Entry-point (my_plugin.py or my_plugin\plugin.py)
+# Entry-point (my_plugin.py or my_plugin/plugin.py)
 
 from flyshell import BasePlugin # This is required
 
@@ -169,11 +169,11 @@ class MyPlugin(BasePlugin):
 	description = "This is my plugin." # A short one-line explaining what your plugin does
 	version = "1.0.0" # Default is 1.0.0
 	author = "kianodev" # You can put your name, your GitHub handle, or leave blank to make it 'Unknown'
-  identifier = "" # (OPTIONAL) Alternative name for your plugin command (defaults to dir / file name)
+	identifier = "" # (OPTIONAL) Alternative name for your plugin command (defaults to dir / file name)
 	usage = "" # (OPTIONAL) Explain how to use your plugin
 	extended_help = "" # (OPTIONAL) A more detailed, multi-line guide containing specific assistance
-	api_keys = [] # (OPTIONAL) Define any required key names here. Use get_api_key(key_name) to call the key. Please add all keys in CAPITALS.
-	third_pty_libs = [] # (OPTIONAL) Define all required third party libraries / dependencies here. Use their Python import names as this is how Flyshell checks them.
+	api_keys = [] # (OPTIONAL) Define any required key names here. Use get_api_key(key_name) to call the key. Please add all keys in CAPITALS
+	third_pty_libs = [] # (OPTIONAL) Define all required third party libraries / dependencies here. Use their Python import names as this is how Flyshell checks them
 	
 	def on_load(self): # (OPTIONAL) Enables your program to handle specialist set-up tasks before execute()
 		pass
@@ -194,7 +194,7 @@ Additional functions are available for you to use:
 2. `set_data(key, value)`: Updates a key in local memory and automatically persists it to SQLite via `save_storage()`.
 3. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
 4. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
-5. `get_api_key(key)`: Fetches the specified API key from `flyshell_keys.env`.
+5. `get_api_key(self, default=None)`: Fetches the specified API key from `flyshell_keys.env`.
 
 Plugins save automatically on shut-down.
 

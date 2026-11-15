@@ -1,6 +1,6 @@
 # Flyshell Project Structure
 
-> Documentation last updated: v1.4.0
+> Documentation last updated: v1.4.5
 
 This document provides a comprehensive view of the entire Flyshell repository tree, including development workflows, documentation, source packages, tests, and configuration assets.
 
@@ -14,6 +14,8 @@ flyshell/
 │   └── workflows/
 │       ├── black.yml
 │       ├── build.yml
+│       ├── clang_format.yml
+│       ├── clang_tidy.yml
 │       ├── flake8.yml
 │       └── publish.yml
 ├── c_src/
@@ -25,7 +27,8 @@ flyshell/
 │       ├── shared/
 │       │   ├── dir_types.c
 │       │   ├── dir_types.h
-│       │   └── native_errors.h
+│       │   ├── native_errors.h
+│       │   └── win32_utf.h
 │       ├── win32/
 │       │   ├── cat.c
 │       │   ├── dir.c
@@ -93,6 +96,8 @@ flyshell/
 │   ├── test_pkg.py
 │   ├── test_security.py
 │   └── test_utils.py
+├── .clang-format
+├── .clang-tidy
 ├── .flake8
 ├── .gitignore
 ├── LICENSE
@@ -105,7 +110,7 @@ flyshell/
 ## Directory Breakdown
 
 * .github/: Automation pipelines and GitHub Actions workflows.
-* c_src/diskops: C-extension containing C binaries of diskops operations (these are compiled automatically on PyPI installations).
+* c_src/diskops: C-extension of diskops operations (these are compiled automatically on PyPI installations).
 * docs/: Developer documentation, release notes per minor version milestone, changelogs, and workspace layout records.
 * src/flyshell/: Executable package root containing command abstractions, built-in utilities, and runtime core engines.
 * tests/: Pytest test suite covering command logic, plugin lifecycle, security checks, and platform stability.
