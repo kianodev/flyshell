@@ -1,6 +1,7 @@
 // c_src/diskops/win32/touch.c
 
 #include "../shared/native_errors.h"
+#include "../shared/win32_utf.h"
 #include <stdlib.h>
 #include <windows.h>
 
@@ -9,16 +10,10 @@ Result touch(const char *path) {
         return ERR_INVALID_PATH;
     }
 
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    if (wlen <= 0) {
+    wchar_t *wpath = utf8_to_wide(path);
+    if (!wpath) {
         return ERR_INVALID_PATH;
     }
-
-    wchar_t *wpath = (wchar_t *)malloc(wlen * sizeof(wchar_t));
-    if (!wpath) {
-        return ERR_IO;
-    }
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, wlen);
 
     DWORD attrs = GetFileAttributesW(wpath);
     if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY)) {

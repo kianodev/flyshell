@@ -1,6 +1,7 @@
 // c_src/diskops/win32/cat.c
 
 #include "../shared/native_errors.h"
+#include "../shared/win32_utf.h"
 #include <stdlib.h>
 #include <windows.h>
 
@@ -11,16 +12,10 @@ Result cat(const char *path, char **out_buf, size_t *out_size) {
     *out_buf = NULL;
     *out_size = 0;
 
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    if (wlen <= 0) {
+    wchar_t *wpath = utf8_to_wide(path);
+    if (!wpath) {
         return ERR_INVALID_PATH;
     }
-
-    wchar_t *wpath = (wchar_t *)malloc(wlen * sizeof(wchar_t));
-    if (!wpath) {
-        return ERR_IO;
-    }
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, wlen);
 
     HANDLE hFile =
         CreateFileW(wpath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
