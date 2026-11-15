@@ -1,0 +1,79 @@
+name: Linting (Clang-Tidy)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  clang-tidy:
+    name: Linter Check for C-Extensions (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      
+      - name: Install build dependencies
+        run: python -m pip install --upgrade pip setuptools
+
+      - name: Install clang-tidy (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Generate compile_commands.json from setup.py
+        shell: python
+        run: |
+          import json
+          import os
+          import pathlib
+          import sys
+          import sysconfig
+          from unittest.mock import patch
+
+          sys.path.insert(0, os.getcwd())
+
+          captured_exts = []
+          with patch("setuptools.setup", side_effect=lambda **kw: captured_exts.extend(kw.get("ext_modules", []))):
+              import setup
+
+          inc = sysconfig.get_path("include")
+          plat = sysconfig.get_path("platinclude")
+          cwd = str(pathlib.Path.cwd())
+          db = []
+
+          for ext in captured_exts:
+              inc_flags = [f"-I{inc}", f"-I{plat}"] + [f"-I{d}" for d in ext.include_dirs]
+              macro_flags = [f"-D{k}={v}" if v is not None else f"-D{k}" for k, v in ext.define_macros]
+              os_flags = ["-DWIN32", "-D_WIN32"] if sys.platform == "win32" else []
+
+              for src in ext.sources:
+                  src_path = str(pathlib.Path(src).resolve())
+                  db.append({
+                      "directory": cwd,
+                      "file": src_path,
+                      "arguments": ["clang", *inc_flags, *macro_flags, *os_flags, src_path],
+                  })
+
+          pathlib.Path("compile_commands.json").write_text(json.dumps(db, indent=2))
+
+      - name: Run clang-tidy
+        shell: python
+        run: |
+          import json
+          import subprocess
+          import sys
+
+          entries = json.loads(open("compile_commands.json").read())
+          files = [e["file"] for e in entries]
+          res = subprocess.run(["clang-tidy", *files])
+          sys.exit(res.returncode)

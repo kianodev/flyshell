@@ -8,7 +8,7 @@ on:
 
 jobs:
   flake8:
-    name: Linter Check
+    name: Linter Check for Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

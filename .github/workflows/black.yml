@@ -8,7 +8,7 @@ on:
 
 jobs:
   black:
-    name: Format Check
+    name: Format Check for Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
