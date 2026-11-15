@@ -62,7 +62,8 @@ def test_native_cat_errors(tmp_path):
 
 def test_native_dir_lists_entries_and_handles_errors(tmp_path):
     (tmp_path / "folder_a").mkdir()
-    (tmp_path / "file_b.txt").write_text("hello", encoding="utf-8")
+    file_b = tmp_path / "file_b.txt"
+    file_b.write_text("hello", encoding="utf-8")
     code, items = bridge._native.dir(str(tmp_path))
     assert code == 0
     assert ("folder_a", True) in items
@@ -76,3 +77,25 @@ def test_native_dir_lists_entries_and_handles_errors(tmp_path):
     exit_code, msg = cmd.execute([str(tmp_path / "does_not_exist")])
     assert exit_code == 1
     assert "File or path not found" in msg
+    exit_code, msg = cmd.execute([str(file_b)])
+    assert exit_code == 1
+    assert "Target is not a directory" in msg
+
+
+def test_native_unicode_paths(tmp_path):
+    unicode_dir = tmp_path / "dir_日本語"
+    unicode_dir.mkdir()
+    unicode_file = unicode_dir / "café_🚀.txt"
+    code, _ = bridge._native.touch(str(unicode_file))
+    assert code == 0
+    assert unicode_file.exists()
+    unicode_file.write_text("héllo 🌍\n", encoding="utf-8", newline="\n")
+    code, content = bridge._native.cat(str(unicode_file))
+    assert code == 0
+    assert content == "héllo 🌍\n"
+    code, items = bridge._native.dir(str(tmp_path))
+    assert code == 0
+    assert ("dir_日本語", True) in items
+    code, sub_items = bridge._native.dir(str(unicode_dir))
+    assert code == 0
+    assert ("café_🚀.txt", False) in sub_items

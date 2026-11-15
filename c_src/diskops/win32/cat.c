@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <windows.h>
 
+#define CAT_CHUNK_SIZE 32768
+
 Result cat(const char *path, char **out_buf, size_t *out_size) {
     if (!path || !out_buf || !out_size) {
         return ERR_INVALID_PATH;
@@ -36,35 +38,59 @@ Result cat(const char *path, char **out_buf, size_t *out_size) {
     free(wpath);
 
     LARGE_INTEGER size;
-    if (!GetFileSizeEx(hFile, &size)) {
-        DWORD err = GetLastError();
-        CloseHandle(hFile);
-        return map_win32_error(err);
+    size_t capacity = CAT_CHUNK_SIZE;
+    if (GetFileSizeEx(hFile, &size) && size.QuadPart > 0) {
+        if ((ULONGLONG)size.QuadPart > (ULONGLONG)(SIZE_MAX - 1)) {
+            CloseHandle(hFile);
+            return ERR_IO;
+        }
+        capacity = (size_t)size.QuadPart + 1;
     }
 
-    if (size.QuadPart == 0) {
-        CloseHandle(hFile);
-        return ERR_EMPTY;
-    }
-
-    char *buf = (char *)malloc(size.QuadPart + 1);
+    char *buf = (char *)malloc(capacity);
     if (!buf) {
         CloseHandle(hFile);
         return ERR_IO;
     }
 
-    DWORD bytes_read = 0;
-    BOOL ok = ReadFile(hFile, buf, (DWORD)size.QuadPart, &bytes_read, NULL);
-    DWORD read_err = GetLastError();
+    size_t total_read = 0;
+    for (;;) {
+        if (total_read + CAT_CHUNK_SIZE + 1 > capacity) {
+            size_t new_cap = capacity * 2;
+            if (new_cap < total_read + CAT_CHUNK_SIZE + 1) {
+                new_cap = total_read + CAT_CHUNK_SIZE + 1;
+            }
+            char *resized = (char *)realloc(buf, new_cap);
+            if (!resized) {
+                CloseHandle(hFile);
+                free(buf);
+                return ERR_IO;
+            }
+            buf = resized;
+            capacity = new_cap;
+        }
+
+        DWORD bytes_read = 0;
+        if (!ReadFile(hFile, buf + total_read, CAT_CHUNK_SIZE, &bytes_read, NULL)) {
+            DWORD read_err = GetLastError();
+            CloseHandle(hFile);
+            free(buf);
+            return map_win32_error(read_err);
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        total_read += (size_t)bytes_read;
+    }
     CloseHandle(hFile);
 
-    if (!ok) {
+    if (total_read == 0) {
         free(buf);
-        return map_win32_error(read_err);
+        return ERR_EMPTY;
     }
 
-    buf[bytes_read] = '\0';
+    buf[total_read] = '\0';
     *out_buf = buf;
-    *out_size = (size_t)bytes_read;
+    *out_size = total_read;
     return SUCCESS;
 }

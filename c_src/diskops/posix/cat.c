@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define CAT_CHUNK_SIZE 32768
+
 Result cat(const char *path, char **out_buf, size_t *out_size) {
     if (!path || !out_buf || !out_size) {
         return ERR_INVALID_PATH;
@@ -31,28 +33,54 @@ Result cat(const char *path, char **out_buf, size_t *out_size) {
         return ERR_IS_DIR;
     }
 
-    if (st.st_size == 0) {
-        close(fd);
-        return ERR_EMPTY;
-    }
-
-    char *buf = (char *)malloc(st.st_size + 1);
+    size_t capacity = (st.st_size > 0) ? ((size_t)st.st_size + 1) : CAT_CHUNK_SIZE;
+    char *buf = (char *)malloc(capacity);
     if (!buf) {
         close(fd);
         return ERR_IO;
     }
 
-    ssize_t n = read(fd, buf, st.st_size);
-    int read_err = errno;
+    size_t total_read = 0;
+    for (;;) {
+        if (total_read + CAT_CHUNK_SIZE + 1 > capacity) {
+            size_t new_cap = capacity * 2;
+            if (new_cap < total_read + CAT_CHUNK_SIZE + 1) {
+                new_cap = total_read + CAT_CHUNK_SIZE + 1;
+            }
+            char *resized = (char *)realloc(buf, new_cap);
+            if (!resized) {
+                close(fd);
+                free(buf);
+                return ERR_IO;
+            }
+            buf = resized;
+            capacity = new_cap;
+        }
+
+        ssize_t n = read(fd, buf + total_read, CAT_CHUNK_SIZE);
+        if (n < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            int read_err = errno;
+            close(fd);
+            free(buf);
+            return map_posix_errno(read_err);
+        }
+        if (n == 0) {
+            break;
+        }
+        total_read += (size_t)n;
+    }
     close(fd);
 
-    if (n < 0) {
+    if (total_read == 0) {
         free(buf);
-        return map_posix_errno(read_err);
+        return ERR_EMPTY;
     }
 
-    buf[n] = '\0';
+    buf[total_read] = '\0';
     *out_buf = buf;
-    *out_size = (size_t)n;
+    *out_size = total_read;
     return SUCCESS;
 }

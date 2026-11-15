@@ -15,14 +15,16 @@ Result touch(const char *path) {
     }
 
     struct stat st;
-    if (stat(path, &st) == 0) {
-        if (S_ISDIR(st.st_mode)) {
-            return ERR_IS_DIR;
-        }
-        if (utimensat(AT_FDCWD, path, NULL, 0) != 0) {
-            return map_posix_errno(errno);
-        }
+    if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+        return ERR_IS_DIR;
+    }
+
+    if (utimensat(AT_FDCWD, path, NULL, 0) == 0) {
         return SUCCESS;
+    }
+
+    if (errno != ENOENT) {
+        return map_posix_errno(errno);
     }
 
     int fd = open(path, O_WRONLY | O_CREAT | O_NONBLOCK | O_NOCTTY, 0666);

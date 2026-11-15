@@ -65,6 +65,7 @@ static PyObject *method_dir(PyObject *self, PyObject *args) {
 
     PyObject *py_list = PyList_New((Py_ssize_t)dir_list.count);
     if (!py_list) {
+        PyErr_Clear();
         free_dir_list(&dir_list);
         return Py_BuildValue("(i[])", (int)ERR_IO);
     }
@@ -72,7 +73,13 @@ static PyObject *method_dir(PyObject *self, PyObject *args) {
     for (size_t i = 0; i < dir_list.count; ++i) {
         PyObject *item = Py_BuildValue("(sO)", dir_list.entries[i].name,
                                        dir_list.entries[i].is_dir ? Py_True : Py_False);
-        PyList_SET_ITEM(py_list, i, item);
+        if (!item) {
+            PyErr_Clear();
+            Py_DECREF(py_list);
+            free_dir_list(&dir_list);
+            return Py_BuildValue("(i[])", (int)ERR_DECODE);
+        }
+        PyList_SET_ITEM(py_list, (Py_ssize_t)i, item);
     }
 
     free_dir_list(&dir_list);

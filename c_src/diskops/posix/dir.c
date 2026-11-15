@@ -50,7 +50,7 @@ Result list_dir(const char *path, DirList *out_list) {
 
         bool is_dir = false;
 #ifdef _DIRENT_HAVE_D_TYPE
-        if (entry->d_type != DT_UNKNOWN) {
+        if (entry->d_type != DT_UNKNOWN && entry->d_type != DT_LNK) {
             is_dir = (entry->d_type == DT_DIR);
         } else
 #endif
@@ -61,7 +61,14 @@ Result list_dir(const char *path, DirList *out_list) {
             }
         }
 
-        out_list->entries[out_list->count].name = strdup(entry->d_name);
+        char *name_copy = strdup(entry->d_name);
+        if (!name_copy) {
+            closedir(dir);
+            free_dir_list(out_list);
+            return ERR_IO;
+        }
+
+        out_list->entries[out_list->count].name = name_copy;
         out_list->entries[out_list->count].is_dir = is_dir;
         out_list->count++;
     }
