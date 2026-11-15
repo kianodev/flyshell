@@ -1,13 +1,13 @@
 // c_src/diskops/posix/cat.c
 
+#include "../shared/native_errors.h"
+#include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "../shared/native_errors.h"
 
-Result cat(const char* path, char** out_buf, size_t* out_size) {
+Result cat(const char *path, char **out_buf, size_t *out_size) {
     if (!path || !out_buf || !out_size) {
         return ERR_INVALID_PATH;
     }
@@ -36,7 +36,7 @@ Result cat(const char* path, char** out_buf, size_t* out_size) {
         return ERR_EMPTY;
     }
 
-    char* buf = (char*)malloc(st.st_size + 1);
+    char *buf = (char *)malloc(st.st_size + 1);
     if (!buf) {
         close(fd);
         return ERR_IO;

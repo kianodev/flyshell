@@ -3,15 +3,15 @@
 #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
+#include "../shared/dir_types.h"
+#include "../shared/native_errors.h"
 #include <dirent.h>
-#include <sys/stat.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include "../shared/native_errors.h"
-#include "../shared/dir_types.h"
+#include <sys/stat.h>
 
-Result list_dir(const char* path, DirList* out_list) {
+Result list_dir(const char *path, DirList *out_list) {
     if (!path || path[0] == '\0' || !out_list) {
         return ERR_INVALID_PATH;
     }
@@ -19,19 +19,19 @@ Result list_dir(const char* path, DirList* out_list) {
     out_list->entries = NULL;
     out_list->count = 0;
 
-    DIR* dir = opendir(path);
+    DIR *dir = opendir(path);
     if (!dir) {
         return map_posix_errno(errno);
     }
 
     size_t capacity = 16;
-    out_list->entries = (DirEntry*)malloc(capacity * sizeof(DirEntry));
+    out_list->entries = (DirEntry *)malloc(capacity * sizeof(DirEntry));
     if (!out_list->entries) {
         closedir(dir);
         return ERR_IO;
     }
 
-    struct dirent* entry;
+    struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
@@ -39,7 +39,7 @@ Result list_dir(const char* path, DirList* out_list) {
 
         if (out_list->count >= capacity) {
             capacity *= 2;
-            DirEntry* resized = (DirEntry*)realloc(out_list->entries, capacity * sizeof(DirEntry));
+            DirEntry *resized = (DirEntry *)realloc(out_list->entries, capacity * sizeof(DirEntry));
             if (!resized) {
                 closedir(dir);
                 free_dir_list(out_list);

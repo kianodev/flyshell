@@ -31,52 +31,76 @@ typedef enum {
 
 static inline Result map_posix_errno(int err) {
     switch (err) {
-        case 0: return SUCCESS;
-        case ENOENT: return ERR_NOT_FOUND;
-        case EACCES:
-        case EPERM: return ERR_PERMISSION;
-        case EISDIR: return ERR_IS_DIR;
-        case ENOTDIR: return ERR_NOT_DIR;
-        case EEXIST: return ERR_EXISTS;
-        case ENOTEMPTY: return ERR_NOT_EMPTY;
-        case EXDEV: return ERR_XDEV;
-        case EBUSY: return ERR_BUSY;
-        case ENOSPC:
+    case 0:
+        return SUCCESS;
+    case ENOENT:
+        return ERR_NOT_FOUND;
+    case EACCES:
+    case EPERM:
+        return ERR_PERMISSION;
+    case EISDIR:
+        return ERR_IS_DIR;
+    case ENOTDIR:
+        return ERR_NOT_DIR;
+    case EEXIST:
+        return ERR_EXISTS;
+    case ENOTEMPTY:
+        return ERR_NOT_EMPTY;
+    case EXDEV:
+        return ERR_XDEV;
+    case EBUSY:
+        return ERR_BUSY;
+    case ENOSPC:
 #ifdef EDQUOT
-        case EDQUOT:
+    case EDQUOT:
 #endif
-            return ERR_NO_SPACE;
-        case EINVAL:
-        case ENAMETOOLONG: return ERR_INVALID_PATH;
-        case EIO: return ERR_IO;
-        default: return ERR_UNKNOWN;
+        return ERR_NO_SPACE;
+    case EINVAL:
+    case ENAMETOOLONG:
+        return ERR_INVALID_PATH;
+    case EIO:
+        return ERR_IO;
+    default:
+        return ERR_UNKNOWN;
     }
 }
 
 #ifdef _WIN32
 static inline Result map_win32_error(DWORD err) {
     switch (err) {
-        case ERROR_SUCCESS: return SUCCESS;
-        case ERROR_FILE_NOT_FOUND:
-        case ERROR_PATH_NOT_FOUND: return ERR_NOT_FOUND;
-        case ERROR_ACCESS_DENIED: return ERR_PERMISSION;
-        case ERROR_DIRECTORY: return ERR_NOT_DIR;
-        case ERROR_ALREADY_EXISTS:
-        case ERROR_FILE_EXISTS: return ERR_EXISTS;
-        case ERROR_DIR_NOT_EMPTY: return ERR_NOT_EMPTY;
-        case ERROR_NOT_SAME_DEVICE: return ERR_XDEV;
-        case ERROR_SHARING_VIOLATION:
-        case ERROR_LOCK_VIOLATION:
-        case ERROR_BUSY: return ERR_BUSY;
-        case ERROR_DISK_FULL:
-        case ERROR_HANDLE_DISK_FULL: return ERR_NO_SPACE;
-        case ERROR_INVALID_NAME:
-        case ERROR_FILENAME_EXCED_RANGE:
-        case ERROR_BAD_PATHNAME: return ERR_INVALID_PATH;
-        case ERROR_READ_FAULT:
-        case ERROR_WRITE_FAULT:
-        case ERROR_IO_DEVICE: return ERR_IO;
-        default: return ERR_UNKNOWN;
+    case ERROR_SUCCESS:
+        return SUCCESS;
+    case ERROR_FILE_NOT_FOUND:
+    case ERROR_PATH_NOT_FOUND:
+        return ERR_NOT_FOUND;
+    case ERROR_ACCESS_DENIED:
+        return ERR_PERMISSION;
+    case ERROR_DIRECTORY:
+        return ERR_NOT_DIR;
+    case ERROR_ALREADY_EXISTS:
+    case ERROR_FILE_EXISTS:
+        return ERR_EXISTS;
+    case ERROR_DIR_NOT_EMPTY:
+        return ERR_NOT_EMPTY;
+    case ERROR_NOT_SAME_DEVICE:
+        return ERR_XDEV;
+    case ERROR_SHARING_VIOLATION:
+    case ERROR_LOCK_VIOLATION:
+    case ERROR_BUSY:
+        return ERR_BUSY;
+    case ERROR_DISK_FULL:
+    case ERROR_HANDLE_DISK_FULL:
+        return ERR_NO_SPACE;
+    case ERROR_INVALID_NAME:
+    case ERROR_FILENAME_EXCED_RANGE:
+    case ERROR_BAD_PATHNAME:
+        return ERR_INVALID_PATH;
+    case ERROR_READ_FAULT:
+    case ERROR_WRITE_FAULT:
+    case ERROR_IO_DEVICE:
+        return ERR_IO;
+    default:
+        return ERR_UNKNOWN;
     }
 }
 #endif

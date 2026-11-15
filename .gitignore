@@ -55,3 +55,4 @@ src/flyshell/bin/*.so
 
 # Local development
 .dev/
+compile_commands.json

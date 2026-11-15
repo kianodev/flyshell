@@ -1,10 +1,10 @@
 // c_src/diskops/win32/touch.c
 
-#include <windows.h>
-#include <stdlib.h>
 #include "../shared/native_errors.h"
+#include <stdlib.h>
+#include <windows.h>
 
-Result touch(const char* path) {
+Result touch(const char *path) {
     if (!path || path[0] == '\0') {
         return ERR_INVALID_PATH;
     }
@@ -14,7 +14,7 @@ Result touch(const char* path) {
         return ERR_INVALID_PATH;
     }
 
-    wchar_t* wpath = (wchar_t*)malloc(wlen * sizeof(wchar_t));
+    wchar_t *wpath = (wchar_t *)malloc(wlen * sizeof(wchar_t));
     if (!wpath) {
         return ERR_IO;
     }
@@ -26,15 +26,9 @@ Result touch(const char* path) {
         return ERR_IS_DIR;
     }
 
-    HANDLE hFile = CreateFileW(
-        wpath,
-        FILE_WRITE_ATTRIBUTES,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL,
-        OPEN_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL
-    );
+    HANDLE hFile = CreateFileW(wpath, FILE_WRITE_ATTRIBUTES,
+                               FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                               OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (hFile == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();

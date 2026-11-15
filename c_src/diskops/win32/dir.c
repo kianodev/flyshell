@@ -1,13 +1,13 @@
 // c_src/diskops/win32/dir.c
 
-#include <windows.h>
+#include "../shared/dir_types.h"
+#include "../shared/native_errors.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../shared/native_errors.h"
-#include "../shared/dir_types.h"
+#include <windows.h>
 
-Result list_dir(const char* path, DirList* out_list) {
+Result list_dir(const char *path, DirList *out_list) {
     if (!path || path[0] == '\0' || !out_list) {
         return ERR_INVALID_PATH;
     }
@@ -25,7 +25,7 @@ Result list_dir(const char* path, DirList* out_list) {
     }
 
     size_t capacity = 16;
-    out_list->entries = (DirEntry*)malloc(capacity * sizeof(DirEntry));
+    out_list->entries = (DirEntry *)malloc(capacity * sizeof(DirEntry));
     if (!out_list->entries) {
         FindClose(h_find);
         return ERR_IO;
@@ -38,7 +38,7 @@ Result list_dir(const char* path, DirList* out_list) {
 
         if (out_list->count >= capacity) {
             capacity *= 2;
-            DirEntry* resized = (DirEntry*)realloc(out_list->entries, capacity * sizeof(DirEntry));
+            DirEntry *resized = (DirEntry *)realloc(out_list->entries, capacity * sizeof(DirEntry));
             if (!resized) {
                 FindClose(h_find);
                 free_dir_list(out_list);

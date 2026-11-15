@@ -7,15 +7,15 @@
 #include <stddef.h>
 
 typedef struct {
-    char* name;
+    char *name;
     bool is_dir;
 } DirEntry;
 
 typedef struct {
-    DirEntry* entries;
+    DirEntry *entries;
     size_t count;
 } DirList;
 
-void free_dir_list(DirList* list);
+void free_dir_list(DirList *list);
 
 #endif /* DIR_TYPES_H */

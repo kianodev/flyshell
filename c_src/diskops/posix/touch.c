@@ -3,13 +3,13 @@
 #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
+#include "../shared/native_errors.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <errno.h>
-#include "../shared/native_errors.h"
 
-Result touch(const char* path) {
+Result touch(const char *path) {
     if (!path || path[0] == '\0') {
         return ERR_INVALID_PATH;
     }

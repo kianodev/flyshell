@@ -1,10 +1,10 @@
 // c_src/diskops/win32/cat.c
 
-#include <windows.h>
-#include <stdlib.h>
 #include "../shared/native_errors.h"
+#include <stdlib.h>
+#include <windows.h>
 
-Result cat(const char* path, char** out_buf, size_t* out_size) {
+Result cat(const char *path, char **out_buf, size_t *out_size) {
     if (!path || !out_buf || !out_size) {
         return ERR_INVALID_PATH;
     }
@@ -16,21 +16,15 @@ Result cat(const char* path, char** out_buf, size_t* out_size) {
         return ERR_INVALID_PATH;
     }
 
-    wchar_t* wpath = (wchar_t*)malloc(wlen * sizeof(wchar_t));
+    wchar_t *wpath = (wchar_t *)malloc(wlen * sizeof(wchar_t));
     if (!wpath) {
         return ERR_IO;
     }
     MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, wlen);
 
-    HANDLE hFile = CreateFileW(
-        wpath,
-        GENERIC_READ,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL
-    );
+    HANDLE hFile =
+        CreateFileW(wpath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                    NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (hFile == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
@@ -58,7 +52,7 @@ Result cat(const char* path, char** out_buf, size_t* out_size) {
         return ERR_EMPTY;
     }
 
-    char* buf = (char*)malloc(size.QuadPart + 1);
+    char *buf = (char *)malloc(size.QuadPart + 1);
     if (!buf) {
         CloseHandle(hFile);
         return ERR_IO;
