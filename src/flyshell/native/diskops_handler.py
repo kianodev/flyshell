@@ -1,5 +1,6 @@
 # src/flyshell/native/diskops_handler.py
 
+from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.native import diskops_bridge as bridge
 from flyshell.native.legacy import diskops as legacy
@@ -116,6 +117,48 @@ class MkDir(BaseCmd):
                 )
             return bridge.translate_error(code, raw_target)
         return (0, f"\nSUCCESS! Created directory '{raw_target}'\n")
+
+
+class Rename(BaseCmd):
+    name = "rename"
+    description = "Rename a file or directory"
+    min_args = 2
+    options = "Old name, then new name"
+    aliases = []
+
+    def execute(self, args):
+        raw_src = args[0].strip("\"'")
+        raw_new_name = args[1].strip("\"'")
+        if raw_new_name in (".", "..") or "/" in raw_new_name or "\\" in raw_new_name:
+            return (1, "\nCommand Error: Invalid file name.\n")
+        src_path = Path(raw_src).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Target '{raw_src}' not found.\n")
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if src_path == protected or src_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Target '{raw_src}' contains or belongs to Flyshell system files.\n",
+                )
+        new_path = src_path.parent / raw_new_name
+        if new_path.exists():
+            return (
+                1,
+                f"\nSystem Error: An item named '{raw_new_name}' already exists in this folder.\n",
+            )
+        if bridge.has_native_support() and hasattr(bridge._native, "rename"):
+            code, _ = bridge._native.rename(str(src_path), str(new_path))
+        else:
+            code, _ = legacy.lgc_rename(src_path, new_path)
+        if code != 0:
+            return bridge.translate_error(code, raw_src)
+        return (0, f"\nSUCCESS! Renamed '{src_path.name}' -> '{new_path.name}'\n")
 
 
 class Touch(BaseCmd):

@@ -73,6 +73,26 @@ def lgc_mkdir(target_path: Path, parents: bool = False) -> tuple[int, str]:
         return (-99, "")  # ERR_UNKNOWN
 
 
+def lgc_rename(src_path: Path, dst_path: Path) -> tuple[int, str]:
+    if not src_path.exists():
+        return (-1, "")  # ERR_NOT_FOUND
+    if src_path == dst_path:
+        return (-7, "")  # ERR_SAME_FILE
+    if dst_path.exists():
+        return (-5, "")  # ERR_EXISTS
+    try:
+        src_path.rename(dst_path)
+        return (0, "")  # SUCCESS
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError as e:
+        if getattr(e, "errno", None) == 18:
+            return (-10, "")  # ERR_XDEV
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
 def lgc_touch(target_path: Path) -> tuple[int, str]:
     if target_path.is_dir():
         return (-3, "")  # ERR_IS_DIR

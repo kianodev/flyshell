@@ -3,16 +3,6 @@
 from flyshell.builtin import diskops
 
 
-def test_rename_file(tmp_path):
-    src = tmp_path / "old.txt"
-    src.write_text("data")
-    cmd = diskops.Rename()
-    code, msg = cmd.execute([str(src), "new.txt"])
-    assert code == 0
-    assert not src.exists()
-    assert (tmp_path / "new.txt").exists()
-
-
 def test_copy_file_and_directory(tmp_path):
     src_file = tmp_path / "source.txt"
     src_file.write_text("payload")

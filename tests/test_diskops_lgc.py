@@ -12,6 +12,18 @@ def force_legacy_backend(monkeypatch):
     monkeypatch.setattr(bridge, "has_native_support", lambda: False)
 
 
+def test_legacy_rename_file_and_errors(tmp_path):
+    src = tmp_path / "legacy_old.txt"
+    src.write_text("hello", encoding="utf-8")
+    cmd = handler.Rename()
+    exit_code, msg = cmd.execute([str(src), "legacy_new.txt"])
+    assert exit_code == 0
+    assert not src.exists()
+    assert (tmp_path / "legacy_new.txt").exists()
+    code, _ = legacy.lgc_rename(tmp_path / "missing.txt", tmp_path / "dst.txt")
+    assert code == -1  # ERR_NOT_FOUND
+
+
 def test_legacy_cat_reads_content_with_limit_and_numbers(tmp_path):
     file_path = tmp_path / "sample.txt"
     file_path.write_text("line 1\nline 2\nline 3\nline 4\n", encoding="utf-8")

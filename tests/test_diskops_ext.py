@@ -114,6 +114,39 @@ def test_native_touch_errors(tmp_path):
     assert "Target is a directory, not a file" in msg
 
 
+def test_native_rename_file_and_directory(tmp_path):
+    src = tmp_path / "old_name.txt"
+    src.write_text("payload", encoding="utf-8")
+    cmd = handler.Rename()
+    exit_code, msg = cmd.execute([str(src), "new_name.txt"])
+    assert exit_code == 0
+    assert "Renamed 'old_name.txt' -> 'new_name.txt'" in msg
+    assert not src.exists()
+    assert (tmp_path / "new_name.txt").read_text(encoding="utf-8") == "payload"
+    src_dir = tmp_path / "old_dir"
+    src_dir.mkdir()
+    exit_code, msg = cmd.execute([str(src_dir), "new_dir"])
+    assert exit_code == 0
+    assert not src_dir.exists()
+    assert (tmp_path / "new_dir").is_dir()
+
+
+def test_native_rename_errors(tmp_path):
+    cmd = handler.Rename()
+    exit_code, msg = cmd.execute([str(tmp_path / "ghost.txt"), "other.txt"])
+    assert exit_code == 1
+    assert "not found" in msg
+    a = tmp_path / "a.txt"
+    b = tmp_path / "b.txt"
+    a.write_text("1", encoding="utf-8")
+    b.write_text("2", encoding="utf-8")
+    code, _ = bridge._native.rename(str(a), str(b))
+    assert code == -5  # ERR_EXISTS
+    exit_code, msg = cmd.execute([str(a), "../escape.txt"])
+    assert exit_code == 1
+    assert "Invalid file name" in msg
+
+
 def test_native_unicode_paths(tmp_path):
     unicode_dir = tmp_path / "dir_日本語"
     code, _ = bridge._native.mkdir(str(unicode_dir), False)

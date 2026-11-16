@@ -70,7 +70,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     system.OpenFile(),
     pkg.Pkg(),
     utils.Reboot(),
-    diskops_legacy.Rename(),
+    diskops.Rename(),
     diskops_legacy.Rm(),
     diskops_legacy.RmDir(),
     utils.Sleep(),
