@@ -11,10 +11,12 @@ sources = [
 if sys.platform == "win32":
     sources.append("c_src/diskops/win32/cat.c")
     sources.append("c_src/diskops/win32/dir.c")
+    sources.append("c_src/diskops/win32/mkdir.c")
     sources.append("c_src/diskops/win32/touch.c")
 else:
     sources.append("c_src/diskops/posix/cat.c")
     sources.append("c_src/diskops/posix/dir.c")
+    sources.append("c_src/diskops/posix/mkdir.c")
     sources.append("c_src/diskops/posix/touch.c")
 
 native_diskops = Extension(

@@ -3,21 +3,6 @@
 from flyshell.builtin import diskops
 
 
-def test_mkdir_standard_and_parents(tmp_path):
-    cmd = diskops.MkDir()
-    target = tmp_path / "new_folder"
-    code, msg = cmd.execute([str(target)])
-    assert code == 0
-    assert target.is_dir()
-    code, msg = cmd.execute([str(target)])
-    assert code == 1
-    assert "already exists" in msg
-    nested = tmp_path / "parent" / "child"
-    code, msg = cmd.execute(["-p", str(nested)])
-    assert code == 0
-    assert nested.is_dir()
-
-
 def test_rename_file(tmp_path):
     src = tmp_path / "old.txt"
     src.write_text("data")

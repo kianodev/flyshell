@@ -71,36 +71,6 @@ class Copy(BaseCmd):
             return (1, f"\nSystem Error: Failed to copy '{raw_src}' ({e})\n")
 
 
-class MkDir(BaseCmd):
-    name = "mkdir"
-    description = "Create a new directory from the current working directory"
-    min_args = 1
-    options = "Directory name"
-    aliases = ["md"]
-
-    def execute(self, args):
-        use_parents = ("-p" in args) or ("--parents" in args)
-        path_tokens = [arg for arg in args if arg not in ("-p", "--parents")]
-        target = " ".join(path_tokens).strip("\"'")
-        try:
-            if use_parents:
-                os.makedirs(target, exist_ok=True)
-            else:
-                os.mkdir(target)
-            return (0, f"\nSUCCESS! Created directory '{target}'\n")
-        except FileExistsError:
-            return (1, f"\nSystem Error: Directory '{target}' already exists.\n")
-        except FileNotFoundError:
-            return (
-                1,
-                "\nSystem Error: Parent directory does not exist. Use '-p' or '--parents' to create parent directories.\n",
-            )
-        except PermissionError:
-            return (1, f"\nSystem Error: Permission denied. Cannot create '{target}'\n")
-        except Exception as e:
-            return (1, f"\nSystem Error: Unable to create directory '{target}' ({e})\n")
-
-
 class Move(BaseCmd):
     name = "mv"
     description = "Move or relocate files and directories"

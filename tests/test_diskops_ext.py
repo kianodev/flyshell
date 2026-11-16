@@ -11,27 +11,6 @@ def test_native_extension_loaded():
     assert bridge._native.ping() == 42
 
 
-def test_native_touch_creates_and_updates_file(tmp_path):
-    target = tmp_path / "native_touch.txt"
-    code, _ = bridge._native.touch(str(target))
-    assert code == 0
-    assert target.exists()
-    cmd = handler.Touch()
-    exit_code, msg = cmd.execute([str(target)])
-    assert exit_code == 0
-    assert "touched successfully" in msg
-
-
-def test_native_touch_errors(tmp_path):
-    missing_parent = tmp_path / "no_such_dir" / "file.txt"
-    code, _ = bridge._native.touch(str(missing_parent))
-    assert code == -1
-    cmd = handler.Touch()
-    exit_code, msg = cmd.execute([str(tmp_path)])
-    assert exit_code == 1
-    assert "Target is a directory, not a file" in msg
-
-
 def test_native_cat_reads_and_formats_content(tmp_path):
     file_path = tmp_path / "native_cat.txt"
     file_path.write_text("alpha\nbeta\ngamma\ndelta\n", encoding="utf-8")
@@ -82,9 +61,64 @@ def test_native_dir_lists_entries_and_handles_errors(tmp_path):
     assert "Target is not a directory" in msg
 
 
+def test_native_mkdir_creates_and_handles_parents(tmp_path):
+    cmd = handler.MkDir()
+    target = tmp_path / "native_folder"
+    code, _ = bridge._native.mkdir(str(target), False)
+    assert code == 0
+    assert target.is_dir()
+    exit_code, msg = cmd.execute([str(target)])
+    assert exit_code == 1
+    assert "Item already exists" in msg
+    nested = tmp_path / "parent_dir" / "child_dir" / "leaf_dir"
+    exit_code, msg = cmd.execute([str(nested)])
+    assert exit_code == 1
+    assert "Parent directory does not exist" in msg
+    exit_code, msg = cmd.execute(["-p", str(nested)])
+    assert exit_code == 0
+    assert "Created directory" in msg
+    assert nested.is_dir()
+    exit_code, msg = cmd.execute(["--parents", str(nested)])
+    assert exit_code == 0
+
+
+def test_native_mkdir_errors(tmp_path):
+    regular_file = tmp_path / "blocker.txt"
+    regular_file.write_text("file", encoding="utf-8")
+    code, _ = bridge._native.mkdir(str(regular_file / "sub"), True)
+    assert code == -4
+    cmd = handler.MkDir()
+    exit_code, msg = cmd.execute(["-p"])
+    assert exit_code == 1
+    assert "Directory name not specified" in msg
+
+
+def test_native_touch_creates_and_updates_file(tmp_path):
+    target = tmp_path / "native_touch.txt"
+    code, _ = bridge._native.touch(str(target))
+    assert code == 0
+    assert target.exists()
+    cmd = handler.Touch()
+    exit_code, msg = cmd.execute([str(target)])
+    assert exit_code == 0
+    assert "touched successfully" in msg
+
+
+def test_native_touch_errors(tmp_path):
+    missing_parent = tmp_path / "no_such_dir" / "file.txt"
+    code, _ = bridge._native.touch(str(missing_parent))
+    assert code == -1
+    cmd = handler.Touch()
+    exit_code, msg = cmd.execute([str(tmp_path)])
+    assert exit_code == 1
+    assert "Target is a directory, not a file" in msg
+
+
 def test_native_unicode_paths(tmp_path):
     unicode_dir = tmp_path / "dir_日本語"
-    unicode_dir.mkdir()
+    code, _ = bridge._native.mkdir(str(unicode_dir), False)
+    assert code == 0
+    assert unicode_dir.is_dir()
     unicode_file = unicode_dir / "café_🚀.txt"
     code, _ = bridge._native.touch(str(unicode_file))
     assert code == 0

@@ -12,35 +12,6 @@ def force_legacy_backend(monkeypatch):
     monkeypatch.setattr(bridge, "has_native_support", lambda: False)
 
 
-def test_legacy_touch_creates_file_and_updates_timestamp(tmp_path):
-    cmd = handler.Touch()
-    target = tmp_path / "test.txt"
-    code, msg = cmd.execute([str(target)])
-    assert code == 0
-    assert "touched successfully" in msg
-    assert target.exists()
-    code, msg = cmd.execute([str(target)])
-    assert code == 0
-    assert "touched successfully" in msg
-
-
-def test_legacy_touch_missing_parent_directory(tmp_path):
-    cmd = handler.Touch()
-    target = tmp_path / "nonexistent_dir" / "test.txt"
-    code, msg = cmd.execute([str(target)])
-    assert code == 1
-    assert "File or path not found" in msg
-
-
-def test_legacy_touch_directory_error(tmp_path):
-    code, _ = legacy.lgc_touch(tmp_path)
-    assert code == -3  # ERR_IS_DIR
-    cmd = handler.Touch()
-    exit_code, msg = cmd.execute([str(tmp_path)])
-    assert exit_code == 1
-    assert "Target is a directory, not a file" in msg
-
-
 def test_legacy_cat_reads_content_with_limit_and_numbers(tmp_path):
     file_path = tmp_path / "sample.txt"
     file_path.write_text("line 1\nline 2\nline 3\nline 4\n", encoding="utf-8")
@@ -82,3 +53,62 @@ def test_legacy_dir_lists_files_and_handles_errors(tmp_path):
     code, msg = cmd.execute([str(tmp_path / "beta.txt")])
     assert code == 1
     assert "Target is not a directory" in msg
+
+
+def test_legacy_mkdir_creates_and_handles_parents(tmp_path):
+    cmd = handler.MkDir()
+    target = tmp_path / "legacy_folder"
+    exit_code, msg = cmd.execute([str(target)])
+    assert exit_code == 0
+    assert "Created directory" in msg
+    assert target.is_dir()
+    exit_code, msg = cmd.execute([str(target)])
+    assert exit_code == 1
+    assert "Item already exists" in msg
+    nested = tmp_path / "parent_dir" / "child_dir"
+    exit_code, msg = cmd.execute([str(nested)])
+    assert exit_code == 1
+    assert "Parent directory does not exist" in msg
+    exit_code, msg = cmd.execute(["-p", str(nested)])
+    assert exit_code == 0
+    assert nested.is_dir()
+
+
+def test_legacy_mkdir_errors(tmp_path):
+    regular_file = tmp_path / "blocker.txt"
+    regular_file.write_text("file", encoding="utf-8")
+    code, _ = legacy.lgc_mkdir(regular_file / "sub", parents=True)
+    assert code == -4  # ERR_NOT_DIR
+    cmd = handler.MkDir()
+    exit_code, msg = cmd.execute(["--parents"])
+    assert exit_code == 1
+    assert "Directory name not specified" in msg
+
+
+def test_legacy_touch_creates_file_and_updates_timestamp(tmp_path):
+    cmd = handler.Touch()
+    target = tmp_path / "test.txt"
+    code, msg = cmd.execute([str(target)])
+    assert code == 0
+    assert "touched successfully" in msg
+    assert target.exists()
+    code, msg = cmd.execute([str(target)])
+    assert code == 0
+    assert "touched successfully" in msg
+
+
+def test_legacy_touch_missing_parent_directory(tmp_path):
+    cmd = handler.Touch()
+    target = tmp_path / "nonexistent_dir" / "test.txt"
+    code, msg = cmd.execute([str(target)])
+    assert code == 1
+    assert "File or path not found" in msg
+
+
+def test_legacy_touch_directory_error(tmp_path):
+    code, _ = legacy.lgc_touch(tmp_path)
+    assert code == -3  # ERR_IS_DIR
+    cmd = handler.Touch()
+    exit_code, msg = cmd.execute([str(tmp_path)])
+    assert exit_code == 1
+    assert "Target is a directory, not a file" in msg

@@ -11,6 +11,8 @@ Result touch(const char *path);
 
 Result list_dir(const char *path, DirList *out_list);
 
+Result make_dir(const char *path, bool parents);
+
 static PyObject *method_ping(PyObject *self, PyObject *args) {
     return PyLong_FromLong(42);
 }
@@ -86,11 +88,23 @@ static PyObject *method_dir(PyObject *self, PyObject *args) {
     return Py_BuildValue("(iN)", (int)SUCCESS, py_list);
 }
 
+static PyObject *method_mkdir(PyObject *self, PyObject *args) {
+    const char *path;
+    int parents = 0;
+    if (!PyArg_ParseTuple(args, "s|p", &path, &parents)) {
+        return NULL;
+    }
+
+    Result res = make_dir(path, parents != 0);
+    return Py_BuildValue("(is)", (int)res, "");
+}
+
 static PyMethodDef DiskopsMethods[] = {
     {"ping", method_ping, METH_NOARGS, "Health check ping."},
     {"cat", method_cat, METH_VARARGS, "Read file content natively."},
     {"touch", method_touch, METH_VARARGS, "Touch or create file natively."},
     {"dir", method_dir, METH_VARARGS, "List directory contents natively."},
+    {"mkdir", method_mkdir, METH_VARARGS, "Create directory natively."},
     {NULL, NULL, 0, NULL},
 };
 

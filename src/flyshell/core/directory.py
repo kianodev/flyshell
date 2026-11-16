@@ -65,7 +65,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     utils.History(),
     utils.Kill(),
     auth.Lock(),
-    diskops_legacy.MkDir(),
+    diskops.MkDir(),
     diskops_legacy.Move(),
     system.OpenFile(),
     pkg.Pkg(),

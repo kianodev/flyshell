@@ -47,6 +47,32 @@ def lgc_dir(target_path: Path) -> tuple[int, list[tuple[str, bool]]]:
         return (-99, [])  # ERR_UNKNOWN
 
 
+def lgc_mkdir(target_path: Path, parents: bool = False) -> tuple[int, str]:
+    try:
+        if parents:
+            os.makedirs(target_path, exist_ok=True)
+        else:
+            os.mkdir(target_path)
+        return (0, "")  # SUCCESS
+    except FileExistsError:
+        return (-5, "")  # ERR_EXISTS
+    except NotADirectoryError:
+        return (-4, "")  # ERR_NOT_DIR
+    except FileNotFoundError:
+        for parent in target_path.parents:
+            if parent.exists() and not parent.is_dir():
+                return (-4, "")  # ERR_NOT_DIR
+        return (-1, "")  # ERR_NOT_FOUND
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError as e:
+        if getattr(e, "errno", None) == 28:
+            return (-12, "")  # ERR_NO_SPACE
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
 def lgc_touch(target_path: Path) -> tuple[int, str]:
     if target_path.is_dir():
         return (-3, "")  # ERR_IS_DIR

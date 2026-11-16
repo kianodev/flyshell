@@ -90,6 +90,34 @@ class Dir(BaseCmd):
         return (0, "\n".join(lines))
 
 
+class MkDir(BaseCmd):
+    name = "mkdir"
+    description = "Create a new directory from the current working directory"
+    min_args = 1
+    options = "Directory name"
+    aliases = ["md"]
+
+    def execute(self, args):
+        use_parents = ("-p" in args) or ("--parents" in args)
+        path_tokens = [arg for arg in args if arg not in ("-p", "--parents")]
+        if not path_tokens:
+            return (1, "\nCommand Error: Directory name not specified.\n")
+        raw_target = " ".join(path_tokens).strip("\"'")
+        target_path = Path(raw_target).expanduser()
+        if bridge.has_native_support() and hasattr(bridge._native, "mkdir"):
+            code, _ = bridge._native.mkdir(str(target_path), use_parents)
+        else:
+            code, _ = legacy.lgc_mkdir(target_path, use_parents)
+        if code != 0:
+            if code == -1 and not use_parents:
+                return (
+                    1,
+                    "\nSystem Error: Parent directory does not exist. Use '-p' or '--parents' to create parent directories.\n",
+                )
+            return bridge.translate_error(code, raw_target)
+        return (0, f"\nSUCCESS! Created directory '{raw_target}'\n")
+
+
 class Touch(BaseCmd):
     name = "touch"
     description = "Create an empty file or update existing file timestamps"
