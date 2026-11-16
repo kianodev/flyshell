@@ -12,6 +12,23 @@ def force_legacy_backend(monkeypatch):
     monkeypatch.setattr(bridge, "has_native_support", lambda: False)
 
 
+def test_legacy_rm_file_and_recursive_dir(tmp_path):
+    cmd = handler.Rm()
+    target_file = tmp_path / "lgc_del.txt"
+    target_file.write_text("bye", encoding="utf-8")
+    exit_code, msg = cmd.execute(["-f", str(target_file)])
+    assert exit_code == 0
+    assert not target_file.exists()
+    target_dir = tmp_path / "lgc_dir"
+    target_dir.mkdir()
+    (target_dir / "a.txt").write_text("1", encoding="utf-8")
+    code, _ = legacy.lgc_rm(target_dir, recursive=False)
+    assert code == -3  # ERR_IS_DIR
+    exit_code, msg = cmd.execute(["-f", "-r", str(target_dir)])
+    assert exit_code == 0
+    assert not target_dir.exists()
+
+
 def test_legacy_rmdir_empty_and_force(tmp_path):
     cmd = handler.RmDir()
     non_empty = tmp_path / "legacy_full"

@@ -94,6 +94,26 @@ def lgc_rename(src_path: Path, dst_path: Path) -> tuple[int, str]:
         return (-99, "")  # ERR_UNKNOWN
 
 
+def lgc_rm(target_path: Path, recursive: bool = False) -> tuple[int, str]:
+    if not target_path.exists() and not target_path.is_symlink():
+        return (-1, "")  # ERR_NOT_FOUND
+    is_dir = target_path.is_dir() and not target_path.is_symlink()
+    if is_dir and not recursive:
+        return (-3, "")  # ERR_IS_DIR
+    try:
+        if is_dir:
+            shutil.rmtree(target_path)
+        else:
+            os.remove(target_path)
+        return (0, "")  # SUCCESS
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError:
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
 def lgc_rmdir(target_path: Path, force: bool = False) -> tuple[int, str]:
     if not target_path.exists():
         return (-1, "")  # ERR_NOT_FOUND

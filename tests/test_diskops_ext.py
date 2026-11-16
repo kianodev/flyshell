@@ -11,6 +11,38 @@ def test_native_extension_loaded():
     assert bridge._native.ping() == 42
 
 
+def test_native_rm_file_and_recursive_dir(tmp_path):
+    cmd = handler.Rm()
+    target_file = tmp_path / "delete_me.txt"
+    target_file.write_text("bye", encoding="utf-8")
+    exit_code, msg = cmd.execute(["-f", str(target_file)])
+    assert exit_code == 0
+    assert "Deleted file" in msg
+    assert not target_file.exists()
+    target_dir = tmp_path / "sub_tree"
+    (target_dir / "nested").mkdir(parents=True)
+    (target_dir / "nested" / "file.txt").write_text("x", encoding="utf-8")
+    exit_code, msg = cmd.execute(["-f", str(target_dir)])
+    assert exit_code == 1
+    assert "is a directory" in msg
+    assert target_dir.exists()
+    exit_code, msg = cmd.execute(["-f", "-r", str(target_dir)])
+    assert exit_code == 0
+    assert "Deleted directory" in msg
+    assert not target_dir.exists()
+
+
+def test_native_rm_errors(tmp_path):
+    cmd = handler.Rm()
+    exit_code, msg = cmd.execute(["-f", str(tmp_path / "missing.txt")])
+    assert exit_code == 1
+    assert "not found" in msg
+    sub_dir = tmp_path / "dir_only"
+    sub_dir.mkdir()
+    code, _ = bridge._native.rm(str(sub_dir), False)
+    assert code == -3  # ERR_IS_DIR
+
+
 def test_native_rmdir_empty_and_force(tmp_path):
     cmd = handler.RmDir()
     empty_dir = tmp_path / "empty_folder"

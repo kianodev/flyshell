@@ -13,6 +13,7 @@ if sys.platform == "win32":
     sources.append("c_src/diskops/win32/dir.c")
     sources.append("c_src/diskops/win32/mkdir.c")
     sources.append("c_src/diskops/win32/rename.c")
+    sources.append("c_src/diskops/win32/rm.c")
     sources.append("c_src/diskops/win32/rmdir.c")
     sources.append("c_src/diskops/win32/touch.c")
 else:
@@ -20,6 +21,7 @@ else:
     sources.append("c_src/diskops/posix/dir.c")
     sources.append("c_src/diskops/posix/mkdir.c")
     sources.append("c_src/diskops/posix/rename.c")
+    sources.append("c_src/diskops/posix/rm.c")
     sources.append("c_src/diskops/posix/rmdir.c")
     sources.append("c_src/diskops/posix/touch.c")
 
