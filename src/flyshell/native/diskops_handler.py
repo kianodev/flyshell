@@ -161,6 +161,90 @@ class Rename(BaseCmd):
         return (0, f"\nSUCCESS! Renamed '{src_path.name}' -> '{new_path.name}'\n")
 
 
+class RmDir(BaseCmd):
+    name = "rmdir"
+    description = "Remove the specified directory"
+    min_args = 1
+    options = "Target directory"
+    aliases = []
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        path_tokens = [arg for arg in args if arg not in ("-f", "--force")]
+        if not path_tokens:
+            return (1, "\nCommand Error: Target directory not specified.\n")
+        raw_target = " ".join(path_tokens).strip("\"'")
+        target_path = Path(raw_target).expanduser().resolve()
+        if not target_path.exists():
+            return (1, f"\nSystem Error: Target '{raw_target}' not found.\n")
+        if target_path == target_path.parent or str(target_path) == target_path.anchor:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked this action.\n"
+                "You cannot delete the root filesystem directory.\n",
+            )
+        critical_system_dirs = [
+            Path.home().parent.resolve(),
+            Path.home().resolve(),
+        ]
+        if c.HOST_OS == "Windows":
+            system_drive = os.environ.get("SystemDrive", "C:")
+            critical_system_dirs.extend(
+                [
+                    Path(f"{system_drive}\\Windows").resolve(),
+                    Path(f"{system_drive}\\Program Files").resolve(),
+                    Path(f"{system_drive}\\Program Files (x86)").resolve(),
+                ]
+            )
+        else:
+            critical_system_dirs.extend(
+                [
+                    Path("/bin").resolve(),
+                    Path("/etc").resolve(),
+                    Path("/usr").resolve(),
+                    Path("/var").resolve(),
+                ]
+            )
+        if target_path in critical_system_dirs:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked this action.\n"
+                f"Target '{raw_target}' is a protected operating system directory.\n",
+            )
+        if target_path == Path(os.getcwd()).resolve():
+            return (
+                1,
+                "\nSystem Error: Cannot remove current working directory.\n"
+                "Switch to a different directory using 'cd' first.\n",
+            )
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if target_path == protected or target_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Target '{raw_target}' contains or belongs to Flyshell system files.\n"
+                    "If you wish to delete Flyshell, use the host.\n",
+                )
+        if bridge.has_native_support() and hasattr(bridge._native, "rmdir"):
+            code, _ = bridge._native.rmdir(str(target_path), force)
+        else:
+            code, _ = legacy.lgc_rmdir(target_path, force)
+        if code != 0:
+            if code == -6 and not force:
+                return (
+                    1,
+                    f"\nDirectory Error: Directory '{raw_target}' is not empty.\n"
+                    "Use '-f' or '--force' to remove a non-empty directory and its contents.\n",
+                )
+            return bridge.translate_error(code, raw_target)
+        return (0, f"\nSUCCESS! Removed directory '{raw_target}'\n")
+
+
 class Touch(BaseCmd):
     name = "touch"
     description = "Create an empty file or update existing file timestamps"

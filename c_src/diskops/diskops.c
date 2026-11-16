@@ -15,6 +15,8 @@ Result make_dir(const char *path, bool parents);
 
 Result rename_item(const char *src, const char *dst);
 
+Result remove_dir(const char *path, bool force);
+
 static PyObject *method_ping(PyObject *self, PyObject *args) {
     return PyLong_FromLong(42);
 }
@@ -112,6 +114,17 @@ static PyObject *method_rename(PyObject *self, PyObject *args) {
     return Py_BuildValue("(is)", (int)res, "");
 }
 
+static PyObject *method_rmdir(PyObject *self, PyObject *args) {
+    const char *path;
+    int force = 0;
+    if (!PyArg_ParseTuple(args, "s|p", &path, &force)) {
+        return NULL;
+    }
+
+    Result res = remove_dir(path, force != 0);
+    return Py_BuildValue("(is)", (int)res, "");
+}
+
 static PyMethodDef DiskopsMethods[] = {
     {"ping", method_ping, METH_NOARGS, "Health check ping."},
     {"cat", method_cat, METH_VARARGS, "Read file content natively."},
@@ -119,6 +132,7 @@ static PyMethodDef DiskopsMethods[] = {
     {"dir", method_dir, METH_VARARGS, "List directory contents natively."},
     {"mkdir", method_mkdir, METH_VARARGS, "Create directory natively."},
     {"rename", method_rename, METH_VARARGS, "Rename file or directory natively."},
+    {"rmdir", method_rmdir, METH_VARARGS, "Remove directory natively."},
     {NULL, NULL, 0, NULL},
 };
 

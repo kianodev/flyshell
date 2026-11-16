@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import shutil
 
 
 def lgc_cat(target_path: Path) -> tuple[int, str]:
@@ -88,6 +89,30 @@ def lgc_rename(src_path: Path, dst_path: Path) -> tuple[int, str]:
     except OSError as e:
         if getattr(e, "errno", None) == 18:
             return (-10, "")  # ERR_XDEV
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
+def lgc_rmdir(target_path: Path, force: bool = False) -> tuple[int, str]:
+    if not target_path.exists():
+        return (-1, "")  # ERR_NOT_FOUND
+    if not target_path.is_dir():
+        return (-4, "")  # ERR_NOT_DIR
+    try:
+        has_contents = any(target_path.iterdir())
+        if has_contents and not force:
+            return (-6, "")  # ERR_NOT_EMPTY
+        if has_contents and force:
+            shutil.rmtree(target_path)
+        else:
+            os.rmdir(target_path)
+        return (0, "")  # SUCCESS
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError as e:
+        if getattr(e, "errno", None) in (39, 66, 145):
+            return (-6, "")  # ERR_NOT_EMPTY
         return (-13, "")  # ERR_IO
     except Exception:
         return (-99, "")  # ERR_UNKNOWN

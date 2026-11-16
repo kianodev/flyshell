@@ -11,6 +11,38 @@ def test_native_extension_loaded():
     assert bridge._native.ping() == 42
 
 
+def test_native_rmdir_empty_and_force(tmp_path):
+    cmd = handler.RmDir()
+    empty_dir = tmp_path / "empty_folder"
+    empty_dir.mkdir()
+    exit_code, msg = cmd.execute([str(empty_dir)])
+    assert exit_code == 0
+    assert "Removed directory" in msg
+    assert not empty_dir.exists()
+    non_empty = tmp_path / "full_folder"
+    nested = non_empty / "sub_folder"
+    nested.mkdir(parents=True)
+    (nested / "item.txt").write_text("data", encoding="utf-8")
+    exit_code, msg = cmd.execute([str(non_empty)])
+    assert exit_code == 1
+    assert "not empty" in msg
+    assert non_empty.exists()
+    exit_code, msg = cmd.execute(["-f", str(non_empty)])
+    assert exit_code == 0
+    assert not non_empty.exists()
+
+
+def test_native_rmdir_errors(tmp_path):
+    regular_file = tmp_path / "not_a_dir.txt"
+    regular_file.write_text("hello", encoding="utf-8")
+    code, _ = bridge._native.rmdir(str(regular_file), False)
+    assert code == -4  # ERR_NOT_DIR
+    cmd = handler.RmDir()
+    exit_code, msg = cmd.execute([str(tmp_path / "missing_folder")])
+    assert exit_code == 1
+    assert "not found" in msg
+
+
 def test_native_cat_reads_and_formats_content(tmp_path):
     file_path = tmp_path / "native_cat.txt"
     file_path.write_text("alpha\nbeta\ngamma\ndelta\n", encoding="utf-8")

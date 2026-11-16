@@ -35,16 +35,3 @@ def test_rm_file_and_directory_recursive(tmp_path):
     code, msg = cmd.execute(["-f", "-r", str(target_dir)])
     assert code == 0
     assert not target_dir.exists()
-
-
-def test_rmdir_empty_and_non_empty(tmp_path):
-    target_dir = tmp_path / "removable"
-    target_dir.mkdir()
-    cmd = diskops.RmDir()
-    (target_dir / "file.txt").write_text("data")
-    code, msg = cmd.execute([str(target_dir)])
-    assert code == 1
-    assert "not empty" in msg
-    code, msg = cmd.execute(["-f", str(target_dir)])
-    assert code == 0
-    assert not target_dir.exists()
