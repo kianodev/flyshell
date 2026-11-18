@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/publish.yml/badge.svg)
 
-> Documentation last updated: v1.4.10
+> Documentation last updated: v1.5.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -21,7 +21,7 @@ No extra packages required, just install and enjoy!
 3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 600,000 iterations) with constant-time equality comparisons to prevent timing attacks on password information.
 4. **Cross-Platform Support**: Flyshell is fully supported by Windows (NT), macOS (Darwin) and Linux installations with native OS management and POSIX-aware parsing. Note that Flyshell is **not** supported by any other systems.
 5. **State and History Persistence**: Flyshell has a fully encapsulated SQL storage system using SQLite3 providing session metrics and ISO 8601 UTC audit logging.
-6. **Automatic C-Extension Compilation**: If installed via `pip`, Flyshell is distributed with more than 20 wheels suitable for most builds of popular operating systems.
+6. **Automatic C-Extension Compilation**: If installed via `pip` on Windows or Linux, Flyshell is shipped with pre-compiled wheels. For macOS users, Xcode CLI tools is required as macOS builds install from source.
 
 ## System Requirements
 
@@ -45,7 +45,6 @@ src/
     │   └── __init__.py
     ├── builtin/
     │   ├── __init__.py
-    │   ├── diskops.py
     │   ├── fs.py
     │   ├── pkg.py
     │   ├── system.py
@@ -102,15 +101,10 @@ Clone the GitHub repository:
 git clone https://github.com/kianodev/flyshell.git
 ```
 
-Switch to the Flyshell directory and install in editable mode:
+Switch to the Flyshell directory and install in editable mode compiling the C-binaries:
 ```bash
 cd flyshell
-pip install -e .
-```
-
-Flyshell now uses C-binaries, you must compile these:
-```bash
-python setup.py build_ext --inplace
+python -m pip install -e .
 ```
 
 After this, you can simply run Flyshell:
@@ -199,7 +193,7 @@ Additional functions are available for you to use:
 2. `set_data(key, value)`: Updates a key in local memory and automatically persists it to SQLite via `save_storage()`.
 3. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
 4. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
-5. `get_api_key(self, default=None)`: Fetches the specified API key from `flyshell_keys.env`.
+5. `get_api_key(key, default=None)`: Fetches the specified API key from `flyshell_keys.env`.
 
 Plugins save automatically on shut-down.
 

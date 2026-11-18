@@ -1,6 +1,6 @@
 # Flyshell Project Structure
 
-> Documentation last updated: v1.4.5
+> Documentation last updated: v1.5.0
 
 This document provides a comprehensive view of the entire Flyshell repository tree, including development workflows, documentation, source packages, tests, and configuration assets.
 
@@ -13,7 +13,6 @@ flyshell/
 ├── .github/
 │   └── workflows/
 │       ├── black.yml
-│       ├── build.yml
 │       ├── clang_format.yml
 │       ├── clang_tidy.yml
 │       ├── flake8.yml
@@ -22,7 +21,13 @@ flyshell/
 │   └── diskops/
 │       ├── posix/
 │       │   ├── cat.c
+│       │   ├── cp.c
 │       │   ├── dir.c
+│       │   ├── mkdir.c
+│       │   ├── mv.c
+│       │   ├── rename.c
+│       │   ├── rm.c
+│       │   ├── rmdir.c
 │       │   └── touch.c
 │       ├── shared/
 │       │   ├── dir_types.c
@@ -31,7 +36,13 @@ flyshell/
 │       │   └── win32_utf.h
 │       ├── win32/
 │       │   ├── cat.c
+│       │   ├── cp.c
 │       │   ├── dir.c
+│       │   ├── mkdir.c
+│       │   ├── mv.c
+│       │   ├── rename.c
+│       │   ├── rm.c
+│       │   ├── rmdir.c
 │       │   └── touch.c
 │       └── diskops.c
 ├── docs/
@@ -40,7 +51,8 @@ flyshell/
 │   │   ├── v1.1_release_notes.md
 │   │   ├── v1.2_release_notes.md
 │   │   ├── v1.3_release_notes.md
-│   │   └── v1.4_release_notes.md
+│   │   ├── v1.4_release_notes.md
+│   │   └── v1.5_release_notes.md
 │   ├── CHANGELOG.md
 │   └── project_structure.md
 ├── src/
@@ -57,7 +69,6 @@ flyshell/
 │       │   └── __init__.py
 │       ├── builtin/
 │       │   ├── __init__.py
-│       │   ├── diskops.py
 │       │   ├── fs.py
 │       │   ├── pkg.py
 │       │   ├── system.py
@@ -89,7 +100,6 @@ flyshell/
 │   ├── test_directory.py
 │   ├── test_diskops_ext.py
 │   ├── test_diskops_lgc.py
-│   ├── test_diskops_old.py
 │   ├── test_env.py
 │   ├── test_fs.py
 │   ├── test_loader.py

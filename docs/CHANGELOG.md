@@ -1,10 +1,27 @@
 # Flyshell Changelog
 
-> Documentation last updated: v1.4.0
+> Documentation last updated: v1.5.0
 
 ##  Release Notes
 
 The below section details all releases since v1.0.0 (12 October 2026).
+
+### Flyshell v1.5.0 - The C Extensions Expansion Update ⚙️
+
+> This update was released on 18 November 2026.
+
+Welcome to **Flyshell v1.5.0**! This release has completed Flyshell's first native compiled C-binary, converting the remaining 6 `diskops.py` operations to C.
+
+#### 🌟 What's New?
+
+Flyshell has been heavily refactored with a huge increase in the proportion of C code:
+* The remaining 6 `diskops.py` commands have been migrated to C
+* `cp`, `mkdir`, `mv`, `rename`, `rm` and `rmdir` have been fully implemented in the native extension
+* Python fallbacks have been added for native commands
+* Existing C commands have been refactored to make them more robust
+* UTF-16 wide APIs are now enforced properly on Win32 C compilations
+
+⚠️**Warning to macOS Users**: Due to increasingly strained GitHub CI resources, macOS wheels have been disabled on versions beginning **v1.4.10** until further notice. macOS users can still install via `pip` but will require Xcode CLI Tools.
 
 ### Flyshell v1.4.0 - The Native C Extensions Update ⚡
 
