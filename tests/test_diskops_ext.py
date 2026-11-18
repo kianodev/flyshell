@@ -11,6 +11,46 @@ def test_native_extension_loaded():
     assert bridge._native.ping() == 42
 
 
+def test_native_cp_file_and_directory(tmp_path):
+    cmd = handler.Copy()
+    src_file = tmp_path / "src.txt"
+    src_file.write_text("hello copy", encoding="utf-8")
+    dst_file = tmp_path / "dst.txt"
+    exit_code, msg = cmd.execute([str(src_file), str(dst_file)])
+    assert exit_code == 0
+    assert "Copied file" in msg
+    assert dst_file.read_text(encoding="utf-8") == "hello copy"
+    src_file.write_text("updated payload", encoding="utf-8")
+    exit_code, msg = cmd.execute(["-f", str(src_file), str(dst_file)])
+    assert exit_code == 0
+    assert dst_file.read_text(encoding="utf-8") == "updated payload"
+    src_dir = tmp_path / "tree_src"
+    (src_dir / "nested").mkdir(parents=True)
+    (src_dir / "nested" / "leaf.txt").write_text("leaf", encoding="utf-8")
+    dst_dir = tmp_path / "tree_dst"
+    exit_code, msg = cmd.execute([str(src_dir), str(dst_dir)])
+    assert exit_code == 0
+    assert "Copied directory" in msg
+    assert (dst_dir / "nested" / "leaf.txt").read_text(encoding="utf-8") == "leaf"
+
+
+def test_native_cp_errors(tmp_path):
+    cmd = handler.Copy()
+    exit_code, msg = cmd.execute(
+        [str(tmp_path / "missing.txt"), str(tmp_path / "out.txt")]
+    )
+    assert exit_code == 1
+    assert "not found" in msg
+    f1 = tmp_path / "same.txt"
+    f1.write_text("abc", encoding="utf-8")
+    code, _ = bridge._native.cp(str(f1), str(f1), True)
+    assert code == -7  # ERR_SAME_FILE
+    f2 = tmp_path / "other.txt"
+    f2.write_text("def", encoding="utf-8")
+    code, _ = bridge._native.cp(str(f1), str(f2), False)
+    assert code == -5  # ERR_EXISTS
+
+
 def test_native_rm_file_and_recursive_dir(tmp_path):
     cmd = handler.Rm()
     target_file = tmp_path / "delete_me.txt"

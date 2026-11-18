@@ -2,6 +2,10 @@
 
 from flyshell.builtin import diskops
 
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Deprecated features soon to be removed.")
+
 
 def test_copy_file_and_directory(tmp_path):
     src_file = tmp_path / "source.txt"

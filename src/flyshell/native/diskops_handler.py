@@ -124,6 +124,60 @@ class Cat(BaseCmd):
         return (0, "\n".join(output_lines))
 
 
+class Copy(BaseCmd):
+    name = "cp"
+    description = "Copy files or directories to a new destination"
+    min_args = 2
+    options = "Source, then destination"
+    aliases = ["copy"]
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        flags = {"-f", "--force"}
+        path_tokens = [arg for arg in args if arg not in flags]
+        if len(path_tokens) < 2:
+            return (
+                1,
+                "\nCommand Error: 'cp' requires both a source and destination path.\n",
+            )
+        raw_src = path_tokens[0].strip("\"'")
+        raw_dst = path_tokens[1].strip("\"'")
+        src_path = Path(raw_src).expanduser().resolve()
+        dst_path = Path(raw_dst).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Source '{raw_src}' not found.\n")
+        if dst_path.exists() and dst_path.is_dir():
+            final_dst = dst_path / src_path.name
+        else:
+            final_dst = dst_path
+        if final_dst.exists() and not force:
+            try:
+                confirm = (
+                    input(
+                        f"\nDestination '{final_dst.name}' already exists. Overwrite? [y/n]: "
+                    )
+                    .strip()
+                    .lower()
+                )
+            except (KeyboardInterrupt, EOFError):
+                return (1, "\nCopy cancelled by user.\n")
+            if confirm != "y":
+                return (0, "\nOperation cancelled. No files were copied.\n")
+        is_dir = src_path.is_dir()
+        if bridge.has_native_support() and hasattr(bridge._native, "cp"):
+            code, _ = bridge._native.cp(str(src_path), str(final_dst), force)
+        else:
+            code, _ = legacy.lgc_cp(src_path, final_dst, force)
+        if code != 0:
+            return bridge.translate_error(code, raw_src)
+        if is_dir:
+            return (
+                0,
+                f"\nSUCCESS! Copied directory '{src_path.name}' -> '{final_dst}'\n",
+            )
+        return (0, f"\nSUCCESS! Copied file '{src_path.name}' -> '{final_dst}'\n")
+
+
 class Dir(BaseCmd):
     name = "dir"
     description = "List all files in the current working directory"

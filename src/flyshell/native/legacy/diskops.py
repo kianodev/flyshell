@@ -24,6 +24,31 @@ def lgc_cat(target_path: Path) -> tuple[int, str]:
         return (-13, "")  # ERR_IO
 
 
+def lgc_cp(src_path: Path, dst_path: Path, force: bool = False) -> tuple[int, str]:
+    if not src_path.exists():
+        return (-1, "")  # ERR_NOT_FOUND
+    if src_path == dst_path:
+        return (-7, "")  # ERR_SAME_FILE
+    if dst_path.exists() and not force:
+        return (-5, "")  # ERR_EXISTS
+    try:
+        if src_path.is_dir():
+            shutil.copytree(src_path, dst_path, dirs_exist_ok=force)
+        else:
+            shutil.copy2(src_path, dst_path)
+        return (0, "")  # SUCCESS
+    except shutil.SameFileError:
+        return (-7, "")  # ERR_SAME_FILE
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError as e:
+        if getattr(e, "errno", None) == 28:
+            return (-12, "")  # ERR_NO_SPACE
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
 def lgc_dir(target_path: Path) -> tuple[int, list[tuple[str, bool]]]:
     if not target_path.exists():
         return (-1, [])  # ERR_NOT_FOUND

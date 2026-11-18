@@ -19,6 +19,8 @@ Result remove_dir(const char *path, bool force);
 
 Result remove_item(const char *path, bool recursive);
 
+Result copy_item(const char *src, const char *dst, bool force);
+
 static PyObject *method_ping(PyObject *self, PyObject *args) {
     return PyLong_FromLong(42);
 }
@@ -138,6 +140,18 @@ static PyObject *method_rm(PyObject *self, PyObject *args) {
     return Py_BuildValue("(is)", (int)res, "");
 }
 
+static PyObject *method_cp(PyObject *self, PyObject *args) {
+    const char *src;
+    const char *dst;
+    int force = 0;
+    if (!PyArg_ParseTuple(args, "ss|p", &src, &dst, &force)) {
+        return NULL;
+    }
+
+    Result res = copy_item(src, dst, force != 0);
+    return Py_BuildValue("(is)", (int)res, "");
+}
+
 static PyMethodDef DiskopsMethods[] = {
     {"ping", method_ping, METH_NOARGS, "Health check ping."},
     {"cat", method_cat, METH_VARARGS, "Read file content natively."},
@@ -147,6 +161,7 @@ static PyMethodDef DiskopsMethods[] = {
     {"rename", method_rename, METH_VARARGS, "Rename file or directory natively."},
     {"rmdir", method_rmdir, METH_VARARGS, "Remove directory natively."},
     {"rm", method_rm, METH_VARARGS, "Remove file or directory natively."},
+    {"cp", method_cp, METH_VARARGS, "Copy a file or directory natively."},
     {NULL, NULL, 0, NULL},
 };
 

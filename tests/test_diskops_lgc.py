@@ -12,6 +12,25 @@ def force_legacy_backend(monkeypatch):
     monkeypatch.setattr(bridge, "has_native_support", lambda: False)
 
 
+def test_legacy_cp_file_and_directory(tmp_path):
+    cmd = handler.Copy()
+    src_file = tmp_path / "lgc_src.txt"
+    src_file.write_text("payload", encoding="utf-8")
+    dst_file = tmp_path / "lgc_dst.txt"
+    exit_code, msg = cmd.execute([str(src_file), str(dst_file)])
+    assert exit_code == 0
+    assert dst_file.read_text(encoding="utf-8") == "payload"
+    src_dir = tmp_path / "lgc_tree"
+    src_dir.mkdir()
+    (src_dir / "item.txt").write_text("inner", encoding="utf-8")
+    dst_dir = tmp_path / "lgc_tree_copy"
+    exit_code, msg = cmd.execute([str(src_dir), str(dst_dir)])
+    assert exit_code == 0
+    assert (dst_dir / "item.txt").read_text(encoding="utf-8") == "inner"
+    code, _ = legacy.lgc_cp(src_file, src_file, force=True)
+    assert code == -7  # ERR_SAME_FILE
+
+
 def test_legacy_rm_file_and_recursive_dir(tmp_path):
     cmd = handler.Rm()
     target_file = tmp_path / "lgc_del.txt"

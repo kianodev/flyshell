@@ -2,11 +2,11 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![Licence](https://img.shields.io/badge/license-MIT-green.svg)
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20(macOS%20source)-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
-![Tests](https://github.com/kianodev/flyshell/actions/workflows/build.yml/badge.svg)
+![Tests](https://github.com/kianodev/flyshell/actions/workflows/publish.yml/badge.svg)
 
-> Documentation last updated: v1.4.5
+> Documentation last updated: v1.4.10
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -79,6 +79,11 @@ For a full tree, please see `docs/project_structure.md`.
 There are two methods to install Flyshell.
 
 ### Method 1: Install via `pip` (Best for General Use)
+
+If you are using macOS, install Xcode Command Line Tools first:
+```bash
+xcode-select --install
+```
 
 Install Flyshell through `pip`:
 ```bash
