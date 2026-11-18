@@ -204,6 +204,71 @@ class Dir(BaseCmd):
         return (0, "\n".join(lines))
 
 
+class Move(BaseCmd):
+    name = "mv"
+    description = "Move or relocate files and directories"
+    min_args = 2
+    options = "Source, then destination"
+    aliases = ["move"]
+
+    def execute(self, args):
+        force = ("-f" in args) or ("--force" in args)
+        flags = {"-f", "--force"}
+        path_tokens = [arg for arg in args if arg not in flags]
+        if len(path_tokens) < 2:
+            return (
+                1,
+                "\nCommand Error: 'mv' requires both a source and a destination path.\n",
+            )
+        raw_src = path_tokens[0].strip("\"'")
+        raw_dst = path_tokens[1].strip("\"'")
+        src_path = Path(raw_src).expanduser().resolve()
+        dst_path = Path(raw_dst).expanduser().resolve()
+        if not src_path.exists():
+            return (1, f"\nSystem Error: Source '{raw_src}' not found.\n")
+        if src_path == src_path.parent or str(src_path) == src_path.anchor:
+            return (
+                1,
+                "\nSecurity Error: Flyshell has blocked moving the root filesystem.\n",
+            )
+        flyshell_dirs = [
+            c.APP_DIR.resolve(),
+            c.PACKAGE_ROOT.resolve(),
+            c.PROJECT_ROOT.resolve(),
+        ]
+        for protected in flyshell_dirs:
+            if src_path == protected or src_path.is_relative_to(protected):
+                return (
+                    1,
+                    "\nSecurity Error: Flyshell has blocked this action.\n"
+                    f"Source '{raw_src}' contains or belongs to Flyshell system files.\n",
+                )
+        if dst_path.exists() and dst_path.is_dir():
+            final_dst = dst_path / src_path.name
+        else:
+            final_dst = dst_path
+        if final_dst.exists() and not force:
+            try:
+                confirm = (
+                    input(
+                        f"\nDestination '{final_dst.name}' already exists. Overwrite? [y/n]: "
+                    )
+                    .strip()
+                    .lower()
+                )
+            except (KeyboardInterrupt, EOFError):
+                return (1, "\nMove cancelled by user.\n")
+            if confirm != "y":
+                return (0, "\nOperation cancelled. No files were moved.\n")
+        if bridge.has_native_support() and hasattr(bridge._native, "mv"):
+            code, _ = bridge._native.mv(str(src_path), str(final_dst), force)
+        else:
+            code, _ = legacy.lgc_mv(src_path, final_dst, force)
+        if code != 0:
+            return bridge.translate_error(code, raw_src)
+        return (0, f"\nSUCCESS! Moved '{src_path.name}' -> '{final_dst}'\n")
+
+
 class MkDir(BaseCmd):
     name = "mkdir"
     description = "Create a new directory from the current working directory"

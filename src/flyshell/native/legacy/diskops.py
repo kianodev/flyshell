@@ -99,6 +99,31 @@ def lgc_mkdir(target_path: Path, parents: bool = False) -> tuple[int, str]:
         return (-99, "")  # ERR_UNKNOWN
 
 
+def lgc_mv(src_path: Path, dst_path: Path, force: bool = False) -> tuple[int, str]:
+    if not src_path.exists():
+        return (-1, "")  # ERR_NOT_FOUND
+    if src_path == dst_path:
+        return (-7, "")  # ERR_SAME_FILE
+    if dst_path.exists() and not force:
+        return (-5, "")  # ERR_EXISTS
+    try:
+        if dst_path.exists() and force:
+            if dst_path.is_dir():
+                shutil.rmtree(dst_path)
+            else:
+                os.remove(dst_path)
+        shutil.move(str(src_path), str(dst_path))
+        return (0, "")  # SUCCESS
+    except shutil.SameFileError:
+        return (-7, "")  # ERR_SAME_FILE
+    except PermissionError:
+        return (-2, "")  # ERR_PERMISSION
+    except OSError:
+        return (-13, "")  # ERR_IO
+    except Exception:
+        return (-99, "")  # ERR_UNKNOWN
+
+
 def lgc_rename(src_path: Path, dst_path: Path) -> tuple[int, str]:
     if not src_path.exists():
         return (-1, "")  # ERR_NOT_FOUND

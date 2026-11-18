@@ -12,6 +12,19 @@ def force_legacy_backend(monkeypatch):
     monkeypatch.setattr(bridge, "has_native_support", lambda: False)
 
 
+def test_legacy_mv_file_and_errors(tmp_path):
+    cmd = handler.Move()
+    src_file = tmp_path / "lgc_move_src.txt"
+    src_file.write_text("data", encoding="utf-8")
+    dst_file = tmp_path / "lgc_move_dst.txt"
+    exit_code, msg = cmd.execute([str(src_file), str(dst_file)])
+    assert exit_code == 0
+    assert not src_file.exists()
+    assert dst_file.read_text(encoding="utf-8") == "data"
+    code, _ = legacy.lgc_mv(tmp_path / "ghost.txt", tmp_path / "out.txt", force=False)
+    assert code == -1  # ERR_NOT_FOUND
+
+
 def test_legacy_cp_file_and_directory(tmp_path):
     cmd = handler.Copy()
     src_file = tmp_path / "lgc_src.txt"

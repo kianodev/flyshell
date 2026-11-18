@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 164
-VERSION = "1.4.10"
+BUILD = 165
+VERSION = "1.4.11"
 
 
 def _resolve_app_dir() -> Path:
@@ -58,7 +58,6 @@ REQUIRED_COMPONENTS = [
     "bin/__init__.py",
     "builtin",
     "builtin/__init__.py",
-    "builtin/diskops.py",
     "builtin/fs.py",
     "builtin/pkg.py",
     "builtin/system.py",

@@ -11,6 +11,50 @@ def test_native_extension_loaded():
     assert bridge._native.ping() == 42
 
 
+def test_native_mv_file_and_directory(tmp_path):
+    cmd = handler.Move()
+    src_file = tmp_path / "move_src.txt"
+    src_file.write_text("relocate me", encoding="utf-8")
+    dst_file = tmp_path / "move_dst.txt"
+    exit_code, msg = cmd.execute([str(src_file), str(dst_file)])
+    assert exit_code == 0
+    assert "Moved" in msg
+    assert not src_file.exists()
+    assert dst_file.read_text(encoding="utf-8") == "relocate me"
+    replacement = tmp_path / "new_src.txt"
+    replacement.write_text("overwritten", encoding="utf-8")
+    exit_code, msg = cmd.execute(["-f", str(replacement), str(dst_file)])
+    assert exit_code == 0
+    assert not replacement.exists()
+    assert dst_file.read_text(encoding="utf-8") == "overwritten"
+    src_dir = tmp_path / "dir_to_move"
+    src_dir.mkdir()
+    (src_dir / "item.txt").write_text("inside", encoding="utf-8")
+    target_parent = tmp_path / "dest_holder"
+    target_parent.mkdir()
+    exit_code, msg = cmd.execute([str(src_dir), str(target_parent)])
+    assert exit_code == 0
+    assert not src_dir.exists()
+    assert (target_parent / "dir_to_move" / "item.txt").read_text(
+        encoding="utf-8"
+    ) == "inside"
+
+
+def test_native_mv_errors(tmp_path):
+    cmd = handler.Move()
+    exit_code, msg = cmd.execute(
+        [str(tmp_path / "missing.txt"), str(tmp_path / "out.txt")]
+    )
+    assert exit_code == 1
+    assert "not found" in msg
+    a = tmp_path / "a.txt"
+    b = tmp_path / "b.txt"
+    a.write_text("1", encoding="utf-8")
+    b.write_text("2", encoding="utf-8")
+    code, _ = bridge._native.mv(str(a), str(b), False)
+    assert code == -5  # ERR_EXISTS
+
+
 def test_native_cp_file_and_directory(tmp_path):
     cmd = handler.Copy()
     src_file = tmp_path / "src.txt"

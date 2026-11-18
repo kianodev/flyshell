@@ -4,7 +4,6 @@ from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.accounts import auth
-from flyshell.builtin import diskops as diskops_legacy
 from flyshell.builtin import fs, pkg, system, utils
 from flyshell.core import data
 from flyshell.native import diskops_handler as diskops
@@ -66,7 +65,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     utils.Kill(),
     auth.Lock(),
     diskops.MkDir(),
-    diskops_legacy.Move(),
+    diskops.Move(),
     system.OpenFile(),
     pkg.Pkg(),
     utils.Reboot(),
