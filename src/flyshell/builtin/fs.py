@@ -190,7 +190,15 @@ class FsVersion(BaseCmd):
     aliases = []
 
     def execute(self, args):
-        return (0, f"\nYou are on Flyshell Version {c.VERSION} (Build {c.BUILD})\n")
+        return (
+            0,
+            (
+                f"\nYou are on Flyshell Version {c.VERSION}\n"
+                f"Increment Identifier: {c.VERFULL}\n"
+                f"Build: {c.BUILD}\n"
+                f"\nFull Version Name: {c.VERFULL}-b{c.BUILD}\n"
+            ),
+        )
 
 
 class Fs(ParentCmd):

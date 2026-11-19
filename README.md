@@ -4,9 +4,9 @@
 ![Licence](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20(macOS%20source)-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
-![Tests](https://github.com/kianodev/flyshell/actions/workflows/publish.yml/badge.svg)
+![Tests](https://github.com/kianodev/flyshell/actions/workflows/pytest.yml/badge.svg)
 
-> Documentation last updated: v1.5.0
+> Documentation last updated: v1.5.1
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
