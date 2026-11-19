@@ -1,6 +1,6 @@
 # Flyshell Project Structure
 
-> Documentation last updated: v1.5.0
+> Documentation last updated: v1.5.1
 
 This document provides a comprehensive view of the entire Flyshell repository tree, including development workflows, documentation, source packages, tests, and configuration assets.
 
@@ -12,10 +12,7 @@ Below is the full architectural diagram for Flyshell:
 flyshell/
 ├── .github/
 │   └── workflows/
-│       ├── black.yml
-│       ├── clang_format.yml
-│       ├── clang_tidy.yml
-│       ├── flake8.yml
+│       ├── ci.yml
 │       └── publish.yml
 ├── c_src/
 │   └── diskops/
