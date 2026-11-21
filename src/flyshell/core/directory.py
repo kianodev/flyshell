@@ -166,7 +166,8 @@ def _execute_single(raw_cmd: str) -> int:
         plugin = c.PLUGINS[cmd_name]
         required_keys = getattr(plugin, "api_keys", [])
         available_keys = getattr(plugin, "api_keys_data", {})
-        missing = [k for k in required_keys if k not in available_keys]
+        available_lower = {k.lower() for k in available_keys}
+        missing = [k for k in required_keys if k.lower() not in available_lower]
         if missing:
             env_path = getattr(plugin, "env_file_path", "flyshell_keys.env")
             print(

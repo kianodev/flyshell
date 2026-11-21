@@ -180,3 +180,24 @@ def test_set_and_remove_key_resolves_plugin_identifier(mock_env_file, monkeypatc
     code, _ = env.remove_plugin_api_key("weather", "api_key")
     assert code == 0
     assert "weather_folder_API_KEY" not in mock_env_file.read_text(encoding="utf-8")
+
+
+def test_case_insensitive_api_key_lookup_and_execution(mock_env_file, monkeypatch):
+    class CasePlugin(BasePlugin):
+        api_keys = ["API_TOKEN"]
+
+        def execute(self, args):
+            assert self.get_api_key("API_TOKEN") == "secret_123"
+            assert self.get_api_key("api_token") == "secret_123"
+            return 0
+
+    ctx = {
+        "plugin_name": "caseplug",
+        "plugin_dir_name": "caseplug",
+        "file_path": None,
+        "env_path": str(mock_env_file),
+        "api_keys": {"api_token": "secret_123"},
+    }
+    instance = CasePlugin(ctx)
+    monkeypatch.setitem(c.PLUGINS, "caseplug", instance)
+    assert directory._execute_single("caseplug") == 0

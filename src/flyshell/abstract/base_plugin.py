@@ -25,7 +25,13 @@ class BasePlugin:
         self.on_load()
 
     def get_api_key(self, key_name: str, default=None):
-        return self.api_keys_data.get(key_name, default)
+        if key_name in self.api_keys_data:
+            return self.api_keys_data[key_name]
+        target = key_name.lower()
+        for k, v in self.api_keys_data.items():
+            if k.lower() == target:
+                return v
+        return default
 
     def on_load(self):
         pass

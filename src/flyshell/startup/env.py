@@ -165,7 +165,7 @@ def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
     if not plugin_name or not key_name:
         return (1, "Command Error: Both plugin name and key name are required.")
     dir_name, _ = _resolve_plugin_dir_name(plugin_name)
-    target_key = f"{dir_name.strip().lower()}_{key_name.strip().lower()}"
+    target_key = f"{dir_name.strip().lower()}_{key_name.strip().upper()}"
     env_path = get_env_path()
     if not env_path.exists():
         return (
@@ -181,7 +181,7 @@ def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
             if stripped and not stripped.startswith("#") and "=" in stripped:
                 k, _ = stripped.split("=", 1)
                 clean_k = k.strip().lower()
-                if clean_k == target_key:
+                if clean_k == target_key.lower():
                     found = True
                     continue
             new_lines.append(line)
