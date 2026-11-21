@@ -148,3 +148,9 @@ def test_get_plugin_keys_formatted_invalid_input():
     code, output = env.get_plugin_keys_formatted("")
     assert code == 1
     assert "valid plugin name" in output
+
+
+def test_env_preserves_square_brackets_in_values(mock_env_file):
+    mock_env_file.write_text('sample_token="abc[123]xyz"\n')
+    keys = env.get_plugin_api_keys("sample")
+    assert keys == {"token": "abc[123]xyz"}

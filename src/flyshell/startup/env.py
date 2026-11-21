@@ -31,8 +31,8 @@ def read_env_file() -> dict[str, str]:
             if not line or line.startswith("#") or "=" not in line:
                 continue
             raw_k, raw_v = line.split("=", 1)
-            clean_k = raw_k.strip().replace("[", "").replace("]", "")
-            clean_v = raw_v.strip().strip("\"'").replace("[", "").replace("]", "")
+            clean_k = raw_k.strip()
+            clean_v = raw_v.strip().strip("\"'")
             if clean_k:
                 entries[clean_k] = clean_v
     return entries
@@ -178,7 +178,7 @@ def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
             stripped = line.strip()
             if stripped and not stripped.startswith("#") and "=" in stripped:
                 k, _ = stripped.split("=", 1)
-                clean_k = k.strip().replace("[", "").replace("]", "").lower()
+                clean_k = k.strip().lower()
                 if clean_k == target_key:
                     found = True
                     continue
