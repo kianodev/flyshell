@@ -130,7 +130,8 @@ def get_plugin_keys_formatted(target_name: str) -> tuple[int, str]:
 def set_plugin_api_key(plugin_name: str, key_name: str, value: str) -> tuple[int, str]:
     if not plugin_name or not key_name:
         return (1, "Command Error: Both plugin name and key name are required.")
-    target_key = f"{plugin_name.strip().lower()}_{key_name.strip().upper()}"
+    dir_name, _ = _resolve_plugin_dir_name(plugin_name)
+    target_key = f"{dir_name.strip().lower()}_{key_name.strip().upper()}"
     clean_val = value.strip().strip("\"'")
     env_path = get_env_path()
     try:
@@ -163,7 +164,8 @@ def set_plugin_api_key(plugin_name: str, key_name: str, value: str) -> tuple[int
 def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
     if not plugin_name or not key_name:
         return (1, "Command Error: Both plugin name and key name are required.")
-    target_key = f"{plugin_name.strip().lower()}_{key_name.strip().lower()}"
+    dir_name, _ = _resolve_plugin_dir_name(plugin_name)
+    target_key = f"{dir_name.strip().lower()}_{key_name.strip().lower()}"
     env_path = get_env_path()
     if not env_path.exists():
         return (

@@ -154,3 +154,29 @@ def test_env_preserves_square_brackets_in_values(mock_env_file):
     mock_env_file.write_text('sample_token="abc[123]xyz"\n')
     keys = env.get_plugin_api_keys("sample")
     assert keys == {"token": "abc[123]xyz"}
+
+
+def test_set_and_remove_key_resolves_plugin_identifier(mock_env_file, monkeypatch):
+    class AliasedPlugin(BasePlugin):
+        name = "Weather Tool"
+        identifier = "weather"
+
+        def execute(self, args):
+            return 0
+
+    ctx = {
+        "plugin_name": "weather",
+        "plugin_dir_name": "weather_folder",
+        "file_path": None,
+        "env_path": str(mock_env_file),
+        "api_keys": {},
+    }
+    monkeypatch.setitem(c.PLUGINS, "weather", AliasedPlugin(ctx))
+    code, _ = env.set_plugin_api_key("weather", "api_key", "secret123")
+    assert code == 0
+    assert "weather_folder_API_KEY=secret123" in mock_env_file.read_text(
+        encoding="utf-8"
+    )
+    code, _ = env.remove_plugin_api_key("weather", "api_key")
+    assert code == 0
+    assert "weather_folder_API_KEY" not in mock_env_file.read_text(encoding="utf-8")
