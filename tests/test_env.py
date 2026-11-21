@@ -201,3 +201,20 @@ def test_case_insensitive_api_key_lookup_and_execution(mock_env_file, monkeypatc
     instance = CasePlugin(ctx)
     monkeypatch.setitem(c.PLUGINS, "caseplug", instance)
     assert directory._execute_single("caseplug") == 0
+
+
+def test_get_plugin_api_keys_avoids_prefix_collision(mock_env_file, monkeypatch):
+    mock_env_file.write_text(
+        "weather_api_key=base_secret\n" "weather_pro_api_key=pro_secret\n"
+    )
+
+    class DummyPlugin(BasePlugin):
+        def execute(self, args):
+            return 0
+
+    p1 = DummyPlugin({"plugin_name": "weather", "plugin_dir_name": "weather"})
+    p2 = DummyPlugin({"plugin_name": "weather_pro", "plugin_dir_name": "weather_pro"})
+    monkeypatch.setitem(c.PLUGINS, "weather", p1)
+    monkeypatch.setitem(c.PLUGINS, "weather_pro", p2)
+    assert env.get_plugin_api_keys("weather") == {"api_key": "base_secret"}
+    assert env.get_plugin_api_keys("weather_pro") == {"api_key": "pro_secret"}

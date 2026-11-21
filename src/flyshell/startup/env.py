@@ -72,11 +72,23 @@ def get_plugin_api_keys(plugin_name_or_dir: str) -> dict[str, str]:
         f"{dir_name.lower()}_",
         f"{plugin_name_or_dir.strip().lower()}_",
     }
+    other_prefixes = set()
+    if hasattr(c, "PLUGINS"):
+        for cmd_name, plugin in c.PLUGINS.items():
+            other_dir = str(plugin.context.get("plugin_dir_name") or cmd_name).lower()
+            for candidate in (f"{other_dir}_", f"{cmd_name.lower()}_"):
+                if candidate not in prefixes:
+                    other_prefixes.add(candidate)
     plugin_keys = {}
     for raw_k, val in all_env.items():
         k_lower = raw_k.lower()
         for prefix in prefixes:
             if k_lower.startswith(prefix):
+                if any(
+                    len(other) > len(prefix) and k_lower.startswith(other)
+                    for other in other_prefixes
+                ):
+                    break
                 key_name = raw_k[len(prefix) :]
                 plugin_keys[key_name] = val
                 break
