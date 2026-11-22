@@ -4,7 +4,9 @@ from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.core import data
 
+import codecs
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -22,6 +24,11 @@ class Clear(BaseCmd):
         return (0, c.CLEAR_SCREEN)
 
 
+_ESCAPE_SEQ_RE = re.compile(
+    r"\\(n|r|t|b|f|a|v|\\|'|\"|[0-7]{1,3}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
+)
+
+
 class Echo(BaseCmd):
     name = "echo"
     description = "Print arguments to terminal"
@@ -32,7 +39,10 @@ class Echo(BaseCmd):
     def execute(self, args):
         text = " ".join(args)
         try:
-            text = text.encode("utf-8").decode("unicode_escape")
+            text = _ESCAPE_SEQ_RE.sub(
+                lambda m: codecs.decode(m.group(0), "unicode_escape"),
+                text,
+            )
         except Exception:
             pass
         return (0, f"\n{text}\n")

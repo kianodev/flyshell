@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 184
-VERFULL = "1.5.5b"
+BUILD = 185
+VERFULL = "1.5.5c"
 VERSION = "1.5.5"
 
 
