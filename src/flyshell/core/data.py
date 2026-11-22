@@ -262,3 +262,14 @@ def purge_all_plugin_data(filename=c.FILE_PATH) -> bool:
             conn.execute("DELETE FROM plugin_kv")
             conn.execute("DELETE FROM plugins")
             return True
+
+
+def delete_plugin_data(plugin_name: str, key: str, filename=c.FILE_PATH) -> bool:
+    initialise(filename)
+    with _get_connection(filename) as conn:
+        with conn:
+            cursor = conn.execute(
+                "DELETE FROM plugin_kv WHERE plugin_name = ? AND key = ?",
+                (plugin_name, key),
+            )
+            return cursor.rowcount > 0

@@ -90,6 +90,9 @@ class BasePlugin:
         return self.storage
 
     def save_storage(self):
+        existing_keys = set(data.get_all_plugin_data(self.plugin_name).keys())
+        for stale_key in existing_keys - set(self.storage.keys()):
+            data.delete_plugin_data(self.plugin_name, stale_key)
         for k, v in self.storage.items():
             data.set_plugin_data(self.plugin_name, k, v)
         self.context["storage"] = self.storage
