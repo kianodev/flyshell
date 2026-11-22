@@ -73,9 +73,8 @@ def scan_plugins(plugin_folder=None):
                         for mk in missing_keys:
                             print(f"{default_name}_{mk}=<your_key>")
                         print("You can do this once Flyshell has booted.")
-                    instance = obj(ctx)
                     candidates.setdefault(resolved_name, []).append(
-                        (instance, file_path)
+                        (obj, ctx, file_path)
                     )
                     break
         except Exception as e:
@@ -85,7 +84,7 @@ def scan_plugins(plugin_folder=None):
     first_print = True
     for name, entries in candidates.items():
         if len(entries) > 1:
-            paths = "\n    - ".join(str(path) for _, path in entries)
+            paths = "\n    - ".join(str(path) for _, _, path in entries)
             print(
                 f"\n⚠️ Collision Error - Multiple plugins named '{name}' detected: {paths}"
             )
@@ -93,7 +92,8 @@ def scan_plugins(plugin_folder=None):
                 "The above plugins will not be loaded. Please rename them to unique names."
             )
             continue
-        instance, _ = entries[0]
+        obj, ctx, _ = entries[0]
+        instance = obj(ctx)
         c.PLUGINS[name] = instance
         if first_print:
             print("\nInstalled Plugins:")
