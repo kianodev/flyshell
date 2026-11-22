@@ -2,6 +2,7 @@
 
 from flyshell import constants as c
 from flyshell.abstract.base_plugin import BasePlugin
+from flyshell.core import directory
 from flyshell.startup import loader
 
 
@@ -53,3 +54,69 @@ def test_loader_does_not_execute_code_in_reserved_plugin(tmp_path, monkeypatch):
     loader.scan_plugins(plugin_folder=tmp_path)
     assert "cd" not in c.PLUGINS
     assert not sentinel.exists()
+
+
+def test_loader_does_not_call_on_load_for_duplicate_plugins(tmp_path, monkeypatch):
+    sentinel = tmp_path / "on_load_called.txt"
+    for fname in ("plug_a.py", "plug_b.py"):
+        (tmp_path / fname).write_text(
+            "from pathlib import Path\n"
+            "from flyshell.abstract.base_plugin import BasePlugin\n"
+            "class DupPlugin(BasePlugin):\n"
+            "    identifier = 'shared_id'\n"
+            "    def on_load(self):\n"
+            f"        Path('{sentinel.as_posix()}').write_text('called')\n"
+            "    def execute(self, args): pass\n"
+        )
+    monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "shared_id" not in c.PLUGINS
+    assert not sentinel.exists()
+
+
+def test_execute_single_does_not_unload_plugin(monkeypatch):
+    events = []
+
+    class LifecyclePlugin(BasePlugin):
+        def on_load(self):
+            events.append("load")
+
+        def execute(self, args):
+            events.append("execute")
+            return 0
+
+        def on_unload(self):
+            events.append("unload")
+
+    monkeypatch.setattr(directory, "log", lambda cmd: None)
+    plugin = LifecyclePlugin({"plugin_name": "life"})
+    monkeypatch.setattr(c, "PLUGINS", {"life": plugin})
+    code = directory._execute_single("life")
+    assert code == 0
+    assert events == ["load", "execute"]
+
+
+def test_unload_plugins_calls_on_unload_and_clears_registry(monkeypatch):
+    unloaded = []
+
+    class BrokenUnloadPlugin(BasePlugin):
+        def execute(self, args):
+            return 0
+
+        def on_unload(self):
+            unloaded.append("broken")
+            raise RuntimeError("cleanup failed")
+
+    class HealthyUnloadPlugin(BasePlugin):
+        def execute(self, args):
+            return 0
+
+        def on_unload(self):
+            unloaded.append("healthy")
+
+    p1 = BrokenUnloadPlugin({"plugin_name": "p1"})
+    p2 = HealthyUnloadPlugin({"plugin_name": "p2"})
+    monkeypatch.setattr(c, "PLUGINS", {"p1": p1, "p2": p2})
+    loader.unload_plugins()
+    assert unloaded == ["broken", "healthy"]
+    assert c.PLUGINS == {}
