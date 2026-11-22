@@ -14,6 +14,13 @@ def test_echo_output_and_escape_characters():
     assert "Line1\nLine2" in msg
 
 
+def test_echo_non_ascii_characters():
+    cmd = utils.Echo()
+    code, msg = cmd.execute([r"héllo 🚀\nworld"])
+    assert code == 0
+    assert "héllo 🚀\nworld" in msg
+
+
 def test_clear_returns_escape_code():
     cmd = utils.Clear()
     code, msg = cmd.execute([])
