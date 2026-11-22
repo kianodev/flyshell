@@ -50,7 +50,11 @@ def scan_plugins(plugin_folder=None):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             for _, obj in inspect.getmembers(module, inspect.isclass):
-                if issubclass(obj, BasePlugin) and obj is not BasePlugin:
+                if (
+                    issubclass(obj, BasePlugin)
+                    and obj is not BasePlugin
+                    and obj.__module__ == module.__name__
+                ):
                     resolved_name = getattr(obj, "identifier", None) or default_name
                     if resolved_name in RESERVED_NAMES:
                         print(
@@ -93,7 +97,12 @@ def scan_plugins(plugin_folder=None):
             )
             continue
         obj, ctx, _ = entries[0]
-        instance = obj(ctx)
+        try:
+            instance = obj(ctx)
+        except Exception as e:
+            print(f"\n⚠️ Plugin Failure - Failed to initialise '{name}'")
+            print(f"Exception code: {e}, Flyshell will still launch.")
+            continue
         c.PLUGINS[name] = instance
         if first_print:
             print("\nInstalled Plugins:")
