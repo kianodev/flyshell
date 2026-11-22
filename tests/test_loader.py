@@ -120,3 +120,38 @@ def test_unload_plugins_calls_on_unload_and_clears_registry(monkeypatch):
     loader.unload_plugins()
     assert unloaded == ["broken", "healthy"]
     assert c.PLUGINS == {}
+
+
+def test_loader_ignores_imported_plugin_subclasses(tmp_path, monkeypatch):
+    helper_file = tmp_path / "_helper.py"
+    helper_file.write_text(
+        "from flyshell.abstract.base_plugin import BasePlugin\n"
+        "class ImportedPlugin(BasePlugin):\n"
+        "    identifier = 'imported_one'\n"
+        "    def execute(self, args): pass\n"
+    )
+    main_file = tmp_path / "real_plug.py"
+    main_file.write_text(
+        "from _helper import ImportedPlugin\n"
+        "class RealPlugin(ImportedPlugin):\n"
+        "    identifier = 'real_one'\n"
+        "    def execute(self, args): pass\n"
+    )
+    monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "real_one" in c.PLUGINS
+    assert "imported_one" not in c.PLUGINS
+
+
+def test_loader_handles_on_load_exception_gracefully(tmp_path, monkeypatch):
+    crashing_plugin = tmp_path / "crash_init.py"
+    crashing_plugin.write_text(
+        "from flyshell.abstract.base_plugin import BasePlugin\n"
+        "class CrashInitPlugin(BasePlugin):\n"
+        "    def on_load(self):\n"
+        "        raise RuntimeError('boom in on_load')\n"
+        "    def execute(self, args): pass\n"
+    )
+    monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
+    loader.scan_plugins(plugin_folder=tmp_path)
+    assert "crash_init" not in c.PLUGINS
