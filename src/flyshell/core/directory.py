@@ -10,6 +10,7 @@ from flyshell.native import diskops_handler as diskops
 from flyshell.startup import deps
 
 from datetime import datetime, timezone
+import copy
 import shlex
 import sys
 
@@ -182,6 +183,7 @@ def _execute_single(raw_cmd: str) -> int:
             )
             print(f"Please run 'sys pip install {' '.join(missing_deps)}'\n")
             return 1
+        storage_before = copy.deepcopy(getattr(plugin, "storage", {}))
         try:
             result = plugin.execute(args)
             return result if isinstance(result, int) else 0
@@ -198,7 +200,10 @@ def _execute_single(raw_cmd: str) -> int:
         finally:
             if hasattr(plugin, "on_unload"):
                 plugin.on_unload()
-            if hasattr(plugin, "save_storage"):
+            if (
+                hasattr(plugin, "save_storage")
+                and getattr(plugin, "storage", {}) != storage_before
+            ):
                 plugin.save_storage()
     else:
         print(
