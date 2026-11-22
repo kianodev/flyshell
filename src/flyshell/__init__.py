@@ -7,7 +7,6 @@ try:
 except ImportError:
     BasePlugin = None
     __all__ = []
-    pass
 
 
 try:
