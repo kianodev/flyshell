@@ -131,6 +131,8 @@ def main():
             print(f"Line: {last_frame[1]}")
             print(f"Exception message: '{e}'")
         sys.exit(1)
+    finally:
+        loader.unload_plugins()
 
 
 if __name__ == "__main__":

@@ -198,8 +198,6 @@ def _execute_single(raw_cmd: str) -> int:
             print("Returning to main Flyshell interface...\n")
             return 1
         finally:
-            if hasattr(plugin, "on_unload"):
-                plugin.on_unload()
             if (
                 hasattr(plugin, "save_storage")
                 and getattr(plugin, "storage", {}) != storage_before

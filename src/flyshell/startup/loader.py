@@ -106,7 +106,7 @@ def scan_plugins(plugin_folder=None):
         print("\nNo plugins loaded.")
 
 
-def build_context(plugin_name, default_name, file_path=None):
+def build_context(plugin_name, default_name, file_path=None) -> dict:
     plugin_storage = data.get_all_plugin_data(plugin_name)
     api_keys = env.get_plugin_api_keys(str(default_name))
     context = {
@@ -175,3 +175,13 @@ def check_all_plugin_dependencies() -> Dict[str, List[str]]:
     if not plugins_with_deps:
         print("✅ No third-party dependencies required for any loaded plugins.")
     return all_missing
+
+
+def unload_plugins():
+    for identifier, plugin in list(c.PLUGINS.items()):
+        try:
+            if hasattr(plugin, "on_unload"):
+                plugin.on_unload()
+        except Exception as e:
+            print(f"\n⚠️ Plugin Unload Error - '{identifier}': {e}")
+    c.PLUGINS.clear()
