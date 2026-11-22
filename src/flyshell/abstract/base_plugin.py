@@ -83,6 +83,13 @@ class BasePlugin:
         self.storage[key] = value
         self.save_storage()
 
+    def delete_data(self, key: str) -> bool:
+        if key in self.storage:
+            del self.storage[key]
+            self.save_storage()
+            return True
+        return False
+
     def load_storage(self) -> dict:
         fresh_data = data.get_all_plugin_data(self.plugin_name)
         self.storage = fresh_data
