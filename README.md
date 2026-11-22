@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/ci.yml/badge.svg)
 
-> Documentation last updated: v1.5.1
+> Documentation last updated: v1.5.3
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -191,9 +191,10 @@ Additional functions are available for you to use:
 
 1. `get_data(key, default=None)`: Retrieves a value from local plugin memory.
 2. `set_data(key, value)`: Updates a key in local memory and automatically persists it to SQLite via `save_storage()`.
-3. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
-4. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
-5. `get_api_key(key, default=None)`: Fetches the specified API key from `flyshell_keys.env`.
+3. `delete_data(key)`: Deletes the specified key and automatically persists it to SQLite, returning **True** if found and **False** if not found.
+4. `load_storage()`: Reloads fresh key-value pairs directly from SQLite into `self.storage`.
+5. `save_storage()`: Writes all in-memory key-value pairs in `self.storage` back to SQLite.
+6. `get_api_key(key, default=None)`: Fetches the specified API key from `flyshell_keys.env`.
 
 Plugins save automatically on shut-down.
 
