@@ -46,4 +46,4 @@ def translate_error(code: int, target: str = "") -> tuple[int, str]:
     target_str = f"for '{target}'" if target else ""
     if target_str:
         return (1, f"\n{category}: {default_msg} {target_str}\n")
-    return (1, f"\n{category}: {default_msg}.")
+    return (1, f"\n{category}: {default_msg}.\n")
