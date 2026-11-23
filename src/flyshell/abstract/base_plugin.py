@@ -3,6 +3,7 @@
 from flyshell.core import data
 
 from pathlib import Path
+from typing import Optional
 
 
 class BasePlugin:
@@ -13,10 +14,12 @@ class BasePlugin:
     identifier: str = ""
     usage: str = ""
     extended_help: str = ""
-    api_keys: list = []
-    third_pty_libs: list = []
+    api_keys: Optional[list] = None
+    third_pty_libs: Optional[list] = None
 
     def __init__(self, context: dict):
+        self.api_keys = list(self.api_keys) if self.api_keys else []
+        self.third_pty_libs = list(self.third_pty_libs) if self.third_pty_libs else []
         self.context = context
         self.plugin_name = context.get("plugin_name", self.name)
         self.storage = context.get("storage", {})

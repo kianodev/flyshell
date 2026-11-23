@@ -119,7 +119,7 @@ def get_plugin_keys_formatted(target_name: str) -> tuple[int, str]:
         return (1, f"File Config Error: Environment file not found at '{env_path}'.")
     dir_name, plugin = _resolve_plugin_dir_name(target_name)
     configured_keys = get_plugin_api_keys(target_name)
-    required_keys = getattr(plugin, "api_keys", []) if plugin else []
+    required_keys = (getattr(plugin, "api_keys", None) or []) if plugin else []
     if not configured_keys and not required_keys:
         return (0, f"No API keys found or required for plugin '{target_name}'.")
     lines = [f"API Keys for plugin '{target_name}' (folder: '{dir_name}'):"]

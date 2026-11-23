@@ -165,7 +165,7 @@ def _execute_single(raw_cmd: str) -> int:
     elif cmd_name in c.PLUGINS:
         log(raw_cmd)
         plugin = c.PLUGINS[cmd_name]
-        required_keys = getattr(plugin, "api_keys", [])
+        required_keys = getattr(plugin, "api_keys", None) or []
         available_keys = getattr(plugin, "api_keys_data", {})
         available_lower = {k.lower() for k in available_keys}
         missing = [k for k in required_keys if k.lower() not in available_lower]

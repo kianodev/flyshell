@@ -13,7 +13,7 @@ def check_module_installed(module_name: str) -> bool:
 
 
 def verify_plugin_dependencies(plugin) -> Tuple[List[str], List[str]]:
-    declared = getattr(plugin, "third_pty_libs", [])
+    declared = getattr(plugin, "third_pty_libs", None) or []
     installed = []
     missing = []
     for dep in declared:

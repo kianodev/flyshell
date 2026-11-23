@@ -62,7 +62,7 @@ def scan_plugins(plugin_folder=None):
                         )
                         break
                     ctx = build_context(resolved_name, default_name, file_path)
-                    required_keys = getattr(obj, "api_keys", [])
+                    required_keys = getattr(obj, "api_keys", None) or []
                     found_keys = ctx["api_keys"]
                     found_keys_lower = {k.lower(): v for k, v in found_keys.items()}
                     missing_keys = [
@@ -136,7 +136,7 @@ def check_plugin_api_keys():
     print("\nFlyshell will now check plugin API keys.")
     has_keys_to_report = False
     for identifier, plugin in c.PLUGINS.items():
-        required_keys = getattr(plugin, "api_keys", [])
+        required_keys = getattr(plugin, "api_keys", None) or []
         configured_keys = getattr(plugin, "api_keys_data", {})
         dir_name = plugin.context.get("plugin_dir_name", identifier)
         if not required_keys and not configured_keys:
@@ -168,7 +168,7 @@ def check_all_plugin_dependencies() -> Dict[str, List[str]]:
     plugins_with_deps = False
     all_missing: Dict[str, List[str]] = {}
     for identifier, plugin in c.PLUGINS.items():
-        declared = getattr(plugin, "third_pty_libs", [])
+        declared = getattr(plugin, "third_pty_libs", None) or []
         if not declared:
             continue
         plugins_with_deps = True
