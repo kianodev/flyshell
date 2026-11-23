@@ -8,7 +8,13 @@ class BaseCmd:
     description: str = ""
     min_args: int = 0
     options: Optional[str] = None
-    aliases: List[str] = []
+    aliases: Optional[List[str]] = None
+
+    def __init__(self):
+        if self.aliases is None:
+            self.aliases = []
+        else:
+            self.aliases = list(self.aliases)
 
     def execute(self, args: List[str]) -> Tuple[int, str]:
         raise NotImplementedError(

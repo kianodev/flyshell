@@ -9,7 +9,7 @@ class ParentCmd(BaseCmd):
     min_args: int = 1
 
     def __init__(self):
-        super().__init__() if hasattr(super(), "__init__") else None
+        super().__init__()
         self._sub_registry: Dict[str, BaseCmd] = {}
         self._build_registry()
 
