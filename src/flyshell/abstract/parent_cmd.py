@@ -7,7 +7,6 @@ from typing import Dict, List, Tuple
 
 class ParentCmd(BaseCmd):
     min_args: int = 1
-    subcommands: Dict[str, BaseCmd] = {}
 
     def __init__(self):
         super().__init__() if hasattr(super(), "__init__") else None
