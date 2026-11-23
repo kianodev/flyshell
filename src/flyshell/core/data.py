@@ -26,7 +26,9 @@ def _get_connection(filename=c.FILE_PATH):
     return conn
 
 
-def initialise(filename=c.FILE_PATH, initialised=c.INITIALISED):
+def initialise(filename=c.FILE_PATH, initialised=None):
+    if initialised is None:
+        initialised = c.INITIALISED
     target = str(filename)
     if target in initialised:
         return
