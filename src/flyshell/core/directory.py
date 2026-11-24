@@ -186,6 +186,7 @@ def _execute_single(raw_cmd: str) -> int:
         storage_before = copy.deepcopy(getattr(plugin, "storage", {}))
         try:
             result = plugin.execute(args)
+            c.SESSION_CMD_COUNT += 1
             return result if isinstance(result, int) else 0
         except NotImplementedError:
             print(
