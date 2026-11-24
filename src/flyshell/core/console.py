@@ -3,7 +3,7 @@
 from flyshell import constants as c
 from flyshell.core import data
 from flyshell.core.directory import execute_line
-from flyshell.startup import env
+from flyshell.startup import env, seasonal
 
 import os
 import random
@@ -41,7 +41,9 @@ def boot():
     load_history()
     env.create_env()
     print(c.CLEAR_SCREEN, end="")
-    print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION})")
+    icon = seasonal.get_season_icon()
+    badge = f" {icon}" if icon else ""
+    print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION}){badge}")
     user_info = data.get_auth() or {}
     username = user_info.get("username")
     greeting = random.choice(c.GREETINGS).format(username=username)
@@ -49,7 +51,10 @@ def boot():
     while True:
         try:
             folder = os.path.basename(os.getcwd())
-            raw_cmd = input(f"Flyshell [v{c.VERSION}] ({folder})>>")
+            icon = seasonal.get_season_icon()
+            badge = f" {icon}" if icon else ""
+            print(f"Flyshell [v{c.VERSION}]{badge} ({folder})>>", end="", flush=True)
+            raw_cmd = input()
             if not raw_cmd.strip():
                 continue
             execute_line(raw_cmd)
