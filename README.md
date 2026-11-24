@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/ci.yml/badge.svg)
 
-> Documentation last updated: v1.5.3
+> Documentation last updated: v1.5.8
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -65,7 +65,8 @@ src/
     │   ├── __init__.py
     │   ├── deps.py
     │   ├── env.py
-    │   └── loader.py
+    │   ├── loader.py
+    │   └── seasonal.py
     ├── __init__.py
     ├── constants.py
     └── main.py

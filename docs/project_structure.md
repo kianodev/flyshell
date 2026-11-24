@@ -1,6 +1,6 @@
 # Flyshell Project Structure
 
-> Documentation last updated: v1.5.1
+> Documentation last updated: v1.5.8
 
 This document provides a comprehensive view of the entire Flyshell repository tree, including development workflows, documentation, source packages, tests, and configuration assets.
 
@@ -86,11 +86,13 @@ flyshell/
 │       │   ├── __init__.py
 │       │   ├── deps.py
 │       │   ├── env.py
-│       │   └── loader.py
+│       │   ├── loader.py
+│       │   └── seasonal.py
 │       ├── __init__.py
 │       ├── constants.py
 │       └── main.py
 ├── tests/
+│   ├── conftest.py
 │   ├── test_auth.py
 │   ├── test_data.py
 │   ├── test_deps.py
