@@ -63,6 +63,8 @@ class History(BaseCmd):
                 limit = None
             elif sub_arg.isdigit():
                 limit = int(sub_arg)
+                if limit <= 0:
+                    return (1, f"\nCommand Error: Invalid argument '{args[0]}'\n")
             else:
                 return (1, f"\nCommand Error: Invalid argument '{args[0]}'\n")
         history_entries = data.get_history(limit)
