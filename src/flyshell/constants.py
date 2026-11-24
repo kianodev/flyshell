@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 195
-VERFULL = "1.5.8b"
+BUILD = 196
+VERFULL = "1.5.8c"
 VERSION = "1.5.8"
 
 
@@ -19,7 +19,6 @@ def _resolve_app_dir() -> Path:
     else:
         base = Path(os.environ.get("XDG_DATA_HOME", home / ".local" / "share"))
     target = base / "Flyshell"
-    target.mkdir(parents=True, exist_ok=True)
     return target
 
 

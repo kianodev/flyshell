@@ -2,6 +2,7 @@
 
 from flyshell import constants as c
 
+from pathlib import Path
 import json
 import sqlite3
 import time
@@ -20,16 +21,20 @@ def get_storage_size() -> str:
     return f"{num_bytes:.2f} TB"
 
 
-def _get_connection(filename=c.FILE_PATH):
-    conn = sqlite3.connect(filename)
+def _get_connection(filename=None):
+    target = Path(filename) if filename is not None else c.FILE_PATH
+    if str(target) != ":memory:":
+        target.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(target)
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
 
-def initialise(filename=c.FILE_PATH, initialised=None):
+def initialise(filename=None, initialised=None):
+    target = filename if filename is not None else c.FILE_PATH
     if initialised is None:
         initialised = c.INITIALISED
-    target = str(filename)
+    target = str(target)
     if target in initialised:
         return
     with _get_connection(filename) as conn:

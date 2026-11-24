@@ -93,6 +93,7 @@ def main():
                         "\n⚠️ C Extensions Unavailable - Flyshell will revert to legacy Python objects where applicable.\n"
                     )
                 print("Flyshell will now boot.")
+                c.APP_DIR.mkdir(parents=True, exist_ok=True)
                 loader.scan_plugins()
                 loader.check_plugin_api_keys()
                 loader.check_all_plugin_dependencies()
