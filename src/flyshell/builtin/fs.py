@@ -4,6 +4,7 @@ from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.core import data
+from flyshell.startup import seasonal
 
 import os
 import sys
@@ -149,6 +150,21 @@ class FsPlugins(BaseCmd):
         return (0, "\n".join(lines))
 
 
+class FsSeason(BaseCmd):
+    name = "season"
+    description = "Check if Flyshell is in a seasonal mode"
+    min_args = 0
+    options = None
+    aliases = []
+
+    def execute(self, args):
+        season = seasonal.get_season(return_icons=False)
+        if not season:
+            return (0, "\nNo seasonal modes are active at present.\n")
+        icon = seasonal.get_season(return_icons=True)
+        return (0, f"\nCurrent seasonal mode: {season} {icon}\n")
+
+
 class FsStatus(BaseCmd):
     name = "status"
     description = "Return Flyshell status and runtime details"
@@ -212,6 +228,7 @@ class Fs(ParentCmd):
             FsInfo(),
             FsLicence(),
             FsPlugins(),
+            FsSeason(),
             FsStatus(),
             FsVersion(),
         ]

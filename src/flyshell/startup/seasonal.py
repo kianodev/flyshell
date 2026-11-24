@@ -22,7 +22,7 @@ def _get_easter(year: int) -> date:
     return date(year, month, day)
 
 
-def get_season_icon() -> str:
+def get_season(return_icons: bool) -> str:
     today = date.today()
     year = today.year
     # Halloween: 25 > 31 October
@@ -35,15 +35,23 @@ def get_season_icon() -> str:
     easter_sunday = _get_easter(year)
     easter_start = easter_sunday - timedelta(days=6)
     easter_end = easter_sunday + timedelta(days=1)
-    halloween_icons = ["🎃", "👻", "🦇", "🕷️", "🧙"]
-    winter_icons = ["🎄", "❄️", "⛄", "🎁", "🦌"]
-    easter_icons = ["🐣", "🐰", "🥚", "🌷", "🍫"]
+    if return_icons:
+        halloween_icons = ["🎃", "👻", "🦇", "🕷️", "🧙"]
+        winter_icons = ["🎄", "❄️", "⛄", "🎁", "🦌"]
+        easter_icons = ["🐣", "🐰", "🥚", "🌷", "🍫"]
+        if halloween_start <= today <= halloween_end:
+            selected = random.sample(halloween_icons, 2)
+        elif winter_start <= today <= winter_end:
+            selected = random.sample(winter_icons, 2)
+        elif easter_start <= today <= easter_end:
+            selected = random.sample(easter_icons, 2)
+        else:
+            return ""
+        return "".join(selected)
     if halloween_start <= today <= halloween_end:
-        selected = random.sample(halloween_icons, 2)
+        return "Halloween"
     elif winter_start <= today <= winter_end:
-        selected = random.sample(winter_icons, 2)
+        return "Christmas"
     elif easter_start <= today <= easter_end:
-        selected = random.sample(easter_icons, 2)
-    else:
-        return ""
-    return "".join(selected)
+        return "Easter"
+    return ""

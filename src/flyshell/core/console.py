@@ -41,7 +41,7 @@ def boot():
     load_history()
     env.create_env()
     print(c.CLEAR_SCREEN, end="")
-    icon = seasonal.get_season_icon()
+    icon = seasonal.get_season(return_icons=True)
     badge = f" {icon}" if icon else ""
     print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION}){badge}")
     user_info = data.get_auth() or {}
@@ -51,7 +51,7 @@ def boot():
     while True:
         try:
             folder = os.path.basename(os.getcwd())
-            icon = seasonal.get_season_icon()
+            icon = seasonal.get_season(return_icons=True)
             badge = f" {icon}" if icon else ""
             print(f"Flyshell [v{c.VERSION}]{badge} ({folder})>>", end="", flush=True)
             raw_cmd = input()
