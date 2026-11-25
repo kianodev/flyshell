@@ -75,7 +75,7 @@ class Cat(BaseCmd):
     options = "Target file"
     aliases = ["read"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         show_numbers = ("-n" in args) or ("--number" in args)
         limit = None
         filtered_args = []
@@ -131,7 +131,7 @@ class Copy(BaseCmd):
     options = "Source, then destination"
     aliases = ["copy"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         force = ("-f" in args) or ("--force" in args)
         flags = {"-f", "--force"}
         path_tokens = [arg for arg in args if arg not in flags]
@@ -185,7 +185,7 @@ class Dir(BaseCmd):
     options = None
     aliases = ["ls"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         target_str = args[0].strip("\"'") if args else os.getcwd()
         target_path = Path(target_str).expanduser().resolve()
         if bridge.has_native_support() and hasattr(bridge._native, "dir"):
@@ -211,7 +211,7 @@ class Move(BaseCmd):
     options = "Source, then destination"
     aliases = ["move"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         force = ("-f" in args) or ("--force" in args)
         flags = {"-f", "--force"}
         path_tokens = [arg for arg in args if arg not in flags]
@@ -276,7 +276,7 @@ class MkDir(BaseCmd):
     options = "Directory name"
     aliases = ["md"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         use_parents = ("-p" in args) or ("--parents" in args)
         path_tokens = [arg for arg in args if arg not in ("-p", "--parents")]
         if not path_tokens:
@@ -304,7 +304,7 @@ class Rename(BaseCmd):
     options = "Old name, then new name"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         raw_src = args[0].strip("\"'")
         raw_new_name = args[1].strip("\"'")
         if raw_new_name in (".", "..") or "/" in raw_new_name or "\\" in raw_new_name:
@@ -346,7 +346,7 @@ class Rm(BaseCmd):
     options = "Target file"
     aliases = ["del"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         force = ("-f" in args) or ("--force" in args)
         recursive = ("-r" in args) or ("--recursive" in args)
         flags = {"-f", "--force", "-r", "--recursive"}
@@ -397,7 +397,7 @@ class RmDir(BaseCmd):
     options = "Target directory"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         force = ("-f" in args) or ("--force" in args)
         path_tokens = [arg for arg in args if arg not in ("-f", "--force")]
         if not path_tokens:
@@ -430,7 +430,7 @@ class Touch(BaseCmd):
     min_args = 1
     options = "Target file"
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         if not args:
             return (1, "\nCommand Error: Target file not specified.\n")
         raw_target = " ".join(args).strip("\"'")

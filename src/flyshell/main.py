@@ -61,7 +61,7 @@ def boot_check() -> bool:
     return True
 
 
-def main():
+def main() -> None:
     os.system("")
     print("\033[H\033[2J", end="")
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")

@@ -15,7 +15,7 @@ class Cd(BaseCmd):
     options = "Directory name (default is Home)"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         target = os.path.expanduser(" ".join(args)) if args else os.path.expanduser("~")
         try:
             os.chdir(target)
@@ -38,7 +38,7 @@ class OpenFile(BaseCmd):
     options = "File path"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         target = " ".join(args).strip().strip('"')
         if not target:
             return (0, "")
@@ -69,7 +69,7 @@ class SysExe(BaseCmd):
     options = "Any host command"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         if not args:
             return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
         try:

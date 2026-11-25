@@ -14,7 +14,7 @@ def get_env_path() -> Path:
     return primary
 
 
-def create_env():
+def create_env() -> None:
     env_path = get_env_path()
     if not env_path.exists():
         env_path.touch()

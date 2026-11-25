@@ -8,12 +8,12 @@ from typing import Dict, List, Tuple
 class ParentCmd(BaseCmd):
     min_args: int = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._sub_registry: Dict[str, BaseCmd] = {}
         self._build_registry()
 
-    def _build_registry(self):
+    def _build_registry(self) -> None:
         for cmd_obj in self.get_subcommands():
             self._sub_registry[cmd_obj.name] = cmd_obj
             for alias in getattr(cmd_obj, "aliases", []):
@@ -22,7 +22,7 @@ class ParentCmd(BaseCmd):
     def get_subcommands(self) -> List[BaseCmd]:
         return []
 
-    def help(self):
+    def help(self) -> None:
         print(f"\nCommand Family: {self.name}")
         print(f"Description: {self.description}")
         print(f"\nSubcommands of '{self.name}':")

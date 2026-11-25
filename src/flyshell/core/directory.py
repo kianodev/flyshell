@@ -22,7 +22,7 @@ class Cmds(BaseCmd):
     options = None
     aliases = ["help"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         lines = ["\nAvailable Commands:"]
         seen_cmds = set()
         for cmd in COMMAND_REGISTRY.values():
@@ -87,7 +87,7 @@ for cmd_obj in INSTALLED_COMMANDS:
 RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
 
-def log(cmd):
+def log(cmd: str) -> None:
     utc_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data.append_history(cmd, utc_now)
 
@@ -284,7 +284,7 @@ def _parse_commands(raw_cmd: str) -> list:
     return chain
 
 
-def execute_line(raw_cmd: str):
+def execute_line(raw_cmd: str) -> None:
     chain = _parse_commands(raw_cmd)
     if not chain:
         return

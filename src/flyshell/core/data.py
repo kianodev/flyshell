@@ -3,12 +3,13 @@
 from flyshell import constants as c
 
 from pathlib import Path
+from typing import Any
 import json
 import sqlite3
 import time
 
 
-def get_storage_size(filename=None) -> str:
+def get_storage_size(filename: str | Path | None = None) -> str:
     target = Path(filename) if filename is not None else c.FILE_PATH
     if not target.exists():
         return "File not found"
@@ -22,7 +23,7 @@ def get_storage_size(filename=None) -> str:
     return f"{num_bytes:.2f} TB"
 
 
-def _get_connection(filename=None):
+def _get_connection(filename: str | Path | None = None) -> sqlite3.Connection:
     target = Path(filename) if filename is not None else c.FILE_PATH
     if str(target) != ":memory:":
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -31,7 +32,9 @@ def _get_connection(filename=None):
     return conn
 
 
-def initialise(filename=None, initialised=None):
+def initialise(
+    filename: str | Path | None = None, initialised: set[str] | None = None
+) -> None:
     target = filename if filename is not None else c.FILE_PATH
     if initialised is None:
         initialised = c.INITIALISED
@@ -85,7 +88,7 @@ def initialise(filename=None, initialised=None):
     initialised.add(target)
 
 
-def get_auth(filename=None) -> dict | None:
+def get_auth(filename: str | Path | None = None) -> dict | None:
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute(
@@ -101,7 +104,9 @@ def get_auth(filename=None) -> dict | None:
         }
 
 
-def set_auth(username: str, pwd_hash: str, salt: str, filename=None) -> None:
+def set_auth(
+    username: str, pwd_hash: str, salt: str, filename: str | Path | None = None
+) -> None:
     initialise(filename)
     now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with _get_connection(filename) as conn:
@@ -115,7 +120,7 @@ def set_auth(username: str, pwd_hash: str, salt: str, filename=None) -> None:
             )
 
 
-def clear_auth(filename=None) -> bool:
+def clear_auth(filename: str | Path | None = None) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -123,7 +128,9 @@ def clear_auth(filename=None) -> bool:
             return cursor.rowcount > 0
 
 
-def append_history(cmd: str, timestamp: str, filename=None) -> None:
+def append_history(
+    cmd: str, timestamp: str, filename: str | Path | None = None
+) -> None:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -133,7 +140,9 @@ def append_history(cmd: str, timestamp: str, filename=None) -> None:
             )
 
 
-def get_history(limit: int | None = None, filename=None) -> list[dict]:
+def get_history(
+    limit: int | None = None, filename: str | Path | None = None
+) -> list[dict]:
     initialise(filename)
     with _get_connection(filename) as conn:
         if limit is not None and limit > 0:
@@ -148,7 +157,7 @@ def get_history(limit: int | None = None, filename=None) -> list[dict]:
         return [{"command": r[0], "timestamp": r[1]} for r in rows]
 
 
-def clear_history(filename=None) -> bool:
+def clear_history(filename: str | Path | None = None) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -156,7 +165,9 @@ def clear_history(filename=None) -> bool:
             return True
 
 
-def get_config(key: str, default=None, filename=None):
+def get_config(
+    key: str, default: Any = None, filename: str | Path | None = None
+) -> Any:
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute(
@@ -170,7 +181,7 @@ def get_config(key: str, default=None, filename=None):
             return row[0]
 
 
-def set_config(key: str, value, filename=None) -> None:
+def set_config(key: str, value: Any, filename: str | Path | None = None) -> None:
     initialise(filename)
     serialized = json.dumps(value)
     with _get_connection(filename) as conn:
@@ -184,7 +195,7 @@ def set_config(key: str, value, filename=None) -> None:
             )
 
 
-def delete_config(key: str, filename=None) -> bool:
+def delete_config(key: str, filename: str | Path | None = None) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -192,7 +203,7 @@ def delete_config(key: str, filename=None) -> bool:
             return cursor.rowcount > 0
 
 
-def register_plugin(plugin_name: str, filename=None) -> None:
+def register_plugin(plugin_name: str, filename: str | Path | None = None) -> None:
     initialise(filename)
     now_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with _get_connection(filename) as conn:
@@ -206,7 +217,9 @@ def register_plugin(plugin_name: str, filename=None) -> None:
             )
 
 
-def get_plugin_data(plugin_name: str, key: str, default=None, filename=None):
+def get_plugin_data(
+    plugin_name: str, key: str, default: Any = None, filename: str | Path | None = None
+) -> Any:
     initialise(filename)
     with _get_connection(filename) as conn:
         row = conn.execute(
@@ -223,7 +236,9 @@ def get_plugin_data(plugin_name: str, key: str, default=None, filename=None):
             return row[0]
 
 
-def set_plugin_data(plugin_name: str, key: str, value, filename=None) -> None:
+def set_plugin_data(
+    plugin_name: str, key: str, value: Any, filename: str | Path | None = None
+) -> None:
     initialise(filename)
     register_plugin(plugin_name, filename=filename)
     serialized = json.dumps(value)
@@ -238,7 +253,7 @@ def set_plugin_data(plugin_name: str, key: str, value, filename=None) -> None:
             )
 
 
-def get_all_plugin_data(plugin_name: str, filename=None) -> dict:
+def get_all_plugin_data(plugin_name: str, filename: str | Path | None = None) -> dict:
     initialise(filename)
     with _get_connection(filename) as conn:
         rows = conn.execute(
@@ -253,7 +268,7 @@ def get_all_plugin_data(plugin_name: str, filename=None) -> dict:
         return result
 
 
-def purge_plugin(plugin_name: str, filename=None) -> bool:
+def purge_plugin(plugin_name: str, filename: str | Path | None = None) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -263,7 +278,7 @@ def purge_plugin(plugin_name: str, filename=None) -> bool:
             return cursor.rowcount > 0
 
 
-def purge_all_plugin_data(filename=None) -> bool:
+def purge_all_plugin_data(filename: str | Path | None = None) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:
@@ -272,7 +287,9 @@ def purge_all_plugin_data(filename=None) -> bool:
             return True
 
 
-def delete_plugin_data(plugin_name: str, key: str, filename=None) -> bool:
+def delete_plugin_data(
+    plugin_name: str, key: str, filename: str | Path | None = None
+) -> bool:
     initialise(filename)
     with _get_connection(filename) as conn:
         with conn:

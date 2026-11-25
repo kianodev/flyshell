@@ -18,7 +18,7 @@ class FsDel(BaseCmd):
     options = "'history', 'all', 'plugin <file>'"
     aliases = ["purge"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         if len(args) < 1:
             return (1, "\nCommand Error: 'fs del' requires a target.\n")
         target = args[0].lower()
@@ -84,7 +84,7 @@ class FsInfo(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         return (
             0,
             (
@@ -106,7 +106,7 @@ class FsLicence(BaseCmd):
     options = None
     aliases = ["license"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         return (
             0,
             (
@@ -127,7 +127,7 @@ class FsPlugins(BaseCmd):
     options = None
     aliases = ["plugin"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         lines = ["\nInstalled Plugins:"]
         if c.PLUGINS:
             for name, plugin in c.PLUGINS.items():
@@ -147,7 +147,7 @@ class FsSeason(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         season = seasonal.get_season(return_icons=False)
         if not season:
             return (0, "\nNo seasonal modes are active at present.\n")
@@ -162,7 +162,7 @@ class FsStatus(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         uptime = int(time.time() - c.SESSION_START_TIME)
         mins, secs = divmod(uptime, 60)
         hours, mins = divmod(mins, 60)
@@ -195,7 +195,7 @@ class FsVersion(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         return (
             0,
             (
@@ -212,7 +212,7 @@ class Fs(ParentCmd):
     description = "Execute core Flyshell control and utility functions"
     aliases = []
 
-    def get_subcommands(self):
+    def get_subcommands(self) -> list[BaseCmd]:
         return [
             FsDel(),
             FsInfo(),

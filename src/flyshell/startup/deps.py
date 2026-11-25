@@ -1,6 +1,6 @@
 # src/flyshell/startup/deps.py
 
-from typing import List, Tuple
+from typing import Any, List, Tuple
 import importlib.util
 
 
@@ -12,7 +12,7 @@ def check_module_installed(module_name: str) -> bool:
         return False
 
 
-def verify_plugin_dependencies(plugin) -> Tuple[List[str], List[str]]:
+def verify_plugin_dependencies(plugin: Any) -> Tuple[List[str], List[str]]:
     declared = getattr(plugin, "third_pty_libs", None) or []
     installed = []
     missing = []

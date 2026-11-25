@@ -20,7 +20,7 @@ class Clear(BaseCmd):
     options = None
     aliases = ["cls"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         return (0, c.CLEAR_SCREEN)
 
 
@@ -36,7 +36,7 @@ class Echo(BaseCmd):
     options = "Message"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         text = " ".join(args)
         try:
             text = _ESCAPE_SEQ_RE.sub(
@@ -55,7 +55,7 @@ class History(BaseCmd):
     options = "Entry count (default is 10)"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         limit = 10
         if args:
             sub_arg = args[0].lower()
@@ -90,7 +90,7 @@ class Kill(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         choice = input("\nAre you sure [y/n]?: ").strip().lower()
         if choice == "y":
             return (-1, "\nShutting down...\n")
@@ -104,7 +104,7 @@ class Reboot(BaseCmd):
     options = None
     aliases = ["restart"]
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         print("\nRestarting Flyshell...\n")
         is_direct_script = (
             sys.argv[0].lower().endswith(".exe")
@@ -133,7 +133,7 @@ class Sleep(BaseCmd):
     options = "Duration (secs)"
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         if not args or not args[0].replace(".", "", 1).isdigit():
             return (
                 1,

@@ -3,7 +3,7 @@
 from flyshell.core import data
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 class BasePlugin:
@@ -17,7 +17,7 @@ class BasePlugin:
     api_keys: Optional[list] = None
     third_pty_libs: Optional[list] = None
 
-    def __init__(self, context: dict):
+    def __init__(self, context: dict) -> None:
         self.api_keys = list(self.api_keys) if self.api_keys else []
         self.third_pty_libs = list(self.third_pty_libs) if self.third_pty_libs else []
         self.context = context
@@ -27,7 +27,7 @@ class BasePlugin:
         self.env_file_path = context.get("env_path", None)
         self.on_load()
 
-    def get_api_key(self, key_name: str, default=None):
+    def get_api_key(self, key_name: str, default: Any = None) -> Any:
         if key_name in self.api_keys_data:
             return self.api_keys_data[key_name]
         target = key_name.lower()
@@ -36,16 +36,16 @@ class BasePlugin:
                 return v
         return default
 
-    def on_load(self):
+    def on_load(self) -> None:
         pass
 
-    def on_unload(self):
+    def on_unload(self) -> None:
         pass
 
-    def execute(self, args: list):
+    def execute(self, args: list) -> Any:
         raise NotImplementedError("Plugins must implement the execute method")
 
-    def help(self):
+    def help(self) -> None:
         lines = [
             f"\nPlugin: {self.name} (v{self.version})",
             f"Description: {self.description}",
@@ -79,10 +79,10 @@ class BasePlugin:
             return True
         return False
 
-    def get_data(self, key: str, default=None):
+    def get_data(self, key: str, default: Any = None) -> Any:
         return self.storage.get(key, default)
 
-    def set_data(self, key: str, value):
+    def set_data(self, key: str, value: Any) -> None:
         self.storage[key] = value
         self.save_storage()
 
@@ -99,7 +99,7 @@ class BasePlugin:
         self.context["storage"] = fresh_data
         return self.storage
 
-    def save_storage(self):
+    def save_storage(self) -> None:
         existing_keys = set(data.get_all_plugin_data(self.plugin_name).keys())
         for stale_key in existing_keys - set(self.storage.keys()):
             data.delete_plugin_data(self.plugin_name, stale_key)

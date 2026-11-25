@@ -28,7 +28,7 @@ def check_readline() -> bool:
             return False
 
 
-def load_history():
+def load_history() -> None:
     if not readline:
         return
     history_entries = data.get_history(limit=100)
@@ -37,7 +37,7 @@ def load_history():
             readline.add_history(entry["command"])
 
 
-def boot():
+def boot() -> None:
     load_history()
     env.create_env()
     print(c.CLEAR_SCREEN, end="")

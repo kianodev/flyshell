@@ -10,7 +10,7 @@ class BaseCmd:
     options: Optional[str] = None
     aliases: Optional[List[str]] = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self.aliases is None:
             self.aliases = []
         else:
@@ -21,7 +21,7 @@ class BaseCmd:
             f"Command '{self.__class__.__name__}' has not implemented the execute method"
         )
 
-    def help(self, prefix: str = ""):
+    def help(self, prefix: str = "") -> None:
         full_name = f"{prefix} {self.name}".strip() if prefix else self.name
         print(f"\nCommand: {full_name}")
         if prefix:

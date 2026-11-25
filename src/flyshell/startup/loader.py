@@ -13,7 +13,7 @@ import inspect
 import sys
 
 
-def scan_plugins(plugin_folder=None):
+def scan_plugins(plugin_folder: str | Path | None = None) -> None:
     folder = Path(plugin_folder) if plugin_folder else c.USER_PLUGIN_DIR
     c.PLUGINS.clear()
     if not folder.exists():
@@ -100,7 +100,9 @@ def scan_plugins(plugin_folder=None):
         print("\nNo plugins loaded.")
 
 
-def build_context(plugin_name, default_name, file_path=None) -> dict:
+def build_context(
+    plugin_name: str, default_name: str, file_path: str | Path | None = None
+) -> dict:
     plugin_storage = data.get_all_plugin_data(plugin_name)
     api_keys = env.get_plugin_api_keys(str(default_name))
     context = {
@@ -115,7 +117,7 @@ def build_context(plugin_name, default_name, file_path=None) -> dict:
     return context
 
 
-def check_plugin_api_keys():
+def check_plugin_api_keys() -> None:
     if not c.PLUGINS:
         return
     print("\nFlyshell will now check plugin API keys.")
@@ -171,7 +173,7 @@ def check_all_plugin_dependencies() -> Dict[str, List[str]]:
     return all_missing
 
 
-def unload_plugins():
+def unload_plugins() -> None:
     for identifier, plugin in list(c.PLUGINS.items()):
         try:
             if hasattr(plugin, "on_unload"):

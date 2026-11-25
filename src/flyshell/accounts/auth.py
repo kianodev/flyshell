@@ -9,7 +9,7 @@ import re
 import secrets
 
 
-def hash_password(password, salt=None):
+def hash_password(password: str, salt: bytes | str | None = None) -> tuple[str, str]:
     if salt is None:
         salt = secrets.token_bytes(16)
     elif isinstance(salt, str):
@@ -77,7 +77,7 @@ def setup_acc() -> bool:
     return True
 
 
-def login_flow(is_lock=False) -> bool:
+def login_flow(is_lock: bool = False) -> bool:
     auth_info = data.get_auth()
     if not auth_info or "hash" not in auth_info:
         if not setup_acc():
@@ -113,7 +113,7 @@ class Lock(BaseCmd):
     options = None
     aliases = []
 
-    def execute(self, args):
+    def execute(self, args: list[str]) -> tuple[int, str]:
         if login_flow(is_lock=True):
             return (0, "")
         else:
