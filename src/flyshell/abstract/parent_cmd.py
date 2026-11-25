@@ -50,7 +50,7 @@ class ParentCmd(BaseCmd):
         sub_args = args[1:]
         if sub_name not in self._sub_registry:
             err = (
-                f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'.\n"
+                f"\nCommand Error: Unknown subcommand '{sub_name}' for '{self.name}'\n"
                 f"Use '{self.name} -h' or '--help' to see all valid subcommands.\n"
             )
             return (1, err)

@@ -57,7 +57,7 @@ class FsDel(BaseCmd):
                         )
                     return (
                         1,
-                        f"\nPlugin Error: No data found for plugin '{plugin_name}'.\n",
+                        f"\nPlugin Error: No data found for plugin '{plugin_name}'\n",
                     )
                 return (1, "\nAction cancelled.\n")
             case "all":

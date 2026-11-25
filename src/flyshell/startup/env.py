@@ -98,7 +98,7 @@ def get_plugin_api_keys(plugin_name_or_dir: str) -> dict[str, str]:
 def get_all_keys() -> tuple[int, str]:
     env_path = get_env_path()
     if not env_path.exists():
-        return (1, f"File Config Error: Environment file not found at '{env_path}'.")
+        return (1, f"File Config Error: Environment file not found at '{env_path}'")
     try:
         all_env = read_env_file()
         if not all_env:
@@ -116,7 +116,7 @@ def get_plugin_keys_formatted(target_name: str) -> tuple[int, str]:
         return (1, "Command Error: A valid plugin name must be provided.")
     env_path = get_env_path()
     if not env_path.exists():
-        return (1, f"File Config Error: Environment file not found at '{env_path}'.")
+        return (1, f"File Config Error: Environment file not found at '{env_path}'")
     dir_name, plugin = _resolve_plugin_dir_name(target_name)
     configured_keys = get_plugin_api_keys(target_name)
     required_keys = (getattr(plugin, "api_keys", None) or []) if plugin else []

@@ -27,7 +27,7 @@ class Cd(BaseCmd):
         except OSError as e:
             return (
                 1,
-                f"\nCommand Error: Invalid path syntax '{target}'. ({e.strerror})\n",
+                f"\nCommand Error: Invalid path syntax '{target}' ({e.strerror})\n",
             )
 
 
