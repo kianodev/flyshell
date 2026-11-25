@@ -35,16 +35,6 @@ class FsDel(BaseCmd):
                     data.clear_history()
                     return (0, "\nCommand history purged successfully.\n")
                 return (1, "\nAction cancelled.\n")
-            case "config":
-                if len(args) < 2:
-                    return (
-                        1,
-                        "\nCommand Error: Please specify a configuration key to delete.\n",
-                    )
-                key = args[1]
-                if data.delete_config(key):
-                    return (0, f"\nConfig setting '{key}' deleted.\n")
-                return (1, f"\nConfig Error: Setting '{key}' not found.\n")
             case "plugin":
                 if len(args) < 2:
                     return (
