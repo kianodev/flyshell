@@ -67,24 +67,6 @@ def test_loader_populates_context_correctly(tmp_path, mock_env_file, monkeypatch
     assert plugin.get_api_key("token") == "token123"
 
 
-def test_loader_rejects_plugin_with_missing_keys(
-    tmp_path, mock_env_file, monkeypatch, capsys
-):
-    mock_env_file.write_text("needkey_first=val1\n")
-    plugin_file = tmp_path / "needkey.py"
-    plugin_file.write_text(
-        "from flyshell.abstract.base_plugin import BasePlugin\n"
-        "class NeedKeyPlugin(BasePlugin):\n"
-        "    api_keys = ['first', 'second']\n"
-        "    def execute(self, args): return 0\n"
-    )
-    monkeypatch.setattr(c, "USER_PLUGIN_DIR", tmp_path)
-    loader.scan_plugins(plugin_folder=tmp_path)
-    out = capsys.readouterr().out
-    assert "API Key Error" in out
-    assert "second" in out
-
-
 def test_directory_execute_fallback_when_keys_missing(
     mock_env_file, monkeypatch, capsys
 ):

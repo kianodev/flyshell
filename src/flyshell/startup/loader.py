@@ -62,21 +62,6 @@ def scan_plugins(plugin_folder=None):
                         )
                         break
                     ctx = build_context(resolved_name, default_name, file_path)
-                    required_keys = getattr(obj, "api_keys", None) or []
-                    found_keys = ctx["api_keys"]
-                    found_keys_lower = {k.lower(): v for k, v in found_keys.items()}
-                    missing_keys = [
-                        k for k in required_keys if k.lower() not in found_keys_lower
-                    ]
-                    if missing_keys:
-                        env_file = ctx["env_path"]
-                        print(
-                            f"\n⚠️ API Key Error - Plugin '{resolved_name}' is missing required key(s): {', '.join(missing_keys)}"
-                        )
-                        print(f"Please define them in: {env_file} as:")
-                        for mk in missing_keys:
-                            print(f"{default_name}_{mk}=<your_key>")
-                        print("You can do this once Flyshell has booted.")
                     candidates.setdefault(resolved_name, []).append(
                         (obj, ctx, file_path)
                     )
