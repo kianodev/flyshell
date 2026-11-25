@@ -72,7 +72,7 @@ def main():
             from flyshell.core import console
             from flyshell.startup import loader
 
-            if c.HOST_OS in ["Windows", "Darwin", "Linux"]:
+            if c.HOST_OS in c.SUPPORTED_OS:
                 if sys.version_info < c.SUPPORTED_PYTHON:
                     print(
                         "\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell."
