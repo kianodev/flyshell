@@ -2,10 +2,7 @@
 
 from flyshell import constants as c
 from flyshell.abstract.base_cmd import BaseCmd
-from flyshell.accounts import auth
-from flyshell.core import data
 
-import getpass
 import os
 import shutil
 import subprocess
@@ -75,45 +72,9 @@ class SysExe(BaseCmd):
     def execute(self, args):
         if not args:
             return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
-        if args[0] in ["-f", "--force"]:
-            override = True
-            cmd_args = args[1:]
-            if not cmd_args:
-                return (1, "\nCommand Error: 'sys' requires at least 1 parameter(s).\n")
-        else:
-            override = False
-            cmd_args = args
-        tokens_lower = [token.lower().strip("\"'") for token in cmd_args]
-
-        def matches_pattern(target_set):
-            for token in tokens_lower:
-                base_name = os.path.splitext(os.path.basename(token))[0]
-                if token in target_set or base_name in target_set:
-                    return True
-            return False
-
-        if matches_pattern(c.BLOCKED_COMMANDS):
-            cmd_display = " ".join(cmd_args)
-            return (
-                1,
-                (
-                    "\nSecurity Error: Flyshell has blocked execution of this command.\n"
-                    f"This command '{cmd_display}' is permanently restricted by Flyshell safety policy.\n"
-                    "Flyshell has blocked your command to prevent damage to your computer.\n"
-                ),
-            )
-        if not override and matches_pattern(c.DANGER_COMMANDS):
-            password = getpass.getpass(
-                "\nThis command is restricted. To execute, enter your password: "
-            )
-            auth_info = data.get_auth() or {}
-            stored_hash = auth_info.get("hash")
-            stored_salt = auth_info.get("salt")
-            if not auth.verify_password(stored_hash, stored_salt, password):
-                return (1, "\nAccount Error: Password does not match.\n")
         try:
             print()
-            raw_cmd = " ".join(cmd_args)
+            raw_cmd = " ".join(args)
             result = subprocess.run(raw_cmd, shell=True)
             print()
             return (result.returncode, "")
