@@ -1,6 +1,6 @@
 # Flyshell Project Structure
 
-> Documentation last updated: v1.5.8
+> Documentation last updated: v1.6.0
 
 This document provides a comprehensive view of the entire Flyshell repository tree, including development workflows, documentation, source packages, tests, and configuration assets.
 
@@ -49,7 +49,8 @@ flyshell/
 │   │   ├── v1.2_release_notes.md
 │   │   ├── v1.3_release_notes.md
 │   │   ├── v1.4_release_notes.md
-│   │   └── v1.5_release_notes.md
+│   │   ├── v1.5_release_notes.md
+│   │   └── v1.6_release_notes.md
 │   ├── CHANGELOG.md
 │   └── project_structure.md
 ├── src/
@@ -103,7 +104,6 @@ flyshell/
 │   ├── test_fs.py
 │   ├── test_loader.py
 │   ├── test_pkg.py
-│   ├── test_security.py
 │   └── test_utils.py
 ├── .clang-format
 ├── .clang-tidy

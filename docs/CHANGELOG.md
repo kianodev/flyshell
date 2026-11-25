@@ -1,10 +1,30 @@
 # Flyshell Changelog
 
-> Documentation last updated: v1.5.0
+> Documentation last updated: v1.6.0
 
 ##  Release Notes
 
 The below section details all releases since v1.0.0 (12 October 2026).
+
+### Flyshell v1.6.0 - The Architectural Hardening Update 💪
+
+> This update was released on 25th November 2026.
+
+Welcome to **Flyshell v1.6.0**! This release has introduced more than 30 targeted fixes and refactors, clearing up legacy debt and pushing Flyshell further forward.
+
+#### 🌟 What's New?
+
+Many bug fixes have occurred:
+* The CI workflow matrixes have been streamlined to 2 targeted workflows
+* Environment key parsing has been fixed to match casing and ensure multi-word plugins are accounted for
+* Data deletion helpers have been added to `BasePlugin`
+* Non-ASCII character issues have been fixed in `echo`
+* Apostrophes are no longer stripped from valid file names within `open`
+
+In addition, other changes have occurred:
+* **Styling Improvements**: The overall look of the Flyshell CLI has been improved drastically.
+* **Code Consistency**: All functions in Flyshell now strictly define return types, making development easier.
+* **Seasonal Checks**: Flyshell now detects the time of year and uses this to display exciting seasonal prompts! (Of course, I think naturally this is the best feature I've added yet 😉)
 
 ### Flyshell v1.5.0 - The C Extensions Expansion Update ⚙️
 

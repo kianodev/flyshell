@@ -6,7 +6,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)
 ![Tests](https://github.com/kianodev/flyshell/actions/workflows/ci.yml/badge.svg)
 
-> Documentation last updated: v1.5.8
+> Documentation last updated: v1.6.0
 
 A modular, zero-dependency command-line environment and extensible runtime interface built in Python with compiled C-extensions.
 
@@ -21,7 +21,7 @@ No extra packages required, just install and enjoy!
 3. **Secure Authentication**: Flyshell uses salted PBKDF2 HMAC (SHA-256, 600,000 iterations) with constant-time equality comparisons to prevent timing attacks on password information.
 4. **Cross-Platform Support**: Flyshell is fully supported by Windows (NT), macOS (Darwin) and Linux installations with native OS management and POSIX-aware parsing. Note that Flyshell is **not** supported by any other systems.
 5. **State and History Persistence**: Flyshell has a fully encapsulated SQL storage system using SQLite3 providing session metrics and ISO 8601 UTC audit logging.
-6. **Automatic C-Extension Compilation**: If installed via `pip` on Windows or Linux, Flyshell is shipped with pre-compiled wheels. For macOS users, Xcode CLI tools is required as macOS builds install from source.
+6. **Automatic C-Extension Compilation**: If installed via `pip` on Windows or Linux, Flyshell is shipped with pre-compiled wheels. For macOS users, Xcode CLI Tools is required as macOS builds install from source.
 
 ## System Requirements
 
