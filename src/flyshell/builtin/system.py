@@ -42,7 +42,7 @@ class OpenFile(BaseCmd):
     aliases = []
 
     def execute(self, args):
-        target = " ".join(args).strip().strip("\"'")
+        target = " ".join(args).strip().strip('"')
         if not target:
             return (0, "")
         is_path = os.path.exists(target)
