@@ -5,9 +5,9 @@ import os
 import platform
 import time
 
-BUILD = 206
-VERFULL = "1.6.0c"
-VERSION = "1.6.0"
+BUILD = 207
+VERFULL = "1.6.1a"
+VERSION = "1.6.1"
 
 
 def _resolve_app_dir() -> Path:
@@ -36,8 +36,6 @@ SESSION_CMD_COUNT = 0
 
 PLUGINS = {}
 
-BLOCKED_COMMANDS = frozenset({"format", "diskpart", "dd"})
-DANGER_COMMANDS = frozenset({"del", "rmdir", "rd", "rm", "taskkill", "killall"})
 SUPPORTED_OS = frozenset({"Windows", "Darwin", "Linux"})
 SUPPORTED_PYTHON = (3, 10)
 
