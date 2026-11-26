@@ -1,11 +1,11 @@
 # src/flyshell/core/directory.py
 
 from flyshell import constants as c
+from flyshell import data
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.accounts import auth
 from flyshell.builtin import fs, pkg, system, utils
-from flyshell.core import data
 from flyshell.native import diskops_handler as diskops
 from flyshell.startup import deps
 

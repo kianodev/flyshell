@@ -1,7 +1,7 @@
 # src/flyshell/accounts/auth.py
 
+from flyshell import data
 from flyshell.abstract.base_cmd import BaseCmd
-from flyshell.core import data
 
 import getpass
 import hashlib

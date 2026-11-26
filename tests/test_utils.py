@@ -1,7 +1,7 @@
 # tests/test_utils.py
 
+from flyshell import data
 from flyshell.builtin import utils
-from flyshell.core import data
 
 
 def test_echo_joins_arguments_with_spaces():

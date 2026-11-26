@@ -1,7 +1,8 @@
 # tests/test_data.py
 
 from flyshell import constants as c
-from flyshell.core import data
+from flyshell import data
+
 import sqlite3
 
 

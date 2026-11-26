@@ -1,8 +1,8 @@
 # src/flyshell/startup/loader.py
 
 from flyshell import constants as c
+from flyshell import data
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core import data
 from flyshell.core.directory import RESERVED_NAMES
 from flyshell.startup import deps, env
 

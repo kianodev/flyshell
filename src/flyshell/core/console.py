@@ -1,7 +1,7 @@
 # src/flyshell/core/console.py
 
 from flyshell import constants as c
-from flyshell.core import data
+from flyshell import data
 from flyshell.core.directory import execute_line
 from flyshell.startup import env, seasonal
 

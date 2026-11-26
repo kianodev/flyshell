@@ -1,6 +1,6 @@
 # src/flyshell/abstract/base_plugin.py
 
-from flyshell.core import data
+from flyshell import data
 
 from pathlib import Path
 from typing import Any, Optional

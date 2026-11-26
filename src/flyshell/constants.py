@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 212
-VERFULL = "1.6.2a"
+BUILD = 213
+VERFULL = "1.6.2b"
 VERSION = "1.6.2"
 
 
@@ -64,8 +64,14 @@ REQUIRED_COMPONENTS = [
     "core",
     "core/__init__.py",
     "core/console.py",
-    "core/data.py",
     "core/directory.py",
+    "data",
+    "data/__init__.py",
+    "data/auth.py",
+    "data/config.py",
+    "data/db_manager.py",
+    "data/history.py",
+    "data/plugins.py",
     "__init__.py",
     "main.py",
     "native",

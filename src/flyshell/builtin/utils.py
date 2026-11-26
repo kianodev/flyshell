@@ -1,8 +1,8 @@
 # src/flyshell/builtin/utils.py
 
 from flyshell import constants as c
+from flyshell import data
 from flyshell.abstract.base_cmd import BaseCmd
-from flyshell.core import data
 
 import codecs
 import os

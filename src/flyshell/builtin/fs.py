@@ -1,9 +1,9 @@
 # src/flyshell/builtin/fs.py
 
 from flyshell import constants as c
+from flyshell import data
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.core import data
 from flyshell.startup import seasonal
 
 import os
