@@ -133,7 +133,12 @@ def main() -> None:
             print(f"Exception message: '{e}'")
         sys.exit(1)
     finally:
-        loader.unload_plugins()
+        try:
+            from flyshell.startup import loader
+
+            loader.unload_plugins()
+        except ImportError:
+            pass
 
 
 if __name__ == "__main__":
