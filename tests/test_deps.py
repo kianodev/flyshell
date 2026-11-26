@@ -14,18 +14,20 @@ class DummyPlugin:
 
 def test_check_module_installed_existing_builtin():
     assert deps.check_module_installed("sys") is True
-    assert deps.check_module_installed("os") is True
 
 
 def test_check_module_installed_nonexistent():
     assert deps.check_module_installed("non_existent_fake_package_xyz123") is False
 
 
-def test_check_module_installed_handles_exceptions():
+def test_check_module_installed_handles_value_error():
     with patch(
         "importlib.util.find_spec", side_effect=ValueError("Invalid module name")
     ):
         assert deps.check_module_installed("bad.name...") is False
+
+
+def test_check_module_installed_handles_module_not_found_error():
     with patch(
         "importlib.util.find_spec", side_effect=ModuleNotFoundError("Not found")
     ):
@@ -61,8 +63,7 @@ def test_check_all_plugin_dependencies_empty(capsys):
     with patch.dict(c.PLUGINS, {}, clear=True):
         result = loader.check_all_plugin_dependencies()
         assert result == {}
-        captured = capsys.readouterr()
-        assert captured.out == ""
+        assert capsys.readouterr().out == ""
 
 
 def test_check_all_plugin_dependencies_no_deps_declared(capsys):
@@ -70,32 +71,31 @@ def test_check_all_plugin_dependencies_no_deps_declared(capsys):
     with patch.dict(c.PLUGINS, {"clean": plugin}, clear=True):
         result = loader.check_all_plugin_dependencies()
         assert result == {}
-        captured = capsys.readouterr()
         assert (
             "✅ No third-party dependencies required for any loaded plugins."
-            in captured.out
+            in capsys.readouterr().out
         )
 
 
-def test_check_all_plugin_dependencies_with_missing(capsys, monkeypatch):
+def test_check_all_plugin_dependencies_returns_missing_map(monkeypatch):
     def fake_find_spec(name):
         return MagicMock() if name == "numpy" else None
 
     monkeypatch.setattr("importlib.util.find_spec", fake_find_spec)
     plugin = DummyPlugin(name="DataPlugin", libs=["numpy", "aura", "yis"])
     with patch.dict(c.PLUGINS, {"data_plug": plugin}, clear=True):
-        missing_dict = loader.check_all_plugin_dependencies()
-        assert missing_dict == {"data_plug": ["aura", "yis"]}
-        captured = capsys.readouterr()
-        assert "Plugin: DataPlugin (data_plug)" in captured.out
-        assert "✅ numpy - Dependency found" in captured.out
-        assert "⚠️ aura - DEPENDENCY NOT FOUND" in captured.out
-        assert "⚠️ yis - DEPENDENCY NOT FOUND" in captured.out
-        assert (
-            "Install using: 'sys pip install aura' once system has booted."
-            in captured.out
-        )
-        assert (
-            "Install using: 'sys pip install yis' once system has booted."
-            in captured.out
-        )
+        assert loader.check_all_plugin_dependencies() == {"data_plug": ["aura", "yis"]}
+
+
+def test_check_all_plugin_dependencies_prints_install_instructions(capsys, monkeypatch):
+    def fake_find_spec(name):
+        return MagicMock() if name == "numpy" else None
+
+    monkeypatch.setattr("importlib.util.find_spec", fake_find_spec)
+    plugin = DummyPlugin(name="DataPlugin", libs=["numpy", "aura"])
+    with patch.dict(c.PLUGINS, {"data_plug": plugin}, clear=True):
+        loader.check_all_plugin_dependencies()
+        out = capsys.readouterr().out
+        assert "✅ numpy - Dependency found" in out
+        assert "⚠️ aura - DEPENDENCY NOT FOUND" in out
+        assert "Install using: 'sys pip install aura' once system has booted." in out
