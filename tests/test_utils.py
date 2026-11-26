@@ -4,48 +4,54 @@ from flyshell.builtin import utils
 from flyshell.core import data
 
 
-def test_echo_output_and_escape_characters():
-    cmd = utils.Echo()
-    code, msg = cmd.execute(["Hello", "World"])
+def test_echo_joins_arguments_with_spaces():
+    code, msg = utils.Echo().execute(["Hello", "World"])
     assert code == 0
     assert "Hello World" in msg
-    code, msg = cmd.execute([r"Line1\nLine2"])
+
+
+def test_echo_decodes_escape_sequences():
+    code, msg = utils.Echo().execute([r"Line1\nLine2"])
     assert code == 0
     assert "Line1\nLine2" in msg
 
 
-def test_echo_non_ascii_characters():
-    cmd = utils.Echo()
-    code, msg = cmd.execute([r"héllo 🚀\nworld"])
+def test_echo_preserves_non_ascii_characters():
+    code, msg = utils.Echo().execute([r"héllo 🚀\nworld"])
     assert code == 0
     assert "héllo 🚀\nworld" in msg
 
 
 def test_clear_returns_escape_code():
-    cmd = utils.Clear()
-    code, msg = cmd.execute([])
+    code, msg = utils.Clear().execute([])
     assert code == 0
     assert msg == "\033[H\033[2J"
 
 
-def test_sleep_validations():
-    cmd = utils.Sleep()
-    code, msg = cmd.execute(["not_a_number"])
+def test_sleep_rejects_non_numeric_argument():
+    code, msg = utils.Sleep().execute(["not_a_number"])
     assert code == 1
     assert "Invalid argument" in msg
-    code, msg = cmd.execute([])
+
+
+def test_sleep_rejects_missing_argument():
+    code, _ = utils.Sleep().execute([])
     assert code == 1
 
 
-def test_history_limit_and_all_args():
+def test_history_with_numeric_limit():
     data.append_history("cmd1", "2026-01-01T00:00:00Z")
     data.append_history("cmd2", "2026-01-01T00:01:00Z")
-    cmd = utils.History()
-    code, msg = cmd.execute(["1"])
+    code, msg = utils.History().execute(["1"])
     assert code == 0
     assert "cmd2" in msg
     assert "cmd1" not in msg
-    code, msg = cmd.execute(["all"])
+
+
+def test_history_with_all_argument():
+    data.append_history("cmd1", "2026-01-01T00:00:00Z")
+    data.append_history("cmd2", "2026-01-01T00:01:00Z")
+    code, msg = utils.History().execute(["all"])
     assert code == 0
     assert "cmd1" in msg
     assert "cmd2" in msg
