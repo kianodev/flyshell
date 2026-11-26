@@ -4,7 +4,7 @@ from flyshell import constants as c
 from flyshell import data
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core import directory
-from flyshell.startup import loader, plugin_env
+from flyshell.startup import deps, loader
 
 import pytest
 
@@ -34,7 +34,7 @@ def test_get_plugin_api_keys_filters_by_plugin_prefix(env_file):
         "sample_api_token=secret_123\n" "otherplugin_key=val\n",
         encoding="utf-8",
     )
-    keys = plugin_env.get_plugin_api_keys("sample")
+    keys = deps.get_plugin_api_keys("sample")
     assert keys == {"api_token": "secret_123"}
 
 
@@ -45,7 +45,7 @@ def test_get_plugin_api_keys_includes_extra_undeclared_keys(env_file):
         "myplug_third_param=12345\n",
         encoding="utf-8",
     )
-    assert plugin_env.get_plugin_api_keys("myplug") == {
+    assert deps.get_plugin_api_keys("myplug") == {
         "required_one": "abc",
         "bonus_feature": "xyz",
         "third_param": "12345",
@@ -116,7 +116,7 @@ def test_directory_blocks_plugin_execution_when_keys_missing(
 
 def test_get_all_keys_success(env_file):
     env_file.write_text("pluginA_token=123\npluginB_secret=xyz\n", encoding="utf-8")
-    code, output = plugin_env.get_all_keys()
+    code, output = deps.get_all_keys()
     assert code == 0
     assert "pluginA_token = 123" in output
     assert "pluginB_secret = xyz" in output
@@ -124,7 +124,7 @@ def test_get_all_keys_success(env_file):
 
 def test_get_all_keys_empty_file(env_file):
     env_file.write_text("", encoding="utf-8")
-    code, output = plugin_env.get_all_keys()
+    code, output = deps.get_all_keys()
     assert code == 0
     assert "No API keys configured." in output
 
@@ -132,7 +132,7 @@ def test_get_all_keys_empty_file(env_file):
 def test_get_all_keys_missing_file(tmp_path, monkeypatch):
     missing_path = tmp_path / "does_not_exist.env"
     monkeypatch.setattr(data, "get_env_path", lambda: missing_path)
-    code, output = plugin_env.get_all_keys()
+    code, output = deps.get_all_keys()
     assert code == 1
     assert "Environment file not found" in output
 
@@ -141,21 +141,21 @@ def test_get_plugin_keys_formatted_success(env_file):
     env_file.write_text(
         "weather_api_key=token123\nweather_units=metric\n", encoding="utf-8"
     )
-    code, output = plugin_env.get_plugin_keys_formatted("weather")
+    code, output = deps.get_plugin_keys_formatted("weather")
     assert code == 0
     assert "api_key = token123" in output
     assert "units = metric" in output
 
 
 def test_get_plugin_keys_formatted_invalid_input():
-    code, output = plugin_env.get_plugin_keys_formatted("")
+    code, output = deps.get_plugin_keys_formatted("")
     assert code == 1
     assert "valid plugin name" in output
 
 
 def test_env_preserves_square_brackets_in_values(env_file):
     env_file.write_text('sample_token="abc[123]xyz"\n', encoding="utf-8")
-    assert plugin_env.get_plugin_api_keys("sample") == {"token": "abc[123]xyz"}
+    assert deps.get_plugin_api_keys("sample") == {"token": "abc[123]xyz"}
 
 
 def test_set_plugin_api_key_resolves_plugin_identifier(env_file, monkeypatch):
@@ -174,7 +174,7 @@ def test_set_plugin_api_key_resolves_plugin_identifier(env_file, monkeypatch):
         "api_keys": {},
     }
     monkeypatch.setitem(c.PLUGINS, "weather", AliasedPlugin(ctx))
-    code, _ = plugin_env.set_plugin_api_key("weather", "api_key", "secret123")
+    code, _ = deps.set_plugin_api_key("weather", "api_key", "secret123")
     assert code == 0
     assert "weather_folder_API_KEY=secret123" in env_file.read_text(encoding="utf-8")
 
@@ -196,7 +196,7 @@ def test_remove_plugin_api_key_resolves_plugin_identifier(env_file, monkeypatch)
         "api_keys": {},
     }
     monkeypatch.setitem(c.PLUGINS, "weather", AliasedPlugin(ctx))
-    code, _ = plugin_env.remove_plugin_api_key("weather", "api_key")
+    code, _ = deps.remove_plugin_api_key("weather", "api_key")
     assert code == 0
     assert "weather_folder_API_KEY" not in env_file.read_text(encoding="utf-8")
 
@@ -251,5 +251,5 @@ def test_get_plugin_api_keys_avoids_prefix_collision(env_file, monkeypatch):
     p2 = DummyPlugin({"plugin_name": "weather_pro", "plugin_dir_name": "weather_pro"})
     monkeypatch.setitem(c.PLUGINS, "weather", p1)
     monkeypatch.setitem(c.PLUGINS, "weather_pro", p2)
-    assert plugin_env.get_plugin_api_keys("weather") == {"api_key": "base_secret"}
-    assert plugin_env.get_plugin_api_keys("weather_pro") == {"api_key": "pro_secret"}
+    assert deps.get_plugin_api_keys("weather") == {"api_key": "base_secret"}
+    assert deps.get_plugin_api_keys("weather_pro") == {"api_key": "pro_secret"}

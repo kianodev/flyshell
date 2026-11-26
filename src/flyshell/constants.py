@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 214
-VERFULL = "1.6.2c"
+BUILD = 215
+VERFULL = "1.6.2d"
 VERSION = "1.6.2"
 
 
@@ -85,7 +85,7 @@ REQUIRED_COMPONENTS = [
     "startup/__init__.py",
     "startup/deps.py",
     "startup/loader.py",
-    "startup/plugin_env.py",
+    "startup/seasonal.py",
 ]
 
 GREETINGS = [
