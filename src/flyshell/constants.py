@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 213
-VERFULL = "1.6.2b"
+BUILD = 214
+VERFULL = "1.6.2c"
 VERSION = "1.6.2"
 
 
@@ -70,6 +70,7 @@ REQUIRED_COMPONENTS = [
     "data/auth.py",
     "data/config.py",
     "data/db_manager.py",
+    "data/env.py",
     "data/history.py",
     "data/plugins.py",
     "__init__.py",
@@ -83,8 +84,8 @@ REQUIRED_COMPONENTS = [
     "startup",
     "startup/__init__.py",
     "startup/deps.py",
-    "startup/env.py",
     "startup/loader.py",
+    "startup/plugin_env.py",
 ]
 
 GREETINGS = [

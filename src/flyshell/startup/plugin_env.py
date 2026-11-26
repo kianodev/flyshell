@@ -1,41 +1,8 @@
-# src/flyshell/startup/env.py
+# src/flyshell/startup/plugin_env.py
 
 from pathlib import Path
 from flyshell import constants as c
-
-
-def get_env_path() -> Path:
-    primary = c.APP_DIR / "flyshell_keys.env"
-    if primary.exists():
-        return primary
-    fallback = c.APP_DIR / ".env"
-    if fallback.exists():
-        return fallback
-    return primary
-
-
-def create_env() -> None:
-    env_path = get_env_path()
-    if not env_path.exists():
-        env_path.touch()
-
-
-def read_env_file() -> dict[str, str]:
-    env_path = get_env_path()
-    if not env_path.exists():
-        return {}
-    entries = {}
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            raw_k, raw_v = line.split("=", 1)
-            clean_k = raw_k.strip()
-            clean_v = raw_v.strip().strip("\"'")
-            if clean_k:
-                entries[clean_k] = clean_v
-    return entries
+from flyshell import data
 
 
 def _resolve_plugin_dir_name(target_name: str) -> tuple[str, object | None]:
@@ -66,7 +33,7 @@ def _resolve_plugin_dir_name(target_name: str) -> tuple[str, object | None]:
 
 
 def get_plugin_api_keys(plugin_name_or_dir: str) -> dict[str, str]:
-    all_env = read_env_file()
+    all_env = data.read_env_file()
     dir_name, _ = _resolve_plugin_dir_name(plugin_name_or_dir)
     prefixes = {
         f"{dir_name.lower()}_",
@@ -96,11 +63,11 @@ def get_plugin_api_keys(plugin_name_or_dir: str) -> dict[str, str]:
 
 
 def get_all_keys() -> tuple[int, str]:
-    env_path = get_env_path()
+    env_path = data.get_env_path()
     if not env_path.exists():
         return (1, f"File Config Error: Environment file not found at '{env_path}'")
     try:
-        all_env = read_env_file()
+        all_env = data.read_env_file()
         if not all_env:
             return (0, "No API keys configured.")
         lines = ["Configured API keys:"]
@@ -114,7 +81,7 @@ def get_all_keys() -> tuple[int, str]:
 def get_plugin_keys_formatted(target_name: str) -> tuple[int, str]:
     if not target_name or not isinstance(target_name, str):
         return (1, "Command Error: A valid plugin name must be provided.")
-    env_path = get_env_path()
+    env_path = data.get_env_path()
     if not env_path.exists():
         return (1, f"File Config Error: Environment file not found at '{env_path}'")
     dir_name, plugin = _resolve_plugin_dir_name(target_name)
@@ -144,33 +111,10 @@ def set_plugin_api_key(plugin_name: str, key_name: str, value: str) -> tuple[int
         return (1, "Command Error: Both plugin name and key name are required.")
     dir_name, _ = _resolve_plugin_dir_name(plugin_name)
     target_key = f"{dir_name.strip().lower()}_{key_name.strip().upper()}"
-    clean_val = value.strip().strip("\"'")
-    env_path = get_env_path()
-    try:
-        env_path.parent.mkdir(parents=True, exist_ok=True)
-        if not env_path.exists():
-            env_path.touch()
-        lines = env_path.read_text(encoding="utf-8").splitlines()
-        updated = False
-        new_lines = []
-        for line in lines:
-            stripped = line.strip()
-            if stripped and not stripped.startswith("#") and "=" in stripped:
-                k, _ = stripped.split("=", 1)
-                clean_k = k.strip().replace("[", "").replace("]", "")
-                if clean_k.lower() == target_key.lower():
-                    new_lines.append(f"{target_key}={clean_val}")
-                    updated = True
-                    continue
-            new_lines.append(line)
-        if not updated:
-            new_lines.append(f"{target_key}={clean_val}")
-        env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
-        action = "Updated" if updated else "Added"
-        return (0, f"SUCCESS! {action} key '{target_key}'")
-
-    except Exception as e:
-        return (1, f"File Error: Failed to write to '{env_path}': {e}")
+    ok, info = data.set_env_entry(target_key, value)
+    if not ok:
+        return (1, info)
+    return (0, f"SUCCESS! {info} key '{target_key}'")
 
 
 def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
@@ -178,31 +122,7 @@ def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
         return (1, "Command Error: Both plugin name and key name are required.")
     dir_name, _ = _resolve_plugin_dir_name(plugin_name)
     target_key = f"{dir_name.strip().lower()}_{key_name.strip().upper()}"
-    env_path = get_env_path()
-    if not env_path.exists():
-        return (
-            1,
-            f"File Config Error: Environment file not found at '{env_path}'",
-        )
-    try:
-        lines = env_path.read_text(encoding="utf-8").splitlines()
-        new_lines = []
-        found = False
-        for line in lines:
-            stripped = line.strip()
-            if stripped and not stripped.startswith("#") and "=" in stripped:
-                k, _ = stripped.split("=", 1)
-                clean_k = k.strip().lower()
-                if clean_k == target_key.lower():
-                    found = True
-                    continue
-            new_lines.append(line)
-        if not found:
-            return (
-                1,
-                f"Command Error: Key '{target_key}' not found in '{env_path.name}'",
-            )
-        env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
-        return (0, f"SUCCESS! Removed key '{target_key}' from Flyshell environment.")
-    except Exception as e:
-        return (1, f"File Error: Failed to update '{env_path}': {e}")
+    ok, info = data.delete_env_entry(target_key)
+    if not ok:
+        return (1, info)
+    return (0, f"SUCCESS! Removed key '{target_key}' from Flyshell environment.")

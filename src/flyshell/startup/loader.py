@@ -4,7 +4,7 @@ from flyshell import constants as c
 from flyshell import data
 from flyshell.abstract.base_plugin import BasePlugin
 from flyshell.core.directory import RESERVED_NAMES
-from flyshell.startup import deps, env
+from flyshell.startup import deps, plugin_env
 
 from typing import Dict, List
 from pathlib import Path
@@ -104,12 +104,12 @@ def build_context(
     plugin_name: str, default_name: str, file_path: str | Path | None = None
 ) -> dict:
     plugin_storage = data.get_all_plugin_data(plugin_name)
-    api_keys = env.get_plugin_api_keys(str(default_name))
+    api_keys = plugin_env.get_plugin_api_keys(str(default_name))
     context = {
         "plugin_name": plugin_name,
         "plugin_dir_name": str(default_name),
         "file_path": str(file_path) if file_path else None,
-        "env_path": str(env.get_env_path()),
+        "env_path": str(data.get_env_path()),
         "api_keys": api_keys,
         "metadata": {"host_os": c.HOST_OS, "version": c.VERSION, "build": c.BUILD},
         "storage": plugin_storage,

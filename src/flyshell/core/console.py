@@ -3,7 +3,7 @@
 from flyshell import constants as c
 from flyshell import data
 from flyshell.core.directory import execute_line
-from flyshell.startup import env, seasonal
+from flyshell.startup import seasonal
 
 import os
 import random
@@ -39,7 +39,7 @@ def load_history() -> None:
 
 def boot() -> None:
     load_history()
-    env.create_env()
+    data.create_env()
     print(c.CLEAR_SCREEN, end="")
     icon = seasonal.get_season(return_icons=True)
     badge = f" {icon}" if icon else ""
