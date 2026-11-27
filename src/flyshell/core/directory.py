@@ -1,10 +1,9 @@
 # src/flyshell/core/directory.py
 
 from flyshell import constants as c
-from flyshell import data
+from flyshell import accounts, data
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.accounts import auth
 from flyshell.builtin import fs, pkg, system, utils
 from flyshell.native import diskops_handler as diskops
 from flyshell.startup import deps
@@ -64,7 +63,7 @@ INSTALLED_COMMANDS: list[BaseCmd] = [
     fs.Fs(),
     utils.History(),
     utils.Kill(),
-    auth.Lock(),
+    accounts.Lock(),
     diskops.MkDir(),
     diskops.Move(),
     system.OpenFile(),

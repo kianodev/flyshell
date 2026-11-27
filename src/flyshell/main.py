@@ -68,7 +68,7 @@ def main() -> None:
     try:
         if boot_check():
             from flyshell import constants as c
-            from flyshell.accounts import auth
+            from flyshell import accounts
             from flyshell.core import console
             from flyshell.startup import loader
 
@@ -97,7 +97,7 @@ def main() -> None:
                 loader.scan_plugins()
                 loader.check_plugin_api_keys()
                 loader.check_all_plugin_dependencies()
-                if auth.login_flow():
+                if accounts.login_flow():
                     console.boot()
                 else:
                     print("\nShutting down...\n")
