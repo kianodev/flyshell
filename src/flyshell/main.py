@@ -68,9 +68,8 @@ def main() -> None:
     try:
         if boot_check():
             from flyshell import constants as c
-            from flyshell import accounts
+            from flyshell import accounts, pkgm
             from flyshell.core import console
-            from flyshell.startup import loader
 
             if c.HOST_OS in c.SUPPORTED_OS:
                 if sys.version_info < c.SUPPORTED_PYTHON:
@@ -94,9 +93,9 @@ def main() -> None:
                     )
                 print("Flyshell will now boot.")
                 c.APP_DIR.mkdir(parents=True, exist_ok=True)
-                loader.scan_plugins()
-                loader.check_plugin_api_keys()
-                loader.check_all_plugin_dependencies()
+                pkgm.scan_plugins()
+                pkgm.check_plugin_api_keys()
+                pkgm.check_all_plugin_dependencies()
                 if accounts.login_flow():
                     console.boot()
                 else:
@@ -134,9 +133,9 @@ def main() -> None:
         sys.exit(1)
     finally:
         try:
-            from flyshell.startup import loader
+            from flyshell import pkgm
 
-            loader.unload_plugins()
+            pkgm.unload_plugins()
         except ImportError:
             pass
 

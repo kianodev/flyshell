@@ -1,12 +1,11 @@
 # src/flyshell/core/directory.py
 
 from flyshell import constants as c
-from flyshell import accounts, data
+from flyshell import accounts, data, pkgm
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
 from flyshell.builtin import fs, pkg, system, utils
 from flyshell.native import diskops_handler as diskops
-from flyshell.startup import deps
 
 from datetime import datetime, timezone
 import copy
@@ -83,7 +82,7 @@ for cmd_obj in INSTALLED_COMMANDS:
     for alias_name in cmd_obj.aliases:
         COMMAND_REGISTRY[alias_name] = cmd_obj
 
-RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
+c.RESERVED_NAMES = set(COMMAND_REGISTRY.keys())
 
 
 def log(cmd: str) -> None:
@@ -175,7 +174,7 @@ def _execute_single(raw_cmd: str) -> int:
             )
             print(f"Define them in {env_path} and retry.\n")
             return 1
-        _, missing_deps = deps.verify_plugin_dependencies(plugin)
+        _, missing_deps = pkgm.verify_plugin_dependencies(plugin)
         if missing_deps:
             print(
                 f"\nPlugin Error: Cannot execute '{cmd_name}'. Missing dependency/dependencies: {', '.join(missing_deps)}"

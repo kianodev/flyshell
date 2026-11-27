@@ -1,31 +1,9 @@
-# src/flyshell/startup/deps.py
-
-from pathlib import Path
-from typing import Any, List, Tuple
-import importlib.util
+# src/flyshell/pkgm/keys.py
 
 from flyshell import constants as c
 from flyshell import data
 
-
-def check_module_installed(module_name: str) -> bool:
-    try:
-        spec = importlib.util.find_spec(module_name)
-        return spec is not None
-    except (ModuleNotFoundError, ValueError):
-        return False
-
-
-def verify_plugin_dependencies(plugin: Any) -> Tuple[List[str], List[str]]:
-    declared = getattr(plugin, "third_pty_libs", None) or []
-    installed = []
-    missing = []
-    for dep in declared:
-        if check_module_installed(dep):
-            installed.append(dep)
-        else:
-            missing.append(dep)
-    return installed, missing
+from pathlib import Path
 
 
 def _resolve_plugin_dir_name(target_name: str) -> tuple[str, object | None]:
@@ -149,3 +127,34 @@ def remove_plugin_api_key(plugin_name: str, key_name: str) -> tuple[int, str]:
     if not ok:
         return (1, info)
     return (0, f"SUCCESS! Removed key '{target_key}' from Flyshell environment.")
+
+
+def check_plugin_api_keys() -> None:
+    if not c.PLUGINS:
+        return
+    print("\nFlyshell will now check plugin API keys.")
+    has_keys_to_report = False
+    for identifier, plugin in c.PLUGINS.items():
+        required_keys = getattr(plugin, "api_keys", None) or []
+        configured_keys = getattr(plugin, "api_keys_data", {})
+        dir_name = plugin.context.get("plugin_dir_name", identifier)
+        if not required_keys and not configured_keys:
+            continue
+        has_keys_to_report = True
+        configured_lookup = {k.lower(): (k, v) for k, v in configured_keys.items()}
+        seen_keys = set()
+        print(f"\nPlugin: {plugin.name} ({identifier})")
+        for req in required_keys:
+            req_lower = req.lower()
+            seen_keys.add(req_lower)
+            if req_lower in configured_lookup:
+                orig_k, _ = configured_lookup[req_lower]
+                print(f"✅ {orig_k} - Key found [Required]")
+            else:
+                print(f"⚠️ {req} - KEY NOT FOUND [Required]")
+                print(f"Please define in the .env file as: {dir_name}_{req}=<your_key>")
+        for k_lower, (orig_k, _) in sorted(configured_lookup.items()):
+            if k_lower not in seen_keys:
+                print(f"✅ {orig_k} - Key found [Optional/Extra]")
+    if not has_keys_to_report:
+        print("✅ No API keys required for any loaded plugins.")

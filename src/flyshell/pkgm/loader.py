@@ -1,12 +1,10 @@
-# src/flyshell/startup/loader.py
+# src/flyshell/pkgm/loader.py
 
 from flyshell import constants as c
 from flyshell import data
 from flyshell.abstract.base_plugin import BasePlugin
-from flyshell.core.directory import RESERVED_NAMES
-from flyshell.startup import deps
+from flyshell.pkgm import keys
 
-from typing import Dict, List
 from pathlib import Path
 import importlib.util
 import inspect
@@ -37,7 +35,7 @@ def scan_plugins(plugin_folder: str | Path | None = None) -> None:
                 default_name = item.name
         if not file_path or not default_name:
             continue
-        if default_name in RESERVED_NAMES:
+        if default_name in c.RESERVED_NAMES:
             print(
                 f"\n⚠️ Collision Error - Plugin '{default_name}' conflicts with a built-in Flyshell command and will not be loaded."
             )
@@ -56,7 +54,7 @@ def scan_plugins(plugin_folder: str | Path | None = None) -> None:
                     and obj.__module__ == module.__name__
                 ):
                     resolved_name = getattr(obj, "identifier", None) or default_name
-                    if resolved_name in RESERVED_NAMES:
+                    if resolved_name in c.RESERVED_NAMES:
                         print(
                             f"\n⚠️ Collision Error - Plugin '{resolved_name}' conflicts with a built-in Flyshell command and will not be loaded."
                         )
@@ -104,7 +102,7 @@ def build_context(
     plugin_name: str, default_name: str, file_path: str | Path | None = None
 ) -> dict:
     plugin_storage = data.get_all_plugin_data(plugin_name)
-    api_keys = deps.get_plugin_api_keys(str(default_name))
+    api_keys = keys.get_plugin_api_keys(str(default_name))
     context = {
         "plugin_name": plugin_name,
         "plugin_dir_name": str(default_name),
@@ -115,62 +113,6 @@ def build_context(
         "storage": plugin_storage,
     }
     return context
-
-
-def check_plugin_api_keys() -> None:
-    if not c.PLUGINS:
-        return
-    print("\nFlyshell will now check plugin API keys.")
-    has_keys_to_report = False
-    for identifier, plugin in c.PLUGINS.items():
-        required_keys = getattr(plugin, "api_keys", None) or []
-        configured_keys = getattr(plugin, "api_keys_data", {})
-        dir_name = plugin.context.get("plugin_dir_name", identifier)
-        if not required_keys and not configured_keys:
-            continue
-        has_keys_to_report = True
-        configured_lookup = {k.lower(): (k, v) for k, v in configured_keys.items()}
-        seen_keys = set()
-        print(f"\nPlugin: {plugin.name} ({identifier})")
-        for req in required_keys:
-            req_lower = req.lower()
-            seen_keys.add(req_lower)
-            if req_lower in configured_lookup:
-                orig_k, _ = configured_lookup[req_lower]
-                print(f"✅ {orig_k} - Key found [Required]")
-            else:
-                print(f"⚠️ {req} - KEY NOT FOUND [Required]")
-                print(f"Please define in the .env file as: {dir_name}_{req}=<your_key>")
-        for k_lower, (orig_k, _) in sorted(configured_lookup.items()):
-            if k_lower not in seen_keys:
-                print(f"✅ {orig_k} - Key found [Optional/Extra]")
-    if not has_keys_to_report:
-        print("✅ No API keys required for any loaded plugins.")
-
-
-def check_all_plugin_dependencies() -> Dict[str, List[str]]:
-    if not c.PLUGINS:
-        return {}
-    print("\nFlyshell will now check plugin third-party dependencies.")
-    plugins_with_deps = False
-    all_missing: Dict[str, List[str]] = {}
-    for identifier, plugin in c.PLUGINS.items():
-        declared = getattr(plugin, "third_pty_libs", None) or []
-        if not declared:
-            continue
-        plugins_with_deps = True
-        installed, missing = deps.verify_plugin_dependencies(plugin)
-        print(f"\nPlugin: {plugin.name} ({identifier})")
-        for dep in installed:
-            print(f"✅ {dep} - Dependency found")
-        for dep in missing:
-            print(f"⚠️ {dep} - DEPENDENCY NOT FOUND")
-            print(f"Install using: 'sys pip install {dep}' once system has booted.")
-        if missing:
-            all_missing[identifier] = missing
-    if not plugins_with_deps:
-        print("✅ No third-party dependencies required for any loaded plugins.")
-    return all_missing
 
 
 def unload_plugins() -> None:

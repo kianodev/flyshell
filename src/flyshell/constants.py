@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 217
-VERFULL = "1.6.3b"
+BUILD = 218
+VERFULL = "1.6.3c"
 VERSION = "1.6.3"
 
 
@@ -35,6 +35,7 @@ SESSION_START_TIME = time.time()
 SESSION_CMD_COUNT = 0
 
 PLUGINS = {}
+RESERVED_NAMES: set[str] = set()
 
 SUPPORTED_OS = frozenset({"Windows", "Darwin", "Linux"})
 SUPPORTED_PYTHON = (3, 10)
@@ -84,10 +85,13 @@ REQUIRED_COMPONENTS = [
     "native/legacy/diskops.py",
     "native/diskops_bridge.py",
     "native/diskops_handler.py",
+    "pkgm",
+    "pkgm/__init__.py",
+    "pkgm/inspection.py",
+    "pkgm/keys.py",
+    "pkgm/loader.py",
     "startup",
     "startup/__init__.py",
-    "startup/deps.py",
-    "startup/loader.py",
 ]
 
 GREETINGS = [

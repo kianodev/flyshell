@@ -1,9 +1,9 @@
 # src/flyshell/builtin/pkg.py
 
 from typing import List, Tuple
+from flyshell import pkgm
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.startup import deps
 
 
 class PkgApi(BaseCmd):
@@ -26,7 +26,7 @@ class PkgApi(BaseCmd):
                 plugin_name = remaining_args[0]
                 key_name = remaining_args[1]
                 val = " ".join(remaining_args[2:])
-                code, output = deps.set_plugin_api_key(plugin_name, key_name, val)
+                code, output = pkgm.set_plugin_api_key(plugin_name, key_name, val)
                 return (code, f"\n{output}\n")
             case "del" | "rm":
                 if len(remaining_args) < 2:
@@ -36,14 +36,14 @@ class PkgApi(BaseCmd):
                     )
                 plugin_name = remaining_args[0]
                 key_name = remaining_args[1]
-                code, output = deps.remove_plugin_api_key(plugin_name, key_name)
+                code, output = pkgm.remove_plugin_api_key(plugin_name, key_name)
                 return (code, f"\n{output}\n")
             case "view":
                 if not remaining_args:
-                    code, output = deps.get_all_keys()
+                    code, output = pkgm.get_all_keys()
                 else:
                     package_name = remaining_args[0]
-                    code, output = deps.get_plugin_keys_formatted(package_name)
+                    code, output = pkgm.get_plugin_keys_formatted(package_name)
                 return (code, f"\n{output}\n")
             case _:
                 return (1, f"\nCommand Error: Unknown target '{arg}'\n")
