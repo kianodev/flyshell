@@ -1,64 +1,7 @@
 # src/flyshell/main.py
 
-from pathlib import Path
-import importlib.util
 import os
 import sys
-
-
-def boot_check() -> bool:
-    print("\nFlyshell will now check that your modules exist.")
-    present = []
-    missing = []
-    try:
-        from flyshell import constants as c
-
-        if str(c.SRC_DIR) not in sys.path:
-            sys.path.insert(0, str(c.SRC_DIR))
-    except ImportError:
-        print(
-            "\nCRITICAL BOOT ERROR: Failed to initialise system due to corrupted or missing files."
-        )
-        return False
-    for obj in c.REQUIRED_COMPONENTS:
-        path = Path(c.PACKAGE_ROOT / obj)
-        if path.exists():
-            present.append(str(path))
-        else:
-            missing.append(str(path))
-    if missing:
-        print("\nCRITICAL BOOT ERROR: Critical system module(s) could not be found.")
-    for i in present:
-        print(f"✅ {i} - File found")
-    for i in missing:
-        print(f"❌ {i} - FILE NOT FOUND")
-    if missing:
-        return False
-    tests_dir = c.PROJECT_ROOT / "tests"
-    if tests_dir.exists():
-        print(
-            "\nFlyshell will now check internal additional packages and features. These are not required."
-        )
-        for path in tests_dir.glob("test_*.py"):
-            print(f"✅ {path.name} - Test found")
-        if importlib.util.find_spec("pytest") is not None:
-            print("✅ Your tests can be run using Pytest.")
-        else:
-            print("⚠️ Your tests cannot be run as Pytest is not installed.")
-    print(
-        "\nFlyshell will now check external additional packages and features. These are not required."
-    )
-    from flyshell.core import console
-
-    if console.check_readline():
-        print(
-            "✅ Terminal Readline - Available (Use arrow keys to navigate input history)"
-        )
-    else:
-        print(
-            "⚠️ Terminal Readline - Unavailable (This does not affect your performance)"
-        )
-    return True
 
 
 def main() -> None:
@@ -66,51 +9,11 @@ def main() -> None:
     print("\033[H\033[2J", end="")
     print("\nLaunch process initiated. Flyshell is checking it is able to launch...")
     try:
-        if boot_check():
-            from flyshell import constants as c
-            from flyshell import accounts, pkgm
-            from flyshell.core import console
+        from flyshell import startup
 
-            if c.HOST_OS in c.SUPPORTED_OS:
-                if sys.version_info < c.SUPPORTED_PYTHON:
-                    print(
-                        "\nCRITICAL ERROR: Your Python version is too old to be supported by Flyshell."
-                    )
-                    print(
-                        "Flyshell cannot launch because it requires Python 3.10 or newer."
-                    )
-                    sys.exit(1)
-                print(f"\nYour OS '{c.HOST_OS}' is compatible with Flyshell.")
-                from flyshell.native import diskops_bridge
-
-                if diskops_bridge.has_native_support():
-                    print(
-                        "\n✅ C Extensions Available - Native C binaries are present and will be used where applicable.\n"
-                    )
-                else:
-                    print(
-                        "\n⚠️ C Extensions Unavailable - Flyshell will revert to legacy Python objects where applicable.\n"
-                    )
-                print("Flyshell will now boot.")
-                c.APP_DIR.mkdir(parents=True, exist_ok=True)
-                pkgm.scan_plugins()
-                pkgm.check_plugin_api_keys()
-                pkgm.check_all_plugin_dependencies()
-                if accounts.login_flow():
-                    console.boot()
-                else:
-                    print("\nShutting down...\n")
-                    sys.exit(0)
-            else:
-                print(
-                    f"\nCRITICAL ERROR: Host operating system '{c.HOST_OS}' is not supported."
-                )
-                print(
-                    "Flyshell cannot launch because your operating system is not supported."
-                )
-                sys.exit(1)
+        if startup.run_preflight():
+            startup.launch()
         else:
-            print("\nFlyshell cannot launch until the above file paths are restored.")
             sys.exit(1)
     except KeyboardInterrupt:
         print("\n\nFlyshell session terminated, shutting down...\n")
@@ -133,9 +36,9 @@ def main() -> None:
         sys.exit(1)
     finally:
         try:
-            from flyshell import pkgm
+            from flyshell import startup
 
-            pkgm.unload_plugins()
+            startup.shutdown()
         except ImportError:
             pass
 

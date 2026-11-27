@@ -5,8 +5,8 @@ import os
 import platform
 import time
 
-BUILD = 218
-VERFULL = "1.6.3c"
+BUILD = 219
+VERFULL = "1.6.3d"
 VERSION = "1.6.3"
 
 
@@ -92,6 +92,8 @@ REQUIRED_COMPONENTS = [
     "pkgm/loader.py",
     "startup",
     "startup/__init__.py",
+    "startup/boot.py",
+    "startup/checks.py",
 ]
 
 GREETINGS = [
