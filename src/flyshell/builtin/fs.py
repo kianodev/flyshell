@@ -1,10 +1,9 @@
 # src/flyshell/builtin/fs.py
 
 from flyshell import constants as c
-from flyshell import data
+from flyshell import data, misc
 from flyshell.abstract.base_cmd import BaseCmd
 from flyshell.abstract.parent_cmd import ParentCmd
-from flyshell.startup import seasonal
 
 import os
 import sys
@@ -148,10 +147,10 @@ class FsSeason(BaseCmd):
     aliases = []
 
     def execute(self, args: list[str]) -> tuple[int, str]:
-        season = seasonal.get_season(return_icons=False)
+        season = misc.get_season(return_icons=False)
         if not season:
             return (0, "\nNo seasonal modes are active at present.\n")
-        icon = seasonal.get_season(return_icons=True)
+        icon = misc.get_season(return_icons=True)
         return (0, f"\nCurrent seasonal mode: {season} {icon}\n")
 
 

@@ -1,9 +1,8 @@
 # src/flyshell/core/console.py
 
 from flyshell import constants as c
-from flyshell import data
+from flyshell import data, misc
 from flyshell.core.directory import execute_line
-from flyshell.startup import seasonal
 
 import os
 import random
@@ -41,7 +40,7 @@ def boot() -> None:
     load_history()
     data.create_env()
     print(c.CLEAR_SCREEN, end="")
-    icon = seasonal.get_season(return_icons=True)
+    icon = misc.get_season(return_icons=True)
     badge = f" {icon}" if icon else ""
     print(f"\nBoot successful, welcome to Flyshell! (Version {c.VERSION}){badge}")
     user_info = data.get_auth() or {}
@@ -51,7 +50,7 @@ def boot() -> None:
     while True:
         try:
             folder = os.path.basename(os.getcwd())
-            icon = seasonal.get_season(return_icons=True)
+            icon = misc.get_season(return_icons=True)
             badge = f" {icon}" if icon else ""
             print(f"Flyshell [v{c.VERSION}]{badge} ({folder})>>", end="", flush=True)
             raw_cmd = input()

@@ -1,4 +1,4 @@
-# src/flyshell/startup/seasonal.py
+# src/flyshell/misc/seasonal.py
 
 from datetime import date, timedelta
 import random

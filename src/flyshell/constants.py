@@ -5,9 +5,9 @@ import os
 import platform
 import time
 
-BUILD = 215
-VERFULL = "1.6.2d"
-VERSION = "1.6.2"
+BUILD = 216
+VERFULL = "1.6.3a"
+VERSION = "1.6.3"
 
 
 def _resolve_app_dir() -> Path:
@@ -75,6 +75,9 @@ REQUIRED_COMPONENTS = [
     "data/plugins.py",
     "__init__.py",
     "main.py",
+    "misc",
+    "misc/__init__.py",
+    "misc/seasonal.py",
     "native",
     "native/__init__.py",
     "native/legacy/__init__.py",
@@ -85,7 +88,6 @@ REQUIRED_COMPONENTS = [
     "startup/__init__.py",
     "startup/deps.py",
     "startup/loader.py",
-    "startup/seasonal.py",
 ]
 
 GREETINGS = [
